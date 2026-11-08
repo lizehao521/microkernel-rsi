@@ -1,0 +1,35 @@
+%% package kernel 内部组件图（当前状态）。文件名就是节点，每个都对应 evidence.md 的一行。
+graph TD
+    subgraph SHELL["外壳 cmd/（进程边界在这一层，不在内核）"]
+        M1["mcpkernel/main.go<br/>MCP stdio：newline-delimited JSON-RPC"]
+        M2["kcheck/main.go<br/>§6.5 读侧三入口按 session+发号+侧 三轴定身份"]
+        M3["kresearch/main.go<br/>Deep Research 端点：内核的第一个真调用方"]
+    end
+
+    subgraph KERNEL["package kernel（不变量见 kernel.go 头部注释四条）"]
+        K1["kernel.go<br/>包定位 + 四条不变量声明"]
+        K2["measure.go<br/>Basis 六档 Unset/Measured/Relayed/Estimated/ModelSays/Absent<br/>零值 = Unset ⇒ 忘了填不能伪装成实测"]
+        K3["input.go<br/>PartKind 八类 / MayFold / MayShrink / Cut 三档 / Budget 夹紧"]
+        K4["output.go<br/>Failure + FailKind 七档 + RetrySame()<br/>那条被两发撞开的互核住这儿"]
+        K5["cells.go<br/>47 格唯一键名表；每格的出处在这儿定<br/>cells.go:120 把 fail_status 写死 BasisMeasured"]
+        K6["record.go<br/>CellsOf / AbsentKeys / 去重 alreadyRecorded<br/>自相矛盾的元数据 ⇒ 整发拒收"]
+        K7["journal.go<br/>Ledger 哈希链 + Marshal/ReadJournal + CheckChain 三态<br/>无锁 ⇒ 单请求串行"]
+        K8["isolate.go<br/>CheckIsolation / SelfIsolation：go/ast 读源码<br/>证明内核不 import net/http、不写盘"]
+    end
+
+    M1 -->|"10 个工具全部转发到"| K6
+    M2 -->|"只断言，不产生新形状"| K6
+    M3 -->|"最早那份真数据"| K6
+    K6 -->|"逐格带出处"| K5
+    K5 --> K2
+    K6 -->|"输入侧 Check"| K3
+    K6 -->|"输出侧 Check"| K4
+    K6 -->|"落链"| K7
+    K8 -.->|"自我检查，不参与往来"| KERNEL
+
+    READ["读侧出口：celltable / check_call / record_call / verify / tally /<br/>read_back / declare_reader / readers_report / encode_journal / load_journal"]:::red
+    K7 --> READ
+    READ ==>|"只流向「事后打印判定」"| AUDIT["驱动的判定段<br/>tools_probe.py:460+ qa_loop.py:270+"]
+    READ -.->|"这条边今天不存在：读回来据它改下一发"| DECIDE["装配下一发的循环体<br/>tools_probe.py:356-455"]
+
+    classDef red fill:#eef,color:#113

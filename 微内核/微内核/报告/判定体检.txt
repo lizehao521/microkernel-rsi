@@ -1,0 +1,2 @@
+vacuous check: files=20 check() calls=92 形状可疑=0 参数读不懂没判=1
+

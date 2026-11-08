@@ -1,0 +1,57 @@
+== 未撞那批逐格撞 · 2026-10-17 12:38:02 ｜ 字节 sha256=daad549714f7fd5e ==
+格表：抬头 49 格 / 48 键 ｜ 抠到 49 行 / 48 键 ｜ 对得上 = True
+已撞抠法（与 cell_arm_coverage.py 同一套）：
+   契约说进不了门-到底拒不拒-1017.txt ｜ 7 行 / 落进格表 7
+   说谎者靶场-五形状乘全格矩阵-1017.txt ｜ 11 行 / 落进格表 11
+   非Measure那批-运行时撞一遍-v2-1017.txt ｜ 8 行 / 落进格表 7
+未撞 23 个键名：call clipped cost_countable downgrade dropped endpoint_model endpoint_model_said fail_detail fail_kind finish finish_said folded model_says_bytes model_says_clipped notice_text notice_trimmed notice_why part_totals parts sent streaming tool_calls wire_format
+
+控制臂（什么都没改）：check=False record=False —— 收不下就整批作废
+
+键名 ｜ 字段路径 ｜ 现值 → 造的值 ｜ check ｜ record ｜ 同判 ｜ 结果
+------------------------------------------------------------------------------
+call                 ｜ input.Call                 ｜ int 造 -1               ｜ True  ｜ True  ｜ 同判   ｜ 被拒：第几发是 -1，发号从 1 起（0 会被读成「还没发」）
+clipped              ｜ input.Cuts#clipped         ｜ 动态档（路径带 #）             ｜ ——  ｜ ——  ｜ —— ｜ **造不出值：动态档（路径带 #）**
+cost_countable       ｜ output.CostCountable()     ｜ fixture 里没有这条路（方法格）    ｜ ——  ｜ ——  ｜ —— ｜ **造不出值：fixture 里没有这条路（方法格）**
+downgrade            ｜ output.Failure.Downgrade   ｜ bool 取反                ｜ True  ｜ True  ｜ 同判   ｜ 被拒：说是没故障，却又建议换个请求重发
+dropped              ｜ input.Cuts#dropped         ｜ 动态档（路径带 #）             ｜ ——  ｜ ——  ｜ —— ｜ **造不出值：动态档（路径带 #）**
+endpoint_model       ｜ output.Model               ｜ str 造哨兵串               ｜ False ｜ False ｜ 同判   ｜ **被收下**
+endpoint_model_said  ｜ output.ModelSaid           ｜ bool 取反                ｜ True  ｜ True  ｜ 同判   ｜ 被拒：模型 id 那一格自相矛盾（said=false model="attracta-probe"）—— 端点没报与端点
+fail_detail          ｜ output.Failure.Detail      ｜ str 造哨兵串               ｜ True  ｜ True  ｜ 同判   ｜ 被拒：说是没故障，却带着说法 "演示值·非真实流量" / 状态 0
+fail_kind            ｜ output.Failure.Kind        ｜ str 造哨兵串               ｜ True  ｜ True  ｜ 同判   ｜ 被拒：故障类别是 "演示值·非真实流量"，不在 7 种取值里（（空）=没故障 transport config http 
+finish               ｜ output.Finish.Reason       ｜ str 造哨兵串               ｜ False ｜ False ｜ 同判   ｜ **被收下**
+finish_said          ｜ output.Finish.Said         ｜ bool 取反                ｜ True  ｜ True  ｜ 同判   ｜ 被拒：收尾原因那一格自相矛盾（said=false reason="stop"）—— 端点没说与端点说了个空串是两件事
+folded               ｜ input.Cuts#folded          ｜ 动态档（路径带 #）             ｜ ——  ｜ ——  ｜ —— ｜ **造不出值：动态档（路径带 #）**
+model_says_bytes     ｜ output.Says.Bytes          ｜ int 造 -1               ｜ True  ｜ True  ｜ 同判   ｜ 被拒：模型原话 -1 字节、留下 34 字节
+model_says_clipped   ｜ output.Says.Clipped()      ｜ fixture 里没有这条路（方法格）    ｜ ——  ｜ ——  ｜ —— ｜ **造不出值：fixture 里没有这条路（方法格）**
+notice_text          ｜ input.Notice.Text          ｜ str 造哨兵串               ｜ False ｜ False ｜ 同判   ｜ **被收下**
+notice_trimmed       ｜ input.Notice.Trimmed       ｜ bool 取反                ｜ True  ｜ True  ｜ 同判   ｜ 被拒：通知报的是「没发出去」，同时又报「被裁了半句」—— 没发出去的东西裁不了
+notice_why           ｜ input.Notice.Why           ｜ str 造哨兵串               ｜ True  ｜ True  ｜ 同判   ｜ 被拒：model_input 第 1 发（session=Unotice）已经记过了 —— 同一发只许记一次，记两遍会让按
+part_totals          ｜ input.Parts                ｜ list[dict] 里第一个整数改 -1  ｜ True  ｜ True  ｜ 同判   ｜ 被拒：system 那一行报了 -1 段 —— 0 段就不该占一行
+parts                ｜ input.Order                ｜ list 不认                ｜ ——  ｜ ——  ｜ —— ｜ **造不出值：list 不认**
+sent                 ｜ output.Sent()              ｜ fixture 里没有这条路（方法格）    ｜ ——  ｜ ——  ｜ —— ｜ **造不出值：fixture 里没有这条路（方法格）**
+streaming            ｜ output.Streaming           ｜ bool 取反                ｜ True  ｜ True  ｜ 同判   ｜ 被拒：这一发是流式的，分帧数 却报缺席 —— 流式就该量得到它
+tool_calls           ｜ output.ToolCalls           ｜ int 造 -1               ｜ True  ｜ True  ｜ 同判   ｜ 被拒：工具提议 -1 个、执行不了的 0 个、链上连歪 0 发
+wire_format          ｜ output.WireFormat          ｜ str 造哨兵串               ｜ False ｜ False ｜ 同判   ｜ **被收下**
+
+== 自核（钉这支尺子）==
+正对照：`tool_calls`、`model_says_bytes` 造负数必须被拒（规则见 `output.go:306`、`output.go:378`）｜ 坏的：无
+
+== 自印分母 ==
+未撞待撞 23 个 ｜ 造不出值 7 个：clipped cost_countable dropped folded model_says_clipped parts sent ｜ 跑了 16 发（预检+落账各一次 = 32 次调用）
+三态：被拒 12 个 ｜ **被收下 4 个**：endpoint_model finish notice_text wire_format ｜ 造不出值 7 个
+被拒的那批撞中的句子（原话尾巴，规则行号请对着 `报告/拒收模板带不带键名-静态全表-v3-实参逐条-1017.txt` 查）：
+   call                 ｜ 第几发是 -1，发号从 1 起（0 会被读成「还没发」）
+   downgrade            ｜ 说是没故障，却又建议换个请求重发
+   endpoint_model_said  ｜ 模型 id 那一格自相矛盾（said=false model="attracta-probe"）—— 端点没报与端点
+   fail_detail          ｜ 说是没故障，却带着说法 "演示值·非真实流量" / 状态 0
+   fail_kind            ｜ 故障类别是 "演示值·非真实流量"，不在 7 种取值里（（空）=没故障 transport config http 
+   finish_said          ｜ 收尾原因那一格自相矛盾（said=false reason="stop"）—— 端点没说与端点说了个空串是两件事
+   model_says_bytes     ｜ 模型原话 -1 字节、留下 34 字节
+   notice_trimmed       ｜ 通知报的是「没发出去」，同时又报「被裁了半句」—— 没发出去的东西裁不了
+   notice_why           ｜ model_input 第 1 发（session=Unotice）已经记过了 —— 同一发只许记一次，记两遍会让按
+   part_totals          ｜ system 那一行报了 -1 段 —— 0 段就不该占一行
+   streaming            ｜ 这一发是流式的，分帧数 却报缺席 —— 流式就该量得到它
+   tool_calls           ｜ 工具提议 -1 个、执行不了的 0 个、链上连歪 0 发
+读法：**被收下 = 这一格今天没有任何判据碰它**（不预判它该不该有 —— 那是 #47/#42/#56 要拍的）。
+       演示值里带「演示值·非真实流量」字样，别把它读成一次真流量。

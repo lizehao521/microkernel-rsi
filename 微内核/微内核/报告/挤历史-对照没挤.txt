@@ -1,0 +1,757 @@
+>>> [tools] #1 initialize {"protocolVersion": "2024-11-05", "capabilities": {}, "clientInfo": {"name": "tools", "version": "1"}}
+<<< 102ms isError=False
+{"capabilities": {"tools": {}}, "protocolVersion": "2024-11-05", "serverInfo": {"name": "agentkernel", "version": "0.1"}}
+
+>>> [tools] #2 notifications/initialized {}
+<<< 78ms isError=False
+{}
+
+== t1 第 1 发 stream=False HTTP=200 发=662 收=394 首帧=2000ms 最大帧间=2000ms 帧数=1 finish='tool_calls' 提议=1 歪=0 usage={'completion_tokens': 7, 'prompt_tokens': 224, 'total_tokens': 231}
+   题：用 ledger_add 算 27 加 15。
+   原话（0 字节）：''
+   提议：[{"id": "c_ok", "type": "function", "function": {"name": "ledger_add", "arguments": "{\"a\": 27, \"b\": 15}"}}]
+== t2 第 2 发 stream=False HTTP=200 发=988 收=271 首帧=4ms 最大帧间=4ms 帧数=1 finish='stop' 提议=0 歪=0 usage={'completion_tokens': 7, 'prompt_tokens': 318, 'total_tokens': 325}
+   题：工具已经返回了，把结论写成一句话。
+   原话（12 字节）：'和是 42。'
+== t3 第 3 发 stream=False HTTP=200 发=1108 收=382 首帧=2ms 最大帧间=2ms 帧数=1 finish='tool_calls' 提议=1 歪=1 usage={'completion_tokens': 7, 'prompt_tokens': 354, 'total_tokens': 361}
+   题：再用 ledger_add 算 1234 加 5678。
+   原话（0 字节）：''
+   提议：[{"id": "c_bad", "type": "function", "function": {"name": "ledger_add", "arguments": "{\"a\": 1"}}]
+   执行不了的：第 1 个提议（ledger_add）参数解不出 JSON：'{"a": 1'
+   那条 assistant 消息整段不带进下一发（136 字节，原文指纹 b6bf368bd4fbe59d）；省略它这件事落在**下一发**的裁剪表上
+== t4 第 4 发 stream=True HTTP=200 发=1435 收=1133 首帧=1ms 最大帧间=0ms 帧数=7 finish='tool_calls' 提议=1 歪=0 usage={'completion_tokens': 7, 'prompt_tokens': 486, 'total_tokens': 493}
+   题：最后用 ledger_add 算 9 加 1，一个字的解释都不要。
+   原话（0 字节）：''
+   提议：[{"id": "c_ok", "type": "function", "function": {"name": "ledger_add", "arguments": "{\"a\": 27, \"b\": 15}"}}]
+   流式里的提议：带 tool_calls 碎片的帧=4 项=4 拼起来的参数长=18
+== t5 第 5 发 stream=False HTTP=200 发=1633 收=263 首帧=1ms 最大帧间=1ms 帧数=1 finish='length' 提议=0 歪=0 usage={'completion_tokens': 7, 'prompt_tokens': 549, 'total_tokens': 556}
+   题：只用一个词回答：2+2 等于几？不要调工具。
+   原话（0 字节）：''
+   这一发**空手回来**（不是被拒）：kind=malformed_action 说法="端点回了 263 字节、finish='length'、原话 0 字节、0 个提议（补全 token 7）"
+   这一发空手回来，下一发的历史里没有它的 assistant 消息（不是漏搭，是无内容可放）
+>>> [tools] #3 tools/call {"name": "kernel.record_call", "arguments": {"session": "tools", "actor": "tools_probe", "input": {"Call": 1, "Order": ["system", "toolspec", "user"], "Parts": [{"Kind": "system", "Parts": 1, "Bytes": 120}, {"Kind": "toolspec", "Parts": 1, "Bytes": 355}, {"Kind": "user", "Parts": 1, "Bytes": 31}], "ContentBytes": 506, "Tokens": {"N": 224, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "Budget": {"CallBytesCeiling": 32768, "TransportSlackPct": 12, "ContentCeiling": 28835, "Shares": {"system": 24, "toolspec": 70, "user": 6}, "LeftoverPct": 0, "FixedOverhead": {"N": 300, "Basis": 3, "Source": "骨架+模型名+工具清单的粗估", "Absent": false, "Refused": false, "Why": ""}, "EffectiveCeiling": 28835, "ClampRounds": 0}, "Cuts": [], "Notice": {"Sent": false, "Trimmed": false, "Why": "这一发没折叠、没裁尾、没整段丢弃；被截的是**输出**，由 finish_reason 那一格记", "Text": ""}}, "output": {"Call": 1, "Streaming": false, "Finish": {"Reason": "tool_calls", "Said": true}, "Model": "fake-model", "ModelSaid": true, "Says": {"Bytes": 0, "Kept": 0, "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "UsageIn": {"N": 224, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "UsageOut": {"N": 7, "Basis": 2, "Source": "端点响应的 usage.completion_tokens", "Absent": false, "Refused": false, "Why": ""}, "WireBytesOut": {"N": 662, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "WireBytesIn": {"N": 394, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "ToolCalls": 1, "Malformed": 0, "MalformedStreak": 0, "Failure": {"Kind": "", "Detail": "", "Status": 0, "RetryAfterMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发没断，也就没有要等多久"}, "Downgrade": false}, "Chunks": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，结构上没有分帧"}, "FirstByteMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，结构上没有首帧这件事"}, "MaxGapMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，结构上没有帧间"}}}}
+<<< 4ms isError=False
+整发落账 47 条（输入侧 20 格 + 输出侧 27 格），链上共 47 条
+
+>>> [tools] #4 tools/call {"name": "kernel.record_call", "arguments": {"session": "tools", "actor": "tools_probe", "input": {"Call": 2, "Order": ["system", "toolspec", "user", "history", "observation", "user"], "Parts": [{"Kind": "system", "Parts": 1, "Bytes": 120}, {"Kind": "toolspec", "Parts": 1, "Bytes": 355}, {"Kind": "user", "Parts": 2, "Bytes": 82}, {"Kind": "history", "Parts": 1, "Bytes": 148}, {"Kind": "observation", "Parts": 1, "Bytes": 11}], "ContentBytes": 716, "Tokens": {"N": 318, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "Budget": {"CallBytesCeiling": 32768, "TransportSlackPct": 12, "ContentCeiling": 28835, "Shares": {"system": 16, "toolspec": 51, "user": 10, "history": 20, "observation": 3}, "LeftoverPct": 0, "FixedOverhead": {"N": 300, "Basis": 3, "Source": "骨架+模型名+工具清单的粗估", "Absent": false, "Refused": false, "Why": ""}, "EffectiveCeiling": 28835, "ClampRounds": 0}, "Cuts": [], "Notice": {"Sent": false, "Trimmed": false, "Why": "这一发没折叠、没裁尾、没整段丢弃；被截的是**输出**，由 finish_reason 那一格记", "Text": ""}}, "output": {"Call": 2, "Streaming": false, "Finish": {"Reason": "stop", "Said": true}, "Model": "fake-model", "ModelSaid": true, "Says": {"Bytes": 12, "Kept": 12, "SHA256": "addd5ed1ab1744b87fe1bcc4bd9789988e56282496f8e082ef808c53926e3da2"}, "UsageIn": {"N": 318, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "UsageOut": {"N": 7, "Basis": 2, "Source": "端点响应的 usage.completion_tokens", "Absent": false, "Refused": false, "Why": ""}, "WireBytesOut": {"N": 988, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "WireBytesIn": {"N": 271, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "ToolCalls": 0, "Malformed": 0, "MalformedStreak": 0, "Failure": {"Kind": "", "Detail": "", "Status": 0, "RetryAfterMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发没断，也就没有要等多久"}, "Downgrade": false}, "Chunks": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，结构上没有分帧"}, "FirstByteMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，结构上没有首帧这件事"}, "MaxGapMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，结构上没有帧间"}}}}
+<<< 1ms isError=False
+整发落账 47 条（输入侧 20 格 + 输出侧 27 格），链上共 94 条
+
+>>> [tools] #5 tools/call {"name": "kernel.record_call", "arguments": {"session": "tools", "actor": "tools_probe", "input": {"Call": 3, "Order": ["system", "toolspec", "user", "history", "observation", "user", "history", "user"], "Parts": [{"Kind": "system", "Parts": 1, "Bytes": 120}, {"Kind": "toolspec", "Parts": 1, "Bytes": 355}, {"Kind": "user", "Parts": 3, "Bytes": 120}, {"Kind": "history", "Parts": 2, "Bytes": 196}, {"Kind": "observation", "Parts": 1, "Bytes": 11}], "ContentBytes": 802, "Tokens": {"N": 354, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "Budget": {"CallBytesCeiling": 32768, "TransportSlackPct": 12, "ContentCeiling": 28835, "Shares": {"system": 14, "toolspec": 46, "user": 14, "history": 23, "observation": 3}, "LeftoverPct": 0, "FixedOverhead": {"N": 300, "Basis": 3, "Source": "骨架+模型名+工具清单的粗估", "Absent": false, "Refused": false, "Why": ""}, "EffectiveCeiling": 28835, "ClampRounds": 0}, "Cuts": [], "Notice": {"Sent": false, "Trimmed": false, "Why": "这一发没折叠、没裁尾、没整段丢弃；被截的是**输出**，由 finish_reason 那一格记", "Text": ""}}, "output": {"Call": 3, "Streaming": false, "Finish": {"Reason": "tool_calls", "Said": true}, "Model": "fake-model", "ModelSaid": true, "Says": {"Bytes": 0, "Kept": 0, "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "UsageIn": {"N": 354, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "UsageOut": {"N": 7, "Basis": 2, "Source": "端点响应的 usage.completion_tokens", "Absent": false, "Refused": false, "Why": ""}, "WireBytesOut": {"N": 1108, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "WireBytesIn": {"N": 382, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "ToolCalls": 1, "Malformed": 1, "MalformedStreak": 1, "Failure": {"Kind": "malformed_action", "Detail": "第 1 个提议（ledger_add）参数解不出 JSON：'{\"a\": 1'", "Status": 0, "RetryAfterMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "原样重发不会变好：歪的是这一发的提议本身"}, "Downgrade": false}, "Chunks": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，结构上没有分帧"}, "FirstByteMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，结构上没有首帧这件事"}, "MaxGapMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，结构上没有帧间"}}}}
+<<< 1ms isError=False
+整发落账 47 条（输入侧 20 格 + 输出侧 27 格），链上共 141 条
+
+>>> [tools] #6 tools/call {"name": "kernel.record_call", "arguments": {"session": "tools", "actor": "tools_probe", "input": {"Call": 4, "Order": ["system", "toolspec", "user", "history", "observation", "user", "history", "user", "truncation-notice", "user"], "Parts": [{"Kind": "system", "Parts": 1, "Bytes": 120}, {"Kind": "toolspec", "Parts": 1, "Bytes": 355}, {"Kind": "user", "Parts": 4, "Bytes": 185}, {"Kind": "history", "Parts": 2, "Bytes": 196}, {"Kind": "observation", "Parts": 1, "Bytes": 11}, {"Kind": "truncation-notice", "Parts": 1, "Bytes": 153}], "ContentBytes": 1020, "Tokens": {"N": 486, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "Budget": {"CallBytesCeiling": 32768, "TransportSlackPct": 12, "ContentCeiling": 28835, "Shares": {"system": 11, "toolspec": 37, "user": 17, "history": 18, "observation": 3, "truncation-notice": 14}, "LeftoverPct": 0, "FixedOverhead": {"N": 300, "Basis": 3, "Source": "骨架+模型名+工具清单的粗估", "Absent": false, "Refused": false, "Why": ""}, "EffectiveCeiling": 28835, "ClampRounds": 0}, "Cuts": [{"Kind": "history", "Ref": "第 3 发的 assistant 提议（1 个里 1 个执行不了）", "Role": "assistant", "Squeeze": "dropped-whole", "FromBytes": 136, "ToBytes": 0, "SHA256": "b6bf368bd4fbe59da0336bfc274c018339fb6105c2c9c3af79b76b3267a91386"}], "Notice": {"Sent": true, "Trimmed": false, "Why": "上一发的提议里有一个参数解不出 JSON，那条 assistant 消息整段没带进本轮历史；这句通知本身作为 truncation-notice 段真发出去了", "Text": "上一轮模型给出的工具提议里有一个参数不完整，那一条我们没能带进这一轮的历史；如果你需要它，请重新提议。"}}, "output": {"Call": 4, "Streaming": true, "Finish": {"Reason": "tool_calls", "Said": true}, "Model": "fake-model", "ModelSaid": true, "Says": {"Bytes": 0, "Kept": 0, "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "UsageIn": {"N": 486, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "UsageOut": {"N": 7, "Basis": 2, "Source": "端点响应的 usage.completion_tokens", "Absent": false, "Refused": false, "Why": ""}, "WireBytesOut": {"N": 1435, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "WireBytesIn": {"N": 1133, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "ToolCalls": 1, "Malformed": 0, "MalformedStreak": 0, "Failure": {"Kind": "", "Detail": "", "Status": 0, "RetryAfterMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发没断，也就没有要等多久"}, "Downgrade": false}, "Chunks": {"N": 7, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "FirstByteMs": {"N": 1, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "MaxGapMs": {"N": 0, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}}}}
+<<< 1ms isError=False
+整发落账 47 条（输入侧 20 格 + 输出侧 27 格），链上共 188 条
+
+>>> [tools] #7 tools/call {"name": "kernel.record_call", "arguments": {"session": "tools", "actor": "tools_probe", "input": {"Call": 5, "Order": ["system", "toolspec", "user", "history", "observation", "user", "history", "user", "truncation-notice", "user", "history", "user"], "Parts": [{"Kind": "system", "Parts": 1, "Bytes": 120}, {"Kind": "toolspec", "Parts": 1, "Bytes": 355}, {"Kind": "user", "Parts": 5, "Bytes": 243}, {"Kind": "history", "Parts": 3, "Bytes": 344}, {"Kind": "observation", "Parts": 1, "Bytes": 11}, {"Kind": "truncation-notice", "Parts": 1, "Bytes": 153}], "ContentBytes": 1226, "Tokens": {"N": 549, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "Budget": {"CallBytesCeiling": 32768, "TransportSlackPct": 12, "ContentCeiling": 28835, "Shares": {"system": 9, "toolspec": 31, "user": 19, "history": 27, "observation": 3, "truncation-notice": 11}, "LeftoverPct": 0, "FixedOverhead": {"N": 300, "Basis": 3, "Source": "骨架+模型名+工具清单的粗估", "Absent": false, "Refused": false, "Why": ""}, "EffectiveCeiling": 28835, "ClampRounds": 0}, "Cuts": [], "Notice": {"Sent": false, "Trimmed": false, "Why": "这一发没折叠、没裁尾、没整段丢弃；被截的是**输出**，由 finish_reason 那一格记", "Text": ""}}, "output": {"Call": 5, "Streaming": false, "Finish": {"Reason": "length", "Said": true}, "Model": "fake-model", "ModelSaid": true, "Says": {"Bytes": 0, "Kept": 0, "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "UsageIn": {"N": 549, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "UsageOut": {"N": 7, "Basis": 2, "Source": "端点响应的 usage.completion_tokens", "Absent": false, "Refused": false, "Why": ""}, "WireBytesOut": {"N": 1633, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "WireBytesIn": {"N": 263, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "ToolCalls": 0, "Malformed": 0, "MalformedStreak": 0, "Failure": {"Kind": "malformed_action", "Detail": "端点回了 263 字节、finish='length'、原话 0 字节、0 个提议（补全 token 7）", "Status": 0, "RetryAfterMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "原样重发不会变好：同样的额度还会截在同样的地方"}, "Downgrade": false}, "Chunks": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，结构上没有分帧"}, "FirstByteMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，结构上没有首帧这件事"}, "MaxGapMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，结构上没有帧间"}}}}
+<<< 1ms isError=False
+整发落账 47 条（输入侧 20 格 + 输出侧 27 格），链上共 235 条
+
+>>> [tools] #8 tools/call {"name": "kernel.tally", "arguments": {}}
+<<< 0ms isError=False
+账 235 条（absent=17 estimated=5 measured=188 model_says=5 relayed=20）；被拒的写入 0 次 —— 拒收也要看得见，不然「被拒」会读成「没发生过」
+
+tally：账 235 条（absent=17 estimated=5 measured=188 model_says=5 relayed=20）；被拒的写入 0 次 —— 拒收也要看得见，不然「被拒」会读成「没发生过」
+>>> [tools] #9 tools/call {"name": "kernel.verify", "arguments": {}}
+<<< 1ms isError=False
+✓ 链自洽（共 235 条，其中 235 条比对过原像）
+
+>>> [tools] #10 tools/call {"name": "kernel.read_back", "arguments": {"session": "tools", "call": 1, "side": "output"}}
+<<< 3ms isError=False
+session=tools 的第 1 发 output 侧共 27 格，其中缺席 [chunks first_byte_ms max_gap_ms retry_after_ms]：
+call                   measured  1
+chunks                 absent    —（没量到，不是 0）：这一发不是流式的，结构上没有分帧
+cost_countable         measured  是
+downgrade              measured  否
+endpoint_model         model_says fake-model
+endpoint_model_said    measured  是
+fail_detail            measured  （这一格是空的）
+fail_kind              measured  （这一格是空的）
+fail_status            measured  0
+finish                 relayed   tool_calls
+finish_said            measured  是
+first_byte_ms          absent    —（没量到，不是 0）：这一发不是流式的，结构上没有首帧这件事
+malformed_actions      measured  0
+malformed_streak       measured  0
+max_gap_ms             absent    —（没量到，不是 0）：这一发不是流式的，结构上没有帧间
+model_says_bytes       measured  0
+model_says_clipped     measured  否
+model_says_kept        measured  0
+model_says_sha256      measured  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+retry_after_ms         absent    —（没量到，不是 0）：这一发没断，也就没有要等多久
+sent                   measured  发出去了
+streaming              measured  否
+tool_calls             measured  1
+usage_in               relayed   224（转述自 端点响应的 usage.prompt_tokens）
+usage_out              relayed   7（转述自 端点响应的 usage.completion_tokens）
+wire_bytes_in          measured  394
+wire_bytes_out         measured  662
+
+(1) 第 1 发 finish 那一格：出处=relayed 说法=tool_calls
+(2) 账上 tool_calls 那一格：出处=measured 说法=1
+(3) 逐发（发号, 歪的个数, 链上连歪, 提议总数）：[(1, 0, 0, 1), (2, 0, 0, 0), (3, 1, 1, 1), (4, 0, 0, 1), (5, 0, 0, 0)]
+>>> [tools] #11 tools/call {"name": "kernel.read_back", "arguments": {"session": "tools", "call": 3, "side": "output"}}
+<<< 2ms isError=False
+session=tools 的第 3 发 output 侧共 27 格，其中缺席 [chunks first_byte_ms max_gap_ms retry_after_ms]：
+call                   measured  3
+chunks                 absent    —（没量到，不是 0）：这一发不是流式的，结构上没有分帧
+cost_countable         measured  否
+downgrade              measured  否
+endpoint_model         model_says fake-model
+endpoint_model_said    measured  是
+fail_detail            measured  第 1 个提议（ledger_add）参数解不出 JSON：'{"a": 1'
+fail_kind              measured  malformed_action
+fail_status            measured  0
+finish                 relayed   tool_calls
+finish_said            measured  是
+first_byte_ms          absent    —（没量到，不是 0）：这一发不是流式的，结构上没有首帧这件事
+malformed_actions      measured  1
+malformed_streak       measured  1
+max_gap_ms             absent    —（没量到，不是 0）：这一发不是流式的，结构上没有帧间
+model_says_bytes       measured  0
+model_says_clipped     measured  否
+model_says_kept        measured  0
+model_says_sha256      measured  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+retry_after_ms         absent    —（没量到，不是 0）：原样重发不会变好：歪的是这一发的提议本身
+sent                   measured  发出去了
+streaming              measured  否
+tool_calls             measured  1
+usage_in               relayed   354（转述自 端点响应的 usage.prompt_tokens）
+usage_out              relayed   7（转述自 端点响应的 usage.completion_tokens）
+wire_bytes_in          measured  382
+wire_bytes_out         measured  1108
+
+>>> [tools] #12 tools/call {"name": "kernel.read_back", "arguments": {"session": "tools", "call": 2, "side": "input"}}
+<<< 1ms isError=False
+session=tools 的第 2 发 input 侧共 20 格，其中缺席 []：
+call                   measured  2
+call_bytes_ceiling     measured  32768
+clamp_rounds           measured  0
+clipped                measured  0 段（裁剪表是空的）
+content_bytes          measured  716
+content_ceiling        measured  28835
+dropped                measured  0 段（裁剪表是空的）
+effective_ceiling      measured  28835
+fixed_overhead         estimated ≈300（这是估算，不是测量）：估的是骨架+模型名+工具清单的粗估
+folded                 measured  0 段（裁剪表是空的）
+leftover_pct           measured  0
+notice_sent            measured  否
+notice_text            measured  （这一格是空的）
+notice_trimmed         measured  否
+notice_why             measured  这一发没折叠、没裁尾、没整段丢弃；被截的是**输出**，由 finish_reason 那一格记
+part_totals            measured  5 类共 716 字节：system=1 toolspec=1 user=2 history=1 observation=1
+parts                  measured  6 段：system toolspec user history observation user
+shares                 measured  history=20 observation=3 system=16 toolspec=51 user=10
+tokens                 relayed   318（转述自 端点响应的 usage.prompt_tokens）
+transport_slack_pct    measured  12
+
+(4) 第 2 发输入侧 parts 那一格：6 段：system toolspec user history observation user
+>>> [tools] #13 tools/call {"name": "kernel.read_back", "arguments": {"session": "tools", "call": 1, "side": "output"}}
+<<< 7ms isError=False
+session=tools 的第 1 发 output 侧共 27 格，其中缺席 [chunks first_byte_ms max_gap_ms retry_after_ms]：
+call                   measured  1
+chunks                 absent    —（没量到，不是 0）：这一发不是流式的，结构上没有分帧
+cost_countable         measured  是
+downgrade              measured  否
+endpoint_model         model_says fake-model
+endpoint_model_said    measured  是
+fail_detail            measured  （这一格是空的）
+fail_kind              measured  （这一格是空的）
+fail_status            measured  0
+finish                 relayed   tool_calls
+finish_said            measured  是
+first_byte_ms          absent    —（没量到，不是 0）：这一发不是流式的，结构上没有首帧这件事
+malformed_actions      measured  0
+malformed_streak       measured  0
+max_gap_ms             absent    —（没量到，不是 0）：这一发不是流式的，结构上没有帧间
+model_says_bytes       measured  0
+model_says_clipped     measured  否
+model_says_kept        measured  0
+model_says_sha256      measured  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+retry_after_ms         absent    —（没量到，不是 0）：这一发没断，也就没有要等多久
+sent                   measured  发出去了
+streaming              measured  否
+tool_calls             measured  1
+usage_in               relayed   224（转述自 端点响应的 usage.prompt_tokens）
+usage_out              relayed   7（转述自 端点响应的 usage.completion_tokens）
+wire_bytes_in          measured  394
+wire_bytes_out         measured  662
+
+>>> [tools] #14 tools/call {"name": "kernel.read_back", "arguments": {"session": "tools", "call": 3, "side": "output"}}
+<<< 7ms isError=False
+session=tools 的第 3 发 output 侧共 27 格，其中缺席 [chunks first_byte_ms max_gap_ms retry_after_ms]：
+call                   measured  3
+chunks                 absent    —（没量到，不是 0）：这一发不是流式的，结构上没有分帧
+cost_countable         measured  否
+downgrade              measured  否
+endpoint_model         model_says fake-model
+endpoint_model_said    measured  是
+fail_detail            measured  第 1 个提议（ledger_add）参数解不出 JSON：'{"a": 1'
+fail_kind              measured  malformed_action
+fail_status            measured  0
+finish                 relayed   tool_calls
+finish_said            measured  是
+first_byte_ms          absent    —（没量到，不是 0）：这一发不是流式的，结构上没有首帧这件事
+malformed_actions      measured  1
+malformed_streak       measured  1
+max_gap_ms             absent    —（没量到，不是 0）：这一发不是流式的，结构上没有帧间
+model_says_bytes       measured  0
+model_says_clipped     measured  否
+model_says_kept        measured  0
+model_says_sha256      measured  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+retry_after_ms         absent    —（没量到，不是 0）：原样重发不会变好：歪的是这一发的提议本身
+sent                   measured  发出去了
+streaming              measured  否
+tool_calls             measured  1
+usage_in               relayed   354（转述自 端点响应的 usage.prompt_tokens）
+usage_out              relayed   7（转述自 端点响应的 usage.completion_tokens）
+wire_bytes_in          measured  382
+wire_bytes_out         measured  1108
+
+>>> [tools] #15 tools/call {"name": "kernel.read_back", "arguments": {"session": "tools", "call": 4, "side": "output"}}
+<<< 2ms isError=False
+session=tools 的第 4 发 output 侧共 27 格，其中缺席 [retry_after_ms]：
+call                   measured  4
+chunks                 measured  7
+cost_countable         measured  是
+downgrade              measured  否
+endpoint_model         model_says fake-model
+endpoint_model_said    measured  是
+fail_detail            measured  （这一格是空的）
+fail_kind              measured  （这一格是空的）
+fail_status            measured  0
+finish                 relayed   tool_calls
+finish_said            measured  是
+first_byte_ms          measured  1
+malformed_actions      measured  0
+malformed_streak       measured  0
+max_gap_ms             measured  0
+model_says_bytes       measured  0
+model_says_clipped     measured  否
+model_says_kept        measured  0
+model_says_sha256      measured  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+retry_after_ms         absent    —（没量到，不是 0）：这一发没断，也就没有要等多久
+sent                   measured  发出去了
+streaming              measured  是
+tool_calls             measured  1
+usage_in               relayed   486（转述自 端点响应的 usage.prompt_tokens）
+usage_out              relayed   7（转述自 端点响应的 usage.completion_tokens）
+wire_bytes_in          measured  1133
+wire_bytes_out         measured  1435
+
+(5) 逐发（发号, 账上找得到工具名吗, 找得到参数原文吗）：[(1, False, False), (3, True, True), (4, False, False)]
+(5) 这一格只描述形状：提议在账上是**三个数**（几个、歪几个、连歪几发），不是一段内容
+(6) 流式那一发：帧=7 首帧=1 最大帧间=0 带提议碎片的帧=4 碎片项=4 参数长=18 finish='tool_calls'
+>>> [tools] #16 tools/call {"name": "kernel.read_back", "arguments": {"session": "tools", "call": 4, "side": "output"}}
+<<< 5ms isError=False
+session=tools 的第 4 发 output 侧共 27 格，其中缺席 [retry_after_ms]：
+call                   measured  4
+chunks                 measured  7
+cost_countable         measured  是
+downgrade              measured  否
+endpoint_model         model_says fake-model
+endpoint_model_said    measured  是
+fail_detail            measured  （这一格是空的）
+fail_kind              measured  （这一格是空的）
+fail_status            measured  0
+finish                 relayed   tool_calls
+finish_said            measured  是
+first_byte_ms          measured  1
+malformed_actions      measured  0
+malformed_streak       measured  0
+max_gap_ms             measured  0
+model_says_bytes       measured  0
+model_says_clipped     measured  否
+model_says_kept        measured  0
+model_says_sha256      measured  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+retry_after_ms         absent    —（没量到，不是 0）：这一发没断，也就没有要等多久
+sent                   measured  发出去了
+streaming              measured  是
+tool_calls             measured  1
+usage_in               relayed   486（转述自 端点响应的 usage.prompt_tokens）
+usage_out              relayed   7（转述自 端点响应的 usage.completion_tokens）
+wire_bytes_in          measured  1133
+wire_bytes_out         measured  1435
+
+>>> [tools] #17 tools/call {"name": "kernel.read_back", "arguments": {"session": "tools", "call": 4, "side": "output"}}
+<<< 80ms isError=False
+session=tools 的第 4 发 output 侧共 27 格，其中缺席 [retry_after_ms]：
+call                   measured  4
+chunks                 measured  7
+cost_countable         measured  是
+downgrade              measured  否
+endpoint_model         model_says fake-model
+endpoint_model_said    measured  是
+fail_detail            measured  （这一格是空的）
+fail_kind              measured  （这一格是空的）
+fail_status            measured  0
+finish                 relayed   tool_calls
+finish_said            measured  是
+first_byte_ms          measured  1
+malformed_actions      measured  0
+malformed_streak       measured  0
+max_gap_ms             measured  0
+model_says_bytes       measured  0
+model_says_clipped     measured  否
+model_says_kept        measured  0
+model_says_sha256      measured  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+retry_after_ms         absent    —（没量到，不是 0）：这一发没断，也就没有要等多久
+sent                   measured  发出去了
+streaming              measured  是
+tool_calls             measured  1
+usage_in               relayed   486（转述自 端点响应的 usage.prompt_tokens）
+usage_out              relayed   7（转述自 端点响应的 usage.completion_tokens）
+wire_bytes_in          measured  1133
+wire_bytes_out         measured  1435
+
+>>> [tools] #18 tools/call {"name": "kernel.read_back", "arguments": {"session": "tools", "call": 4, "side": "output"}}
+<<< 3ms isError=False
+session=tools 的第 4 发 output 侧共 27 格，其中缺席 [retry_after_ms]：
+call                   measured  4
+chunks                 measured  7
+cost_countable         measured  是
+downgrade              measured  否
+endpoint_model         model_says fake-model
+endpoint_model_said    measured  是
+fail_detail            measured  （这一格是空的）
+fail_kind              measured  （这一格是空的）
+fail_status            measured  0
+finish                 relayed   tool_calls
+finish_said            measured  是
+first_byte_ms          measured  1
+malformed_actions      measured  0
+malformed_streak       measured  0
+max_gap_ms             measured  0
+model_says_bytes       measured  0
+model_says_clipped     measured  否
+model_says_kept        measured  0
+model_says_sha256      measured  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+retry_after_ms         absent    —（没量到，不是 0）：这一发没断，也就没有要等多久
+sent                   measured  发出去了
+streaming              measured  是
+tool_calls             measured  1
+usage_in               relayed   486（转述自 端点响应的 usage.prompt_tokens）
+usage_out              relayed   7（转述自 端点响应的 usage.completion_tokens）
+wire_bytes_in          measured  1133
+wire_bytes_out         measured  1435
+
+(7) 同一个 malformed_action 档位本轮被两种成因用过（发号 [3, 5]）：一种是提议歪了、一种是根本没提议。账上分得开它们的只有 fail_detail 那句人话
+>>> [tools] #19 tools/call {"name": "kernel.read_back", "arguments": {"session": "tools", "call": 5, "side": "output"}}
+<<< 2ms isError=False
+session=tools 的第 5 发 output 侧共 27 格，其中缺席 [chunks first_byte_ms max_gap_ms retry_after_ms]：
+call                   measured  5
+chunks                 absent    —（没量到，不是 0）：这一发不是流式的，结构上没有分帧
+cost_countable         measured  否
+downgrade              measured  否
+endpoint_model         model_says fake-model
+endpoint_model_said    measured  是
+fail_detail            measured  端点回了 263 字节、finish='length'、原话 0 字节、0 个提议（补全 token 7）
+fail_kind              measured  malformed_action
+fail_status            measured  0
+finish                 relayed   length
+finish_said            measured  是
+first_byte_ms          absent    —（没量到，不是 0）：这一发不是流式的，结构上没有首帧这件事
+malformed_actions      measured  0
+malformed_streak       measured  0
+max_gap_ms             absent    —（没量到，不是 0）：这一发不是流式的，结构上没有帧间
+model_says_bytes       measured  0
+model_says_clipped     measured  否
+model_says_kept        measured  0
+model_says_sha256      measured  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+retry_after_ms         absent    —（没量到，不是 0）：原样重发不会变好：同样的额度还会截在同样的地方
+sent                   measured  发出去了
+streaming              measured  否
+tool_calls             measured  0
+usage_in               relayed   549（转述自 端点响应的 usage.prompt_tokens）
+usage_out              relayed   7（转述自 端点响应的 usage.completion_tokens）
+wire_bytes_in          measured  263
+wire_bytes_out         measured  1633
+
+(7) 第 5 发 fail_kind 那一格：出处=measured 说法=malformed_action
+>>> [tools] #20 tools/call {"name": "kernel.read_back", "arguments": {"session": "tools", "call": 4, "side": "input"}}
+<<< 3ms isError=False
+session=tools 的第 4 发 input 侧共 20 格，其中缺席 []：
+call                   measured  4
+call_bytes_ceiling     measured  32768
+clamp_rounds           measured  0
+clipped                measured  0 段（裁剪表是空的）
+content_bytes          measured  1020
+content_ceiling        measured  28835
+dropped                measured  1 段：history/第 3 发的 assistant 提议（1 个里 1 个执行不了）
+effective_ceiling      measured  28835
+fixed_overhead         estimated ≈300（这是估算，不是测量）：估的是骨架+模型名+工具清单的粗估
+folded                 measured  0 段（裁剪表是空的）
+leftover_pct           measured  0
+notice_sent            measured  是
+notice_text            measured  上一轮模型给出的工具提议里有一个参数不完整，那一条我们没能带进这一轮的历史；如果你需要它，请重新提议。
+notice_trimmed         measured  否
+notice_why             measured  上一发的提议里有一个参数解不出 JSON，那条 assistant 消息整段没带进本轮历史；这句通知本身作为 truncation-notice 段真发出去了
+part_totals            measured  6 类共 1020 字节：system=1 toolspec=1 user=4 history=2 observation=1 truncation-notice=1
+parts                  measured  10 段：system toolspec user history observation user history user truncation-notice user
+shares                 measured  history=18 observation=3 system=11 toolspec=37 truncation-notice=14 user=17
+tokens                 relayed   486（转述自 端点响应的 usage.prompt_tokens）
+transport_slack_pct    measured  12
+
+(8) 第 4 发：dropped=1 段：history/第 3 发的 assistant 提议（1 个里 1 个执行不了）(measured) folded=0 段（裁剪表是空的）(measured) clipped=0 段（裁剪表是空的）(measured) notice_sent=是 通知正文=上一轮模型给出的工具提议里有一个参数不完整，那一
+>>> [tools] #21 tools/call {"name": "kernel.read_back", "arguments": {"session": "tools", "call": 3, "side": "output"}}
+<<< 3ms isError=False
+session=tools 的第 3 发 output 侧共 27 格，其中缺席 [chunks first_byte_ms max_gap_ms retry_after_ms]：
+call                   measured  3
+chunks                 absent    —（没量到，不是 0）：这一发不是流式的，结构上没有分帧
+cost_countable         measured  否
+downgrade              measured  否
+endpoint_model         model_says fake-model
+endpoint_model_said    measured  是
+fail_detail            measured  第 1 个提议（ledger_add）参数解不出 JSON：'{"a": 1'
+fail_kind              measured  malformed_action
+fail_status            measured  0
+finish                 relayed   tool_calls
+finish_said            measured  是
+first_byte_ms          absent    —（没量到，不是 0）：这一发不是流式的，结构上没有首帧这件事
+malformed_actions      measured  1
+malformed_streak       measured  1
+max_gap_ms             absent    —（没量到，不是 0）：这一发不是流式的，结构上没有帧间
+model_says_bytes       measured  0
+model_says_clipped     measured  否
+model_says_kept        measured  0
+model_says_sha256      measured  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+retry_after_ms         absent    —（没量到，不是 0）：原样重发不会变好：歪的是这一发的提议本身
+sent                   measured  发出去了
+streaming              measured  否
+tool_calls             measured  1
+usage_in               relayed   354（转述自 端点响应的 usage.prompt_tokens）
+usage_out              relayed   7（转述自 端点响应的 usage.completion_tokens）
+wire_bytes_in          measured  382
+wire_bytes_out         measured  1108
+
+(9) 第 3 发装配时记 'malformed_action'，账上读回来 'malformed_action'（出处=measured）；retry_after_ms 说法=—（没量到，不是 0）：原样重发不会变好：歪的是这一发的提议本身 出处=absent；detail='第 1 个提议（ledger_add）参数解不出 JSON：\'{"a": 1\''
+>>> [tools] #22 tools/call {"name": "kernel.read_back", "arguments": {"session": "tools", "call": 5, "side": "output"}}
+<<< 4ms isError=False
+session=tools 的第 5 发 output 侧共 27 格，其中缺席 [chunks first_byte_ms max_gap_ms retry_after_ms]：
+call                   measured  5
+chunks                 absent    —（没量到，不是 0）：这一发不是流式的，结构上没有分帧
+cost_countable         measured  否
+downgrade              measured  否
+endpoint_model         model_says fake-model
+endpoint_model_said    measured  是
+fail_detail            measured  端点回了 263 字节、finish='length'、原话 0 字节、0 个提议（补全 token 7）
+fail_kind              measured  malformed_action
+fail_status            measured  0
+finish                 relayed   length
+finish_said            measured  是
+first_byte_ms          absent    —（没量到，不是 0）：这一发不是流式的，结构上没有首帧这件事
+malformed_actions      measured  0
+malformed_streak       measured  0
+max_gap_ms             absent    —（没量到，不是 0）：这一发不是流式的，结构上没有帧间
+model_says_bytes       measured  0
+model_says_clipped     measured  否
+model_says_kept        measured  0
+model_says_sha256      measured  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+retry_after_ms         absent    —（没量到，不是 0）：原样重发不会变好：同样的额度还会截在同样的地方
+sent                   measured  发出去了
+streaming              measured  否
+tool_calls             measured  0
+usage_in               relayed   549（转述自 端点响应的 usage.prompt_tokens）
+usage_out              relayed   7（转述自 端点响应的 usage.completion_tokens）
+wire_bytes_in          measured  263
+wire_bytes_out         measured  1633
+
+(9) 第 5 发装配时记 'malformed_action'，账上读回来 'malformed_action'（出处=measured）；retry_after_ms 说法=—（没量到，不是 0）：原样重发不会变好：同样的额度还会截在同样的地方 出处=absent；detail="端点回了 263 字节、finish='length'、原话 0 字节、0 个提议（补全 token 7）"
+>>> [tools] #23 tools/call {"name": "kernel.read_back", "arguments": {"session": "tools", "call": 2, "side": "output"}}
+<<< 79ms isError=False
+session=tools 的第 2 发 output 侧共 27 格，其中缺席 [chunks first_byte_ms max_gap_ms retry_after_ms]：
+call                   measured  2
+chunks                 absent    —（没量到，不是 0）：这一发不是流式的，结构上没有分帧
+cost_countable         measured  是
+downgrade              measured  否
+endpoint_model         model_says fake-model
+endpoint_model_said    measured  是
+fail_detail            measured  （这一格是空的）
+fail_kind              measured  （这一格是空的）
+fail_status            measured  0
+finish                 relayed   stop
+finish_said            measured  是
+first_byte_ms          absent    —（没量到，不是 0）：这一发不是流式的，结构上没有首帧这件事
+malformed_actions      measured  0
+malformed_streak       measured  0
+max_gap_ms             absent    —（没量到，不是 0）：这一发不是流式的，结构上没有帧间
+model_says_bytes       measured  12
+model_says_clipped     measured  否
+model_says_kept        measured  12
+model_says_sha256      measured  addd5ed1ab1744b87fe1bcc4bd9789988e56282496f8e082ef808c53926e3da2
+retry_after_ms         absent    —（没量到，不是 0）：这一发没断，也就没有要等多久
+sent                   measured  发出去了
+streaming              measured  否
+tool_calls             measured  0
+usage_in               relayed   318（转述自 端点响应的 usage.prompt_tokens）
+usage_out              relayed   7（转述自 端点响应的 usage.completion_tokens）
+wire_bytes_in          measured  271
+wire_bytes_out         measured  988
+
+(11) 第 2 发：账上指纹 addd5ed1ab17…，真发进下一发的那句指纹 addd5ed1ab17…，内容='和是 42。'
+成本：正常那几发 1028 入 / 21 出；故障与空手的发（发号 [3, 5]）另计 903 入 / 14 出
+>>> [tools] #24 tools/call {"name": "kernel.encode_journal", "arguments": {"payload": "included"}}
+<<< 519ms isError=False
+114781 字节 JSONL，235 行（写盘是你的事，内核只交字节）
+{"seq":1,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:call","claim":"1","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"MQ==","payload_sha256":"6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b","prev_hash":"","hash":"669356d28c290830da77f2f3e840db67789be5d141cc77fcb28fc026f73375f1"}
+{"seq":2,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:parts","claim":"3 段：system toolspec user","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"WyJzeXN0ZW0iLCJ0b29sc3BlYyIsInVzZXIiXQ==","payload_sha256":"39606e88b52dab1a927219ba7ea805581229725a3825818cabf5bc5b98cae78b","prev_hash":"669356d28c290830da77f2f3e840db67789be5d141cc77fcb28fc026f73375f1","hash":"e2161283985313883bd3bc6fe89a3a2b1becdb625e83a080dc879cd93093a394"}
+{"seq":3,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:part_totals","claim":"3 类共 506 字节：system=1 toolspec=1 user=1","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"W3siS2luZCI6InN5c3RlbSIsIlBhcnRzIjoxLCJCeXRlcyI6MTIwfSx7IktpbmQiOiJ0b29sc3BlYyIsIlBhcnRzIjoxLCJCeXRlcyI6MzU1fSx7IktpbmQiOiJ1c2VyIiwiUGFydHMiOjEsIkJ5dGVzIjozMX1d","payload_sha256":"5d108aa9481b57415d5b8b0f4484c5c0b052b5052936d83965289290cf703542","prev_hash":"e2161283985313883bd3bc6fe89a3a2b1becdb625e83a080dc879cd93093a394","hash":"f63f712155aa49b5f59b9a71f8f74d9ad439963ef969a250ec3f0360a8bde71d"}
+{"seq":4,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:content_bytes","claim":"506","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"NTA2","payload_sha256":"a2075145d3cc47b2b56aeec5e9c78fe7e0055169961b6823629772c96f1f0319","prev_hash":"f63f712155aa49b5f59b9a71f8f74d9ad439963ef969a250ec3f0360a8bde71d","hash":"4ac32029128f6f6e7c78b307eacc12203a6f6d3fd6279b757dfc1a9ce8100731"}
+{"seq":5,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:tokens","claim":"224（转述自 端点响应的 usage.prompt_tokens）","basis":2,"source":"端点响应的 usage.prompt_tokens","ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"eyJOIjoyMjQsIkJhc2lzIjoyLCJTb3VyY2UiOiLnq6/ngrnlk43lupTnmoQgdXNhZ2UucHJvbXB0X3Rva2VucyIsIkFic2VudCI6ZmFsc2UsIlJlZnVzZWQiOmZhbHNlLCJXaHkiOiIifQ==","payload_sha256":"754aa321a8e4ae31b2bcab56d94e397e6603e1060bd07531883d18c8c1b41a7f","prev_hash":"4ac32029128f6f6e7c78b307eacc12203a6f6d3fd6279b757dfc1a9ce8100731","hash":"af59f9b14a8fc48ee22d6de5f73036f0a2712d4c1ac7d3d702b2e7339f3d630c"}
+{"seq":6,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:call_bytes_ceiling","claim":"32768","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"MzI3Njg=","payload_sha256":"d196d59bf4f8f8d25291f2f0bc606158638bea3fcb582b52481df2063480af60","prev_hash":"af59f9b14a8fc48ee22d6de5f73036f0a2712d4c1ac7d3d702b2e7339f3d630c","hash":"26ce50ebf3d3c3619fd1388eb2cc336130673482f25359baea7ae0a9c1da8d2d"}
+{"seq":7,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:transport_slack_pct","claim":"12","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"MTI=","payload_sha256":"6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918","prev_hash":"26ce50ebf3d3c3619fd1388eb2cc336130673482f25359baea7ae0a9c1da8d2d","hash":"cb67d2a40f891425ff3c57165ce90c638875abb5fc056b6def217b3ca0eeefaa"}
+{"seq":8,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:content_ceiling","claim":"28835","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"Mjg4MzU=","payload_sha256":"db5c66cd9b3d0cf3b7961fc494e81db0649a1c5a6839d5299b12ae5ba97c22b6","prev_hash":"cb67d2a40f891425ff3c57165ce90c638875abb5fc056b6def217b3ca0eeefaa","hash":"1669f65fe056706bfaedf729936f32f6de85c6a89de8d0e58005027a316977f5"}
+{"seq":9,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:effective_ceiling","claim":"28835","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"Mjg4MzU=","payload_sha256":"db5c66cd9b3d0cf3b7961fc494e81db0649a1c5a6839d5299b12ae5ba97c22b6","prev_hash":"1669f65fe056706bfaedf729936f32f6de85c6a89de8d0e58005027a316977f5","hash":"1d1f3dde97bdbf19de648282ecc2c888fc1676e6c8a6c3b06f437f1cf9c5f098"}
+{"seq":10,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:clamp_rounds","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"1d1f3dde97bdbf19de648282ecc2c888fc1676e6c8a6c3b06f437f1cf9c5f098","hash":"b02c9ec8fc5f3b5ca285d93711544a4bfee52465e689a827bde8dea5d4dcee40"}
+{"seq":11,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:leftover_pct","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"b02c9ec8fc5f3b5ca285d93711544a4bfee52465e689a827bde8dea5d4dcee40","hash":"546b3329aacd9c34c4edab1869b535f40bfc7cea72cd679fb0feb660287abd4a"}
+{"seq":12,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:fixed_overhead","claim":"≈300（这是估算，不是测量）：估的是骨架+模型名+工具清单的粗估","basis":3,"source":"骨架+模型名+工具清单的粗估","ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"eyJOIjozMDAsIkJhc2lzIjozLCJTb3VyY2UiOiLpqqjmnrYr5qih5Z6L5ZCNK+W3peWFt+a4heWNleeahOeyl+S8sCIsIkFic2VudCI6ZmFsc2UsIlJlZnVzZWQiOmZhbHNlLCJXaHkiOiIifQ==","payload_sha256":"fbc8d2876c981b851e4b7cc64ab048fb5a495ceb8cc78078cdf36655b8acf620","prev_hash":"546b3329aacd9c34c4edab1869b535f40bfc7cea72cd679fb0feb660287abd4a","hash":"ed8b9452ae0814d43a56e4b7c980ffc993fd3f2be22b1a59ab62439b18509fa5"}
+{"seq":13,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:shares","claim":"system=24 toolspec=70 user=6","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"WyJzeXN0ZW09MjQiLCJ0b29sc3BlYz03MCIsInVzZXI9NiJd","payload_sha256":"6b3828e94f9583ffa49291640d0bbc9100c562bf7bc91ef4eccc35e5d92117ef","prev_hash":"ed8b9452ae0814d43a56e4b7c980ffc993fd3f2be22b1a59ab62439b18509fa5","hash":"dc0cfa3f18a944bf79aa6975771b0fc565022c8d2d6158ad43c0116e7392aef8"}
+{"seq":14,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:notice_sent","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"dc0cfa3f18a944bf79aa6975771b0fc565022c8d2d6158ad43c0116e7392aef8","hash":"1f11d572d49502d788e7bf32d179ff9ce518b666b829c3afe744fe27f84f3da3"}
+{"seq":15,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:notice_trimmed","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"1f11d572d49502d788e7bf32d179ff9ce518b666b829c3afe744fe27f84f3da3","hash":"2a6a98b479a53ebfdd9055157e2a70f0dba9e3bd7a8a662dbafc810f26be1e7c"}
+{"seq":16,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:notice_why","claim":"这一发没折叠、没裁尾、没整段丢弃；被截的是**输出**，由 finish_reason 那一格记","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"Iui/meS4gOWPkeayoeaKmOWPoOOAgeayoeijgeWwvuOAgeayoeaVtOauteS4ouW8g++8m+iiq+aIqueahOaYryoq6L6T5Ye6KirvvIznlLEgZmluaXNoX3JlYXNvbiDpgqPkuIDmoLzorrAi","payload_sha256":"34d09e65501c1063e52b9ba5aef77accf9ff19cfdd9e0b9dae2495c60fb3a796","prev_hash":"2a6a98b479a53ebfdd9055157e2a70f0dba9e3bd7a8a662dbafc810f26be1e7c","hash":"fdbb2f9d3c4d2971476b60762bbd40ee2a0f139e024d2d96a458b9e336d02048"}
+{"seq":17,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:notice_text","claim":"（这一格是空的）","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"IiI=","payload_sha256":"12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126","prev_hash":"fdbb2f9d3c4d2971476b60762bbd40ee2a0f139e024d2d96a458b9e336d02048","hash":"3325a801a2a260f99abccafae8b822fd1d6b1955f4495336260b1abbf8ba13a3"}
+{"seq":18,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:folded","claim":"0 段（裁剪表是空的）","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"W10=","payload_sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","prev_hash":"3325a801a2a260f99abccafae8b822fd1d6b1955f4495336260b1abbf8ba13a3","hash":"e8701c8d9450745aaced12715f1ec2db9a841696d684a6a9d1455269707d9a32"}
+{"seq":19,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:clipped","claim":"0 段（裁剪表是空的）","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"W10=","payload_sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","prev_hash":"e8701c8d9450745aaced12715f1ec2db9a841696d684a6a9d1455269707d9a32","hash":"cbfede416c058d0b6cb033757f23a8d21cc9eb01bdb28732a65cc820499bcd54"}
+{"seq":20,"session":"tools","actor":"tools_probe","step":1,"kind":"model_input:dropped","claim":"0 段（裁剪表是空的）","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"W10=","payload_sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","prev_hash":"cbfede416c058d0b6cb033757f23a8d21cc9eb01bdb28732a65cc820499bcd54","hash":"fe8fb9c19a6f9c9b7b73ed542ac98f95f6ed4cf49fcbfbb0f8cf4eb654f08844"}
+{"seq":21,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:call","claim":"1","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"MQ==","payload_sha256":"6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b","prev_hash":"fe8fb9c19a6f9c9b7b73ed542ac98f95f6ed4cf49fcbfbb0f8cf4eb654f08844","hash":"eb8b40470a5c55ec6701ad3d1094f4a0d0ede3c1cc68a3dba1b59e0d23f5a1c4"}
+{"seq":22,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:streaming","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"eb8b40470a5c55ec6701ad3d1094f4a0d0ede3c1cc68a3dba1b59e0d23f5a1c4","hash":"8db0676f52836cc2a82681610acd67534ba941be3af46f95df4f73cc088a9dab"}
+{"seq":23,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:finish","claim":"tool_calls","basis":2,"source":"endpoint-response","ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"InRvb2xfY2FsbHMi","payload_sha256":"afa9a5b7f2f60ef7d67b4495f2edb5204aae87965dd3f2680ab1cf2994524088","prev_hash":"8db0676f52836cc2a82681610acd67534ba941be3af46f95df4f73cc088a9dab","hash":"a6c97f5797ea60b1b8c1c2203897b386faf488dc3b4b7819dc80cfea21e12829"}
+{"seq":24,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:finish_said","claim":"是","basis":1,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"dHJ1ZQ==","payload_sha256":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","prev_hash":"a6c97f5797ea60b1b8c1c2203897b386faf488dc3b4b7819dc80cfea21e12829","hash":"3b33cd4d30287c2b662d446018af47ccefe28541d5c2f97c587fc485278a17c2"}
+{"seq":25,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:endpoint_model","claim":"fake-model","basis":4,"ts":"2026-10-13T14:08:50.0702516Z","payload_b64":"ImZha2UtbW9kZWwi","payload_sha256":"582eb9070e1f4555202125ac82783628a4baffa1e8844fa88973f05f4f4457fd","prev_hash":"3b33cd4d30287c2b662d446018af47ccefe28541d5c2f97c587fc485278a17c2","hash":"8765ad2db7813cb0ebafa3c65f185c5840ac023473179268c6487e3073060af2"}
+{"seq":26,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:endpoint_model_said","claim":"是","basis":1,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"dHJ1ZQ==","payload_sha256":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","prev_hash":"8765ad2db7813cb0ebafa3c65f185c5840ac023473179268c6487e3073060af2","hash":"4049eadb769863cf2537c2e3db5292f9cb5c0de453bae469c33004fc02cfcb18"}
+{"seq":27,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:model_says_bytes","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"4049eadb769863cf2537c2e3db5292f9cb5c0de453bae469c33004fc02cfcb18","hash":"e13a33ae42d1076933b0af4f13e50bc5d6ac1c29bc68c71de5ed1f24748f10fb"}
+{"seq":28,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:model_says_kept","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"e13a33ae42d1076933b0af4f13e50bc5d6ac1c29bc68c71de5ed1f24748f10fb","hash":"9305840bbb2d41e28ebdb9c0954b49b03cad18cca20f15b60c030727f3c841df"}
+{"seq":29,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:model_says_clipped","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"9305840bbb2d41e28ebdb9c0954b49b03cad18cca20f15b60c030727f3c841df","hash":"6f5bfcd88b4fdbeee033346388f6d5284ba4dda531c6be1f34ee322bb8c08e32"}
+{"seq":30,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:model_says_sha256","claim":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","basis":1,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUi","payload_sha256":"b4b16dad390bac4c7ce42014c594fa668910b49ec1b7771a17891c187d71e0ab","prev_hash":"6f5bfcd88b4fdbeee033346388f6d5284ba4dda531c6be1f34ee322bb8c08e32","hash":"2dcce2016868c8db04e7c151707e84bf4a35a8c07af38ec950bbf69d6f2e1657"}
+{"seq":31,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:usage_in","claim":"224（转述自 端点响应的 usage.prompt_tokens）","basis":2,"source":"端点响应的 usage.prompt_tokens","ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"eyJOIjoyMjQsIkJhc2lzIjoyLCJTb3VyY2UiOiLnq6/ngrnlk43lupTnmoQgdXNhZ2UucHJvbXB0X3Rva2VucyIsIkFic2VudCI6ZmFsc2UsIlJlZnVzZWQiOmZhbHNlLCJXaHkiOiIifQ==","payload_sha256":"754aa321a8e4ae31b2bcab56d94e397e6603e1060bd07531883d18c8c1b41a7f","prev_hash":"2dcce2016868c8db04e7c151707e84bf4a35a8c07af38ec950bbf69d6f2e1657","hash":"17eabffdba3618eeea378bc79d3dab918e601e7c10de4d84bedf04d4f51e0fd6"}
+{"seq":32,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:usage_out","claim":"7（转述自 端点响应的 usage.completion_tokens）","basis":2,"source":"端点响应的 usage.completion_tokens","ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"eyJOIjo3LCJCYXNpcyI6MiwiU291cmNlIjoi56uv54K55ZON5bqU55qEIHVzYWdlLmNvbXBsZXRpb25fdG9rZW5zIiwiQWJzZW50IjpmYWxzZSwiUmVmdXNlZCI6ZmFsc2UsIldoeSI6IiJ9","payload_sha256":"04cf7e3145f93b4cc2f3d0b18e10d1cb2e94ce50a5c31bbe289f0644c52daa51","prev_hash":"17eabffdba3618eeea378bc79d3dab918e601e7c10de4d84bedf04d4f51e0fd6","hash":"349e088041087c1f9302e732e2815a977e4632196b0836ac2d30fcb8162d9943"}
+{"seq":33,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:wire_bytes_out","claim":"662","basis":1,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"eyJOIjo2NjIsIkJhc2lzIjoxLCJTb3VyY2UiOiIiLCJBYnNlbnQiOmZhbHNlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5IjoiIn0=","payload_sha256":"bcb0a49e30987094dbaf21e0b5b878a2d4cc76f44f131651766723abc3be747e","prev_hash":"349e088041087c1f9302e732e2815a977e4632196b0836ac2d30fcb8162d9943","hash":"955cc2e9e88af94706f7da1020d9db57d9c7ffe08277a0bed75bb73763f93406"}
+{"seq":34,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:wire_bytes_in","claim":"394","basis":1,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"eyJOIjozOTQsIkJhc2lzIjoxLCJTb3VyY2UiOiIiLCJBYnNlbnQiOmZhbHNlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5IjoiIn0=","payload_sha256":"0854bf77b66083acc16cbae6b39f325917f99eded872f7968003cccbd41a2791","prev_hash":"955cc2e9e88af94706f7da1020d9db57d9c7ffe08277a0bed75bb73763f93406","hash":"4464ffbfeef5f64763402955aa3883014bb6e90889030e4b9f50f40ef05046bf"}
+{"seq":35,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:chunks","claim":"—（没量到，不是 0）：这一发不是流式的，结构上没有分帧","basis":5,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi6L+Z5LiA5Y+R5LiN5piv5rWB5byP55qE77yM57uT5p6E5LiK5rKh5pyJ5YiG5binIn0=","payload_sha256":"7b754a6d853abfad034312a3947dc29eb1b66b543582eb4028d0e39d62690e4e","prev_hash":"4464ffbfeef5f64763402955aa3883014bb6e90889030e4b9f50f40ef05046bf","hash":"c604e21a5b9d48f0737d564b6f1011e16b5f33f5a2d524c6d93c0ba91326c41c"}
+{"seq":36,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:first_byte_ms","claim":"—（没量到，不是 0）：这一发不是流式的，结构上没有首帧这件事","basis":5,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi6L+Z5LiA5Y+R5LiN5piv5rWB5byP55qE77yM57uT5p6E5LiK5rKh5pyJ6aaW5bin6L+Z5Lu25LqLIn0=","payload_sha256":"d85c8e1bbf836c3edb424a7b6d4c1bf868b6e3da8e9178f129190661ebd3301a","prev_hash":"c604e21a5b9d48f0737d564b6f1011e16b5f33f5a2d524c6d93c0ba91326c41c","hash":"60e63ea20264b2dde323a6f2b84cb9c3981b0462a145caba136013a4992ac5c3"}
+{"seq":37,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:max_gap_ms","claim":"—（没量到，不是 0）：这一发不是流式的，结构上没有帧间","basis":5,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi6L+Z5LiA5Y+R5LiN5piv5rWB5byP55qE77yM57uT5p6E5LiK5rKh5pyJ5bin6Ze0In0=","payload_sha256":"cf44a0062eeddbdfb4442ec06bf5dfab0233760989d39aef685ff9a12db46c60","prev_hash":"60e63ea20264b2dde323a6f2b84cb9c3981b0462a145caba136013a4992ac5c3","hash":"afa2dca024f3c1a41ed087d7d8801e737dc0546039610178b631100e0161a43d"}
+{"seq":38,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:tool_calls","claim":"1","basis":1,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"MQ==","payload_sha256":"6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b","prev_hash":"afa2dca024f3c1a41ed087d7d8801e737dc0546039610178b631100e0161a43d","hash":"fe9dc93d4153ab0dd36eb33e256eeaa7b7a70ef411e5797a33e0fe23a9a00543"}
+{"seq":39,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:malformed_actions","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"fe9dc93d4153ab0dd36eb33e256eeaa7b7a70ef411e5797a33e0fe23a9a00543","hash":"34826666d59bcfec1f63c48baf9bca1faa4459b2bd222e741f69be2a208ad411"}
+{"seq":40,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:malformed_streak","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"34826666d59bcfec1f63c48baf9bca1faa4459b2bd222e741f69be2a208ad411","hash":"7a9cb1551c44db526ed1f5a68cec4194ea8f21d93db0a17b12f7e55f935a33d2"}
+{"seq":41,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:fail_kind","claim":"（这一格是空的）","basis":1,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"IiI=","payload_sha256":"12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126","prev_hash":"7a9cb1551c44db526ed1f5a68cec4194ea8f21d93db0a17b12f7e55f935a33d2","hash":"cc98b5174b292f77ae9e9799aa33cac39d39e6c907cef8131c9fe2d26d4dabf6"}
+{"seq":42,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:fail_detail","claim":"（这一格是空的）","basis":1,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"IiI=","payload_sha256":"12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126","prev_hash":"cc98b5174b292f77ae9e9799aa33cac39d39e6c907cef8131c9fe2d26d4dabf6","hash":"5777c698900c87dc7055ec739c0643ef7c1ae957072abb5187fcc13b0f138700"}
+{"seq":43,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:fail_status","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"5777c698900c87dc7055ec739c0643ef7c1ae957072abb5187fcc13b0f138700","hash":"ffe46310502d36f54aa45f3670bd538cc92fe640418dad3469cef0691d8296b5"}
+{"seq":44,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:retry_after_ms","claim":"—（没量到，不是 0）：这一发没断，也就没有要等多久","basis":5,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi6L+Z5LiA5Y+R5rKh5pat77yM5Lmf5bCx5rKh5pyJ6KaB562J5aSa5LmFIn0=","payload_sha256":"325fc478e81889b4e89be7e515cc8efbc925403707077a5993775b796a573e43","prev_hash":"ffe46310502d36f54aa45f3670bd538cc92fe640418dad3469cef0691d8296b5","hash":"2c5f7b230ff800c8c9c5addf56385dce15285d2d7b0061620a8eaf70040605b3"}
+{"seq":45,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:downgrade","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"2c5f7b230ff800c8c9c5addf56385dce15285d2d7b0061620a8eaf70040605b3","hash":"176f23e98218119a5dfa382f2fdf529ebdeb75e30d7051002b4548455640dd2f"}
+{"seq":46,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:sent","claim":"发出去了","basis":1,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"IuWPkeWHuuWOu+S6hiI=","payload_sha256":"221f8a8d04ca37dcebca110b96852ec20bc5af8a3e2b38a222d994f43049a6d9","prev_hash":"176f23e98218119a5dfa382f2fdf529ebdeb75e30d7051002b4548455640dd2f","hash":"d9435248de268ab832219a61015d9565b8e21e0c803a6b8269ff69273c1832c8"}
+{"seq":47,"session":"tools","actor":"tools_probe","step":1,"kind":"model_output:cost_countable","claim":"是","basis":1,"ts":"2026-10-13T14:08:50.0705399Z","payload_b64":"dHJ1ZQ==","payload_sha256":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","prev_hash":"d9435248de268ab832219a61015d9565b8e21e0c803a6b8269ff69273c1832c8","hash":"292b19feb796c010b4e8b8239e680c6423c7a7a3aa13c53ddba62d957b4bd18d"}
+{"seq":48,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:call","claim":"2","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"Mg==","payload_sha256":"d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35","prev_hash":"292b19feb796c010b4e8b8239e680c6423c7a7a3aa13c53ddba62d957b4bd18d","hash":"43fe7d3f6db073f86f5895490a7f2ad7716a91d59815aeec7f6953a966d06037"}
+{"seq":49,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:parts","claim":"6 段：system toolspec user history observation user","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"WyJzeXN0ZW0iLCJ0b29sc3BlYyIsInVzZXIiLCJoaXN0b3J5Iiwib2JzZXJ2YXRpb24iLCJ1c2VyIl0=","payload_sha256":"d8c9fbdff057f38a055ccb79a39a05aff4e28d335bf2cf9343df547f95a8f8b7","prev_hash":"43fe7d3f6db073f86f5895490a7f2ad7716a91d59815aeec7f6953a966d06037","hash":"d715d508d722fc5f392e7c59a0639877615905ab27cbf304202a886e2ff9f457"}
+{"seq":50,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:part_totals","claim":"5 类共 716 字节：system=1 toolspec=1 user=2 history=1 observation=1","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"W3siS2luZCI6InN5c3RlbSIsIlBhcnRzIjoxLCJCeXRlcyI6MTIwfSx7IktpbmQiOiJ0b29sc3BlYyIsIlBhcnRzIjoxLCJCeXRlcyI6MzU1fSx7IktpbmQiOiJ1c2VyIiwiUGFydHMiOjIsIkJ5dGVzIjo4Mn0seyJLaW5kIjoiaGlzdG9yeSIsIlBhcnRzIjoxLCJCeXRlcyI6MTQ4fSx7IktpbmQiOiJvYnNlcnZhdGlvbiIsIlBhcnRzIjoxLCJCeXRlcyI6MTF9XQ==","payload_sha256":"e34c2e1f4b85804737ead4fd8500429f58badaca252c0a5a3f4db63743725b79","prev_hash":"d715d508d722fc5f392e7c59a0639877615905ab27cbf304202a886e2ff9f457","hash":"a0fd495dabe3b5531729532ffcce5ff501a22da1f2e3249a7fb35f830ec1aabf"}
+{"seq":51,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:content_bytes","claim":"716","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"NzE2","payload_sha256":"2e00b312b0a9681bef09f9085a4e918b8fceb0c0b1c043dc17c90beef5fa446c","prev_hash":"a0fd495dabe3b5531729532ffcce5ff501a22da1f2e3249a7fb35f830ec1aabf","hash":"12d1d142b0fd76dc0a1140961373bf37b38f3aa19282eeba22bbcf487a1827fe"}
+{"seq":52,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:tokens","claim":"318（转述自 端点响应的 usage.prompt_tokens）","basis":2,"source":"端点响应的 usage.prompt_tokens","ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"eyJOIjozMTgsIkJhc2lzIjoyLCJTb3VyY2UiOiLnq6/ngrnlk43lupTnmoQgdXNhZ2UucHJvbXB0X3Rva2VucyIsIkFic2VudCI6ZmFsc2UsIlJlZnVzZWQiOmZhbHNlLCJXaHkiOiIifQ==","payload_sha256":"7eaf8bc5526e19e8f906500b49f91907f99f2c77a46837b8ffa63a867a49c46f","prev_hash":"12d1d142b0fd76dc0a1140961373bf37b38f3aa19282eeba22bbcf487a1827fe","hash":"d3a443cb78768c597e4f110b0473d2632c2e236f1f6485cfe4656ed729a69612"}
+{"seq":53,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:call_bytes_ceiling","claim":"32768","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"MzI3Njg=","payload_sha256":"d196d59bf4f8f8d25291f2f0bc606158638bea3fcb582b52481df2063480af60","prev_hash":"d3a443cb78768c597e4f110b0473d2632c2e236f1f6485cfe4656ed729a69612","hash":"44c2144393f7e5ca8dd65b1102fb08825488bde917fb53a14c07715610a62536"}
+{"seq":54,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:transport_slack_pct","claim":"12","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"MTI=","payload_sha256":"6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918","prev_hash":"44c2144393f7e5ca8dd65b1102fb08825488bde917fb53a14c07715610a62536","hash":"487201565b47e39c333d44f40fbcc67ac05052abff78d44c489d9bc83d08b9ca"}
+{"seq":55,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:content_ceiling","claim":"28835","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"Mjg4MzU=","payload_sha256":"db5c66cd9b3d0cf3b7961fc494e81db0649a1c5a6839d5299b12ae5ba97c22b6","prev_hash":"487201565b47e39c333d44f40fbcc67ac05052abff78d44c489d9bc83d08b9ca","hash":"1292a6dafd56345992fa607276885e02834d5c8190e3984b5437d7fd3fa2a828"}
+{"seq":56,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:effective_ceiling","claim":"28835","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"Mjg4MzU=","payload_sha256":"db5c66cd9b3d0cf3b7961fc494e81db0649a1c5a6839d5299b12ae5ba97c22b6","prev_hash":"1292a6dafd56345992fa607276885e02834d5c8190e3984b5437d7fd3fa2a828","hash":"dca2bbf3d80e0dc2ec17005d0a5f8ce1be6d049f518b2f4a671bc9834552e7f2"}
+{"seq":57,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:clamp_rounds","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"dca2bbf3d80e0dc2ec17005d0a5f8ce1be6d049f518b2f4a671bc9834552e7f2","hash":"26af14649689e1de2b23e7a6420272aa3ff89d3d204af5c0d4c6be3b6c81e623"}
+{"seq":58,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:leftover_pct","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"26af14649689e1de2b23e7a6420272aa3ff89d3d204af5c0d4c6be3b6c81e623","hash":"aae2dd100ed044e5a6d6ee083a187847901867587c50e393afe60a1840209df8"}
+{"seq":59,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:fixed_overhead","claim":"≈300（这是估算，不是测量）：估的是骨架+模型名+工具清单的粗估","basis":3,"source":"骨架+模型名+工具清单的粗估","ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"eyJOIjozMDAsIkJhc2lzIjozLCJTb3VyY2UiOiLpqqjmnrYr5qih5Z6L5ZCNK+W3peWFt+a4heWNleeahOeyl+S8sCIsIkFic2VudCI6ZmFsc2UsIlJlZnVzZWQiOmZhbHNlLCJXaHkiOiIifQ==","payload_sha256":"fbc8d2876c981b851e4b7cc64ab048fb5a495ceb8cc78078cdf36655b8acf620","prev_hash":"aae2dd100ed044e5a6d6ee083a187847901867587c50e393afe60a1840209df8","hash":"7eeae739637931a938d3f95263d5b51814a8d154e3ad6b025ba04ed7111ea89c"}
+{"seq":60,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:shares","claim":"history=20 observation=3 system=16 toolspec=51 user=10","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"WyJoaXN0b3J5PTIwIiwib2JzZXJ2YXRpb249MyIsInN5c3RlbT0xNiIsInRvb2xzcGVjPTUxIiwidXNlcj0xMCJd","payload_sha256":"89b94ac91da6be2db1fd2a3111cb676b09901db04276bb16c9e67ba921ed522b","prev_hash":"7eeae739637931a938d3f95263d5b51814a8d154e3ad6b025ba04ed7111ea89c","hash":"8494f20e1680b2e5b368833f531891ece76ef6d38984efae03a8bb233a7e36f5"}
+{"seq":61,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:notice_sent","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"8494f20e1680b2e5b368833f531891ece76ef6d38984efae03a8bb233a7e36f5","hash":"3821b9edbd010e283c416ddb5ba46d3b9ca8cdfc800deb8298f7b4ce37229dbf"}
+{"seq":62,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:notice_trimmed","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"3821b9edbd010e283c416ddb5ba46d3b9ca8cdfc800deb8298f7b4ce37229dbf","hash":"f18a9f5d5a3925866eb755371d8c0b659403f4ca01423c44effeea7d8da239cc"}
+{"seq":63,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:notice_why","claim":"这一发没折叠、没裁尾、没整段丢弃；被截的是**输出**，由 finish_reason 那一格记","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"Iui/meS4gOWPkeayoeaKmOWPoOOAgeayoeijgeWwvuOAgeayoeaVtOauteS4ouW8g++8m+iiq+aIqueahOaYryoq6L6T5Ye6KirvvIznlLEgZmluaXNoX3JlYXNvbiDpgqPkuIDmoLzorrAi","payload_sha256":"34d09e65501c1063e52b9ba5aef77accf9ff19cfdd9e0b9dae2495c60fb3a796","prev_hash":"f18a9f5d5a3925866eb755371d8c0b659403f4ca01423c44effeea7d8da239cc","hash":"d266425667bc149055ea0f1628f9a0e207a432da8e76d09c2f8267e5668f14a9"}
+{"seq":64,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:notice_text","claim":"（这一格是空的）","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"IiI=","payload_sha256":"12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126","prev_hash":"d266425667bc149055ea0f1628f9a0e207a432da8e76d09c2f8267e5668f14a9","hash":"0aa597847e7a0134363e90c1b1100c928d1ef92e8e9cba20be75551e8157ea6c"}
+{"seq":65,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:folded","claim":"0 段（裁剪表是空的）","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"W10=","payload_sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","prev_hash":"0aa597847e7a0134363e90c1b1100c928d1ef92e8e9cba20be75551e8157ea6c","hash":"674bacf307c3dbc83d828656d5e159e9f7edc551ed408252f7b754161f09bd31"}
+{"seq":66,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:clipped","claim":"0 段（裁剪表是空的）","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"W10=","payload_sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","prev_hash":"674bacf307c3dbc83d828656d5e159e9f7edc551ed408252f7b754161f09bd31","hash":"0f34476fcfb12cfff8ab6118c2802bc33425576d846f68706bab70b0f0a0f733"}
+{"seq":67,"session":"tools","actor":"tools_probe","step":2,"kind":"model_input:dropped","claim":"0 段（裁剪表是空的）","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"W10=","payload_sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","prev_hash":"0f34476fcfb12cfff8ab6118c2802bc33425576d846f68706bab70b0f0a0f733","hash":"eae8810cfc4a21341e4ab60cef0fb8f38e97721621dbdeb519489318502f60e4"}
+{"seq":68,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:call","claim":"2","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"Mg==","payload_sha256":"d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35","prev_hash":"eae8810cfc4a21341e4ab60cef0fb8f38e97721621dbdeb519489318502f60e4","hash":"30f715fcf5e5d10a987506320950d54e7c6cd24f7744205388dcfe901c6fc82d"}
+{"seq":69,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:streaming","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"30f715fcf5e5d10a987506320950d54e7c6cd24f7744205388dcfe901c6fc82d","hash":"11239756150f69bc940fba8913604e7d84f6832545bc380e7e3ab0325b4f0854"}
+{"seq":70,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:finish","claim":"stop","basis":2,"source":"endpoint-response","ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"InN0b3Ai","payload_sha256":"6f2be2fe58ca2ba48e809c9588269fb710ce2535ba22acafb1123cdbb7421a02","prev_hash":"11239756150f69bc940fba8913604e7d84f6832545bc380e7e3ab0325b4f0854","hash":"469df4aa30443e3fbc0d8aecb58a6c70dbb89ffbe34d1864983421ea625dffd5"}
+{"seq":71,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:finish_said","claim":"是","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"dHJ1ZQ==","payload_sha256":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","prev_hash":"469df4aa30443e3fbc0d8aecb58a6c70dbb89ffbe34d1864983421ea625dffd5","hash":"716b2ebf899b773524d253a51ec3c526c02f973cf2156b31a576232e1a0f0210"}
+{"seq":72,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:endpoint_model","claim":"fake-model","basis":4,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"ImZha2UtbW9kZWwi","payload_sha256":"582eb9070e1f4555202125ac82783628a4baffa1e8844fa88973f05f4f4457fd","prev_hash":"716b2ebf899b773524d253a51ec3c526c02f973cf2156b31a576232e1a0f0210","hash":"1baa73e1f9398fc2eccc769f2ca76876ac83a5d4c3f9915bbc541888031a9c8d"}
+{"seq":73,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:endpoint_model_said","claim":"是","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"dHJ1ZQ==","payload_sha256":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","prev_hash":"1baa73e1f9398fc2eccc769f2ca76876ac83a5d4c3f9915bbc541888031a9c8d","hash":"04266f9475770dd8903c5a192ce4eecbefec6c3bbbb5de8045993cfbc02ab860"}
+{"seq":74,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:model_says_bytes","claim":"12","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"MTI=","payload_sha256":"6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918","prev_hash":"04266f9475770dd8903c5a192ce4eecbefec6c3bbbb5de8045993cfbc02ab860","hash":"30a3d08a601e016afbd548bbe34ce891dc3a98064773b165fc5fb5a9c0761b77"}
+{"seq":75,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:model_says_kept","claim":"12","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"MTI=","payload_sha256":"6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918","prev_hash":"30a3d08a601e016afbd548bbe34ce891dc3a98064773b165fc5fb5a9c0761b77","hash":"3349f6b0b359c69534662037c4d881f2cdeb8478f641274d99e90a040a109d2a"}
+{"seq":76,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:model_says_clipped","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"3349f6b0b359c69534662037c4d881f2cdeb8478f641274d99e90a040a109d2a","hash":"429548e84567eca7c47fb300920345526b98b45b8edd06168bb16b917646e04d"}
+{"seq":77,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:model_says_sha256","claim":"addd5ed1ab1744b87fe1bcc4bd9789988e56282496f8e082ef808c53926e3da2","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"ImFkZGQ1ZWQxYWIxNzQ0Yjg3ZmUxYmNjNGJkOTc4OTk4OGU1NjI4MjQ5NmY4ZTA4MmVmODA4YzUzOTI2ZTNkYTIi","payload_sha256":"2272dc6de22053dace44526b6edc42b547ae4ae75d23608cc558f69640fb9667","prev_hash":"429548e84567eca7c47fb300920345526b98b45b8edd06168bb16b917646e04d","hash":"0ae16680b5e55d54177f779ed46cecf502827cae7a6cb532125fc13494534450"}
+{"seq":78,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:usage_in","claim":"318（转述自 端点响应的 usage.prompt_tokens）","basis":2,"source":"端点响应的 usage.prompt_tokens","ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"eyJOIjozMTgsIkJhc2lzIjoyLCJTb3VyY2UiOiLnq6/ngrnlk43lupTnmoQgdXNhZ2UucHJvbXB0X3Rva2VucyIsIkFic2VudCI6ZmFsc2UsIlJlZnVzZWQiOmZhbHNlLCJXaHkiOiIifQ==","payload_sha256":"7eaf8bc5526e19e8f906500b49f91907f99f2c77a46837b8ffa63a867a49c46f","prev_hash":"0ae16680b5e55d54177f779ed46cecf502827cae7a6cb532125fc13494534450","hash":"ff229ad03613f892ca01f0a24d91d94563075a58c2be0d504202e18f936b572b"}
+{"seq":79,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:usage_out","claim":"7（转述自 端点响应的 usage.completion_tokens）","basis":2,"source":"端点响应的 usage.completion_tokens","ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"eyJOIjo3LCJCYXNpcyI6MiwiU291cmNlIjoi56uv54K55ZON5bqU55qEIHVzYWdlLmNvbXBsZXRpb25fdG9rZW5zIiwiQWJzZW50IjpmYWxzZSwiUmVmdXNlZCI6ZmFsc2UsIldoeSI6IiJ9","payload_sha256":"04cf7e3145f93b4cc2f3d0b18e10d1cb2e94ce50a5c31bbe289f0644c52daa51","prev_hash":"ff229ad03613f892ca01f0a24d91d94563075a58c2be0d504202e18f936b572b","hash":"3dd9f9f1bd5ec9b7a763d40eca6149ac4feea28a78c612af6df2db56d547ed15"}
+{"seq":80,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:wire_bytes_out","claim":"988","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"eyJOIjo5ODgsIkJhc2lzIjoxLCJTb3VyY2UiOiIiLCJBYnNlbnQiOmZhbHNlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5IjoiIn0=","payload_sha256":"2f47347a69d4eb21e1091f5252f926b4bbd4b59d908b19459aaee0b028f7aa6b","prev_hash":"3dd9f9f1bd5ec9b7a763d40eca6149ac4feea28a78c612af6df2db56d547ed15","hash":"30f060e0b686a87bdb77c4ce4208d25eee5c0730e84db28f391459b4e0765cc3"}
+{"seq":81,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:wire_bytes_in","claim":"271","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"eyJOIjoyNzEsIkJhc2lzIjoxLCJTb3VyY2UiOiIiLCJBYnNlbnQiOmZhbHNlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5IjoiIn0=","payload_sha256":"56a0fc3fa068e3ee7ccbb6b09d14e3cbcee5a327d7f636ad666a169ae4a233a0","prev_hash":"30f060e0b686a87bdb77c4ce4208d25eee5c0730e84db28f391459b4e0765cc3","hash":"885320095a81b7563e5409ef1a6e09309b88be003f48095a1e9e0e107715024f"}
+{"seq":82,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:chunks","claim":"—（没量到，不是 0）：这一发不是流式的，结构上没有分帧","basis":5,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi6L+Z5LiA5Y+R5LiN5piv5rWB5byP55qE77yM57uT5p6E5LiK5rKh5pyJ5YiG5binIn0=","payload_sha256":"7b754a6d853abfad034312a3947dc29eb1b66b543582eb4028d0e39d62690e4e","prev_hash":"885320095a81b7563e5409ef1a6e09309b88be003f48095a1e9e0e107715024f","hash":"a117392e934e4b96be157dba7efae6e351014bd801f35bd4547150816fbde591"}
+{"seq":83,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:first_byte_ms","claim":"—（没量到，不是 0）：这一发不是流式的，结构上没有首帧这件事","basis":5,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi6L+Z5LiA5Y+R5LiN5piv5rWB5byP55qE77yM57uT5p6E5LiK5rKh5pyJ6aaW5bin6L+Z5Lu25LqLIn0=","payload_sha256":"d85c8e1bbf836c3edb424a7b6d4c1bf868b6e3da8e9178f129190661ebd3301a","prev_hash":"a117392e934e4b96be157dba7efae6e351014bd801f35bd4547150816fbde591","hash":"d9f22d9106974a8b4babd64bc1a69826fc7ea0e2f10b77359a6629714f5a9023"}
+{"seq":84,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:max_gap_ms","claim":"—（没量到，不是 0）：这一发不是流式的，结构上没有帧间","basis":5,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi6L+Z5LiA5Y+R5LiN5piv5rWB5byP55qE77yM57uT5p6E5LiK5rKh5pyJ5bin6Ze0In0=","payload_sha256":"cf44a0062eeddbdfb4442ec06bf5dfab0233760989d39aef685ff9a12db46c60","prev_hash":"d9f22d9106974a8b4babd64bc1a69826fc7ea0e2f10b77359a6629714f5a9023","hash":"6506efd3c748bf3200550cdbee8e76e0ed109ee5e24853c1e699673e3ea111ca"}
+{"seq":85,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:tool_calls","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"6506efd3c748bf3200550cdbee8e76e0ed109ee5e24853c1e699673e3ea111ca","hash":"287599dc1503928760bb3310387d6c0ffd9a8d792da27469794b3ccde2593eae"}
+{"seq":86,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:malformed_actions","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"287599dc1503928760bb3310387d6c0ffd9a8d792da27469794b3ccde2593eae","hash":"f8e91803bb7bb6396ed024d537840ceacd245ca6da75405e18252204f23dee43"}
+{"seq":87,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:malformed_streak","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"f8e91803bb7bb6396ed024d537840ceacd245ca6da75405e18252204f23dee43","hash":"bef422534b615d359fea45c35a2e46d408cf9d6dd88cacedd52955f57c8e40b4"}
+{"seq":88,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:fail_kind","claim":"（这一格是空的）","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"IiI=","payload_sha256":"12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126","prev_hash":"bef422534b615d359fea45c35a2e46d408cf9d6dd88cacedd52955f57c8e40b4","hash":"d1d177fe17c04ede8008267a8dcd68483bc424d034b380106c5d511681965b61"}
+{"seq":89,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:fail_detail","claim":"（这一格是空的）","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"IiI=","payload_sha256":"12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126","prev_hash":"d1d177fe17c04ede8008267a8dcd68483bc424d034b380106c5d511681965b61","hash":"21a9dc5a3374737ab4dd2935e1179f705b77726098543df3f9a0f3972255e621"}
+{"seq":90,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:fail_status","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0723558Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"21a9dc5a3374737ab4dd2935e1179f705b77726098543df3f9a0f3972255e621","hash":"b6e010b1052bb7ad8309a1ce5353471710dc55b4d42dc87fd2aed17460e7e38f"}
+{"seq":91,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:retry_after_ms","claim":"—（没量到，不是 0）：这一发没断，也就没有要等多久","basis":5,"ts":"2026-10-13T14:08:50.0726999Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi6L+Z5LiA5Y+R5rKh5pat77yM5Lmf5bCx5rKh5pyJ6KaB562J5aSa5LmFIn0=","payload_sha256":"325fc478e81889b4e89be7e515cc8efbc925403707077a5993775b796a573e43","prev_hash":"b6e010b1052bb7ad8309a1ce5353471710dc55b4d42dc87fd2aed17460e7e38f","hash":"c9b3a20d685378a4febd9549d8131873393c2c00bae2ccf84f731bf61392516b"}
+{"seq":92,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:downgrade","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0726999Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"c9b3a20d685378a4febd9549d8131873393c2c00bae2ccf84f731bf61392516b","hash":"d7dcd5eac067081196dc8f346e50f9e83f4b5690d01d09dbf5b7d1ae8d99ccc0"}
+{"seq":93,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:sent","claim":"发出去了","basis":1,"ts":"2026-10-13T14:08:50.0726999Z","payload_b64":"IuWPkeWHuuWOu+S6hiI=","payload_sha256":"221f8a8d04ca37dcebca110b96852ec20bc5af8a3e2b38a222d994f43049a6d9","prev_hash":"d7dcd5eac067081196dc8f346e50f9e83f4b5690d01d09dbf5b7d1ae8d99ccc0","hash":"e5305489d99700b77acbae7e0a53cb84050fe67005ad2b46c03c48e8e52f3136"}
+{"seq":94,"session":"tools","actor":"tools_probe","step":2,"kind":"model_output:cost_countable","claim":"是","basis":1,"ts":"2026-10-13T14:08:50.0726999Z","payload_b64":"dHJ1ZQ==","payload_sha256":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","prev_hash":"e5305489d99700b77acbae7e0a53cb84050fe67005ad2b46c03c48e8e52f3136","hash":"e552ae19c7bf592e5389d9df8d3969b49b07891898c489d0f45f15e9d9b55994"}
+{"seq":95,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:call","claim":"3","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"Mw==","payload_sha256":"4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce","prev_hash":"e552ae19c7bf592e5389d9df8d3969b49b07891898c489d0f45f15e9d9b55994","hash":"05381fb65f906404c549c34994a246c727051cd9dee7cffbec4f02d694bcb04b"}
+{"seq":96,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:parts","claim":"8 段：system toolspec user history observation user history user","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"WyJzeXN0ZW0iLCJ0b29sc3BlYyIsInVzZXIiLCJoaXN0b3J5Iiwib2JzZXJ2YXRpb24iLCJ1c2VyIiwiaGlzdG9yeSIsInVzZXIiXQ==","payload_sha256":"8204d369393b7bc91f8727869e9b5f2d89ebe0afd6aa0ecf8d9d2828dc274fc1","prev_hash":"05381fb65f906404c549c34994a246c727051cd9dee7cffbec4f02d694bcb04b","hash":"1c79f2f05e18789d971ba37271e0f633ba2ee265086ceafbc4ac9aa4945b42ff"}
+{"seq":97,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:part_totals","claim":"5 类共 802 字节：system=1 toolspec=1 user=3 history=2 observation=1","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"W3siS2luZCI6InN5c3RlbSIsIlBhcnRzIjoxLCJCeXRlcyI6MTIwfSx7IktpbmQiOiJ0b29sc3BlYyIsIlBhcnRzIjoxLCJCeXRlcyI6MzU1fSx7IktpbmQiOiJ1c2VyIiwiUGFydHMiOjMsIkJ5dGVzIjoxMjB9LHsiS2luZCI6Imhpc3RvcnkiLCJQYXJ0cyI6MiwiQnl0ZXMiOjE5Nn0seyJLaW5kIjoib2JzZXJ2YXRpb24iLCJQYXJ0cyI6MSwiQnl0ZXMiOjExfV0=","payload_sha256":"af220564c2f58092745a2c718825320a9519feee7f7b312497f4558e467b3db1","prev_hash":"1c79f2f05e18789d971ba37271e0f633ba2ee265086ceafbc4ac9aa4945b42ff","hash":"fb83c902140605deb5f9b6532cfacd650eac6f44e537f4ac79320a2b388eda69"}
+{"seq":98,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:content_bytes","claim":"802","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"ODAy","payload_sha256":"477f4b2cdd3fe2b9fdd7dfb887f98252ef26cecf13eb53289116a1344382256d","prev_hash":"fb83c902140605deb5f9b6532cfacd650eac6f44e537f4ac79320a2b388eda69","hash":"98df84bbbc7612f97643689424be032760c5596b6764801a7ee3b4947ad28eaa"}
+{"seq":99,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:tokens","claim":"354（转述自 端点响应的 usage.prompt_tokens）","basis":2,"source":"端点响应的 usage.prompt_tokens","ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"eyJOIjozNTQsIkJhc2lzIjoyLCJTb3VyY2UiOiLnq6/ngrnlk43lupTnmoQgdXNhZ2UucHJvbXB0X3Rva2VucyIsIkFic2VudCI6ZmFsc2UsIlJlZnVzZWQiOmZhbHNlLCJXaHkiOiIifQ==","payload_sha256":"958dc0bc7babd21a5ce5c0b6182fe35672d03a76a0d9f350e686eb553af90e1d","prev_hash":"98df84bbbc7612f97643689424be032760c5596b6764801a7ee3b4947ad28eaa","hash":"727a498bc0a452b670b5a2104083526c98522de4de305015c3604e85d84732b7"}
+{"seq":100,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:call_bytes_ceiling","claim":"32768","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"MzI3Njg=","payload_sha256":"d196d59bf4f8f8d25291f2f0bc606158638bea3fcb582b52481df2063480af60","prev_hash":"727a498bc0a452b670b5a2104083526c98522de4de305015c3604e85d84732b7","hash":"0e53e8930f279c5f76d5a07eb44951ceb3c63dea5eda9992566ce01ceeb4b0e3"}
+{"seq":101,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:transport_slack_pct","claim":"12","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"MTI=","payload_sha256":"6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918","prev_hash":"0e53e8930f279c5f76d5a07eb44951ceb3c63dea5eda9992566ce01ceeb4b0e3","hash":"ac028d5af799c78e98809b23850fd3da2f5e51b61c1f88ba9f72dc25440ac432"}
+{"seq":102,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:content_ceiling","claim":"28835","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"Mjg4MzU=","payload_sha256":"db5c66cd9b3d0cf3b7961fc494e81db0649a1c5a6839d5299b12ae5ba97c22b6","prev_hash":"ac028d5af799c78e98809b23850fd3da2f5e51b61c1f88ba9f72dc25440ac432","hash":"614f02c13e6f9df166c7579e6f3be5d525cfd508a1ed3333c53ead0662424e74"}
+{"seq":103,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:effective_ceiling","claim":"28835","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"Mjg4MzU=","payload_sha256":"db5c66cd9b3d0cf3b7961fc494e81db0649a1c5a6839d5299b12ae5ba97c22b6","prev_hash":"614f02c13e6f9df166c7579e6f3be5d525cfd508a1ed3333c53ead0662424e74","hash":"b2269e94edaf47297e7a2596857c73060c546b182f55e2f47f1522243976791a"}
+{"seq":104,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:clamp_rounds","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"b2269e94edaf47297e7a2596857c73060c546b182f55e2f47f1522243976791a","hash":"7996c3ad419a8df5b7adcc768328f02e176bb8a8d7795c7ab8bc51d3778bea5b"}
+{"seq":105,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:leftover_pct","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"7996c3ad419a8df5b7adcc768328f02e176bb8a8d7795c7ab8bc51d3778bea5b","hash":"13d41141e70746f7831858f2b3adb7b3dc39cfded5917b92654c9d67bfddbc4a"}
+{"seq":106,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:fixed_overhead","claim":"≈300（这是估算，不是测量）：估的是骨架+模型名+工具清单的粗估","basis":3,"source":"骨架+模型名+工具清单的粗估","ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"eyJOIjozMDAsIkJhc2lzIjozLCJTb3VyY2UiOiLpqqjmnrYr5qih5Z6L5ZCNK+W3peWFt+a4heWNleeahOeyl+S8sCIsIkFic2VudCI6ZmFsc2UsIlJlZnVzZWQiOmZhbHNlLCJXaHkiOiIifQ==","payload_sha256":"fbc8d2876c981b851e4b7cc64ab048fb5a495ceb8cc78078cdf36655b8acf620","prev_hash":"13d41141e70746f7831858f2b3adb7b3dc39cfded5917b92654c9d67bfddbc4a","hash":"94e666d3a92c441835b73e1c7988d113a4feb573cfb424ecf3293f0bf87a219d"}
+{"seq":107,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:shares","claim":"history=23 observation=3 system=14 toolspec=46 user=14","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"WyJoaXN0b3J5PTIzIiwib2JzZXJ2YXRpb249MyIsInN5c3RlbT0xNCIsInRvb2xzcGVjPTQ2IiwidXNlcj0xNCJd","payload_sha256":"d9ff9ad515f2668027a85d1b452a16d9fcd0bb285cb8e589a08b11ac8b82d066","prev_hash":"94e666d3a92c441835b73e1c7988d113a4feb573cfb424ecf3293f0bf87a219d","hash":"4944bce7701a2c954e9de9627bea9d8acec89d4ae90a56b2edc25cf67f6b9c96"}
+{"seq":108,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:notice_sent","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"4944bce7701a2c954e9de9627bea9d8acec89d4ae90a56b2edc25cf67f6b9c96","hash":"4cfcd7225ee9034d7a41debebf56278f173fcfda85a66381fb0560adf96d161d"}
+{"seq":109,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:notice_trimmed","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"4cfcd7225ee9034d7a41debebf56278f173fcfda85a66381fb0560adf96d161d","hash":"b6d00b306cab4c08237faf5cc6be1bf4f375e903634e5278aa4483c55811d17d"}
+{"seq":110,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:notice_why","claim":"这一发没折叠、没裁尾、没整段丢弃；被截的是**输出**，由 finish_reason 那一格记","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"Iui/meS4gOWPkeayoeaKmOWPoOOAgeayoeijgeWwvuOAgeayoeaVtOauteS4ouW8g++8m+iiq+aIqueahOaYryoq6L6T5Ye6KirvvIznlLEgZmluaXNoX3JlYXNvbiDpgqPkuIDmoLzorrAi","payload_sha256":"34d09e65501c1063e52b9ba5aef77accf9ff19cfdd9e0b9dae2495c60fb3a796","prev_hash":"b6d00b306cab4c08237faf5cc6be1bf4f375e903634e5278aa4483c55811d17d","hash":"685f423655af8270e171d345efe99c08d71d46c743e123e86a697dc189950831"}
+{"seq":111,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:notice_text","claim":"（这一格是空的）","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"IiI=","payload_sha256":"12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126","prev_hash":"685f423655af8270e171d345efe99c08d71d46c743e123e86a697dc189950831","hash":"c0c0967b761eaa1dd9776c2b47f1ee81444fc5192d363a7da47b6042049a3129"}
+{"seq":112,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:folded","claim":"0 段（裁剪表是空的）","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"W10=","payload_sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","prev_hash":"c0c0967b761eaa1dd9776c2b47f1ee81444fc5192d363a7da47b6042049a3129","hash":"4629f2855cb7cba6b4d6ade5c6e56806abf9769d7f84bfa78b463a19c2f70648"}
+{"seq":113,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:clipped","claim":"0 段（裁剪表是空的）","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"W10=","payload_sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","prev_hash":"4629f2855cb7cba6b4d6ade5c6e56806abf9769d7f84bfa78b463a19c2f70648","hash":"dcdda7a615c937cd51207e8e5a5f6f8f2d6ece92822423744b7e4b3672d606bb"}
+{"seq":114,"session":"tools","actor":"tools_probe","step":3,"kind":"model_input:dropped","claim":"0 段（裁剪表是空的）","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"W10=","payload_sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","prev_hash":"dcdda7a615c937cd51207e8e5a5f6f8f2d6ece92822423744b7e4b3672d606bb","hash":"40214e5e2ae626be5e06622d057f3ab5a8b8f58c8b0750310cac43de5bd7e919"}
+{"seq":115,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:call","claim":"3","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"Mw==","payload_sha256":"4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce","prev_hash":"40214e5e2ae626be5e06622d057f3ab5a8b8f58c8b0750310cac43de5bd7e919","hash":"968713ae57e6c7ca484a877bfc46948939255551e4d4af8b99de0a0aa525cc5d"}
+{"seq":116,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:streaming","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"968713ae57e6c7ca484a877bfc46948939255551e4d4af8b99de0a0aa525cc5d","hash":"9e78f3234d121eea731da8689cb6aa1b52909ac7bd9990db028e5b0efe507700"}
+{"seq":117,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:finish","claim":"tool_calls","basis":2,"source":"endpoint-response","ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"InRvb2xfY2FsbHMi","payload_sha256":"afa9a5b7f2f60ef7d67b4495f2edb5204aae87965dd3f2680ab1cf2994524088","prev_hash":"9e78f3234d121eea731da8689cb6aa1b52909ac7bd9990db028e5b0efe507700","hash":"10b68a38ce4b47e6627c34ccdb827dfe9e149c0655ca0cb61e9c821e905ed452"}
+{"seq":118,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:finish_said","claim":"是","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"dHJ1ZQ==","payload_sha256":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","prev_hash":"10b68a38ce4b47e6627c34ccdb827dfe9e149c0655ca0cb61e9c821e905ed452","hash":"0d0fcb40406409bbc47ee89dfa3ad46405b4702d23ae571fa5b9425258184805"}
+{"seq":119,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:endpoint_model","claim":"fake-model","basis":4,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"ImZha2UtbW9kZWwi","payload_sha256":"582eb9070e1f4555202125ac82783628a4baffa1e8844fa88973f05f4f4457fd","prev_hash":"0d0fcb40406409bbc47ee89dfa3ad46405b4702d23ae571fa5b9425258184805","hash":"769b684235e9daddf3e63feebd0713b27a00ce6b604a21491edbcaf681522143"}
+{"seq":120,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:endpoint_model_said","claim":"是","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"dHJ1ZQ==","payload_sha256":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","prev_hash":"769b684235e9daddf3e63feebd0713b27a00ce6b604a21491edbcaf681522143","hash":"9fe3ea2c838a20bf5373164edb6576822ebd6a95c3e489e23b011fd79a59966e"}
+{"seq":121,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:model_says_bytes","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"9fe3ea2c838a20bf5373164edb6576822ebd6a95c3e489e23b011fd79a59966e","hash":"feac6df965d3c42604a68d1819042bcc4cc994b0b52e9031d6b3b9dc7e508911"}
+{"seq":122,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:model_says_kept","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"feac6df965d3c42604a68d1819042bcc4cc994b0b52e9031d6b3b9dc7e508911","hash":"f518a7f596ad9e0fa846abf37634eaefae9320c29d547aa468843b2be7270857"}
+{"seq":123,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:model_says_clipped","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"f518a7f596ad9e0fa846abf37634eaefae9320c29d547aa468843b2be7270857","hash":"9fdad676e1fd204fafa5c2bc86861a8362b6204a11f8f9c03e5293a04cb8d78e"}
+{"seq":124,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:model_says_sha256","claim":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUi","payload_sha256":"b4b16dad390bac4c7ce42014c594fa668910b49ec1b7771a17891c187d71e0ab","prev_hash":"9fdad676e1fd204fafa5c2bc86861a8362b6204a11f8f9c03e5293a04cb8d78e","hash":"0aa4e50cfe5e69d287bc497f85b39632633ad547e5c52f7b0f7e40098fe5d95d"}
+{"seq":125,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:usage_in","claim":"354（转述自 端点响应的 usage.prompt_tokens）","basis":2,"source":"端点响应的 usage.prompt_tokens","ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"eyJOIjozNTQsIkJhc2lzIjoyLCJTb3VyY2UiOiLnq6/ngrnlk43lupTnmoQgdXNhZ2UucHJvbXB0X3Rva2VucyIsIkFic2VudCI6ZmFsc2UsIlJlZnVzZWQiOmZhbHNlLCJXaHkiOiIifQ==","payload_sha256":"958dc0bc7babd21a5ce5c0b6182fe35672d03a76a0d9f350e686eb553af90e1d","prev_hash":"0aa4e50cfe5e69d287bc497f85b39632633ad547e5c52f7b0f7e40098fe5d95d","hash":"0c502ecac451f21830be01bc43ac9ed8ca00b3d3f62de1d73ffbee7ded8b1e4d"}
+{"seq":126,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:usage_out","claim":"7（转述自 端点响应的 usage.completion_tokens）","basis":2,"source":"端点响应的 usage.completion_tokens","ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"eyJOIjo3LCJCYXNpcyI6MiwiU291cmNlIjoi56uv54K55ZON5bqU55qEIHVzYWdlLmNvbXBsZXRpb25fdG9rZW5zIiwiQWJzZW50IjpmYWxzZSwiUmVmdXNlZCI6ZmFsc2UsIldoeSI6IiJ9","payload_sha256":"04cf7e3145f93b4cc2f3d0b18e10d1cb2e94ce50a5c31bbe289f0644c52daa51","prev_hash":"0c502ecac451f21830be01bc43ac9ed8ca00b3d3f62de1d73ffbee7ded8b1e4d","hash":"b7e322745c75402f529f2f5fff124347695ceb323278d3b4bed6c01c084e582e"}
+{"seq":127,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:wire_bytes_out","claim":"1108","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"eyJOIjoxMTA4LCJCYXNpcyI6MSwiU291cmNlIjoiIiwiQWJzZW50IjpmYWxzZSwiUmVmdXNlZCI6ZmFsc2UsIldoeSI6IiJ9","payload_sha256":"8c059d300a57c5a9f1644e124db8f7dd701178dce3a57af4d9b7942ed01d1ba6","prev_hash":"b7e322745c75402f529f2f5fff124347695ceb323278d3b4bed6c01c084e582e","hash":"595a341295136f2f5723daf2ddd536cd939448a01e097e58b7ae21b9948c84d0"}
+{"seq":128,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:wire_bytes_in","claim":"382","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"eyJOIjozODIsIkJhc2lzIjoxLCJTb3VyY2UiOiIiLCJBYnNlbnQiOmZhbHNlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5IjoiIn0=","payload_sha256":"7aba6c00d79112dcebf9b4674e81d4334266f79ed34fd994515e5dd59135039c","prev_hash":"595a341295136f2f5723daf2ddd536cd939448a01e097e58b7ae21b9948c84d0","hash":"831c0f27fc559a8a862cbee3b59fead76e37ce480cd31351f546d7aa11aac47b"}
+{"seq":129,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:chunks","claim":"—（没量到，不是 0）：这一发不是流式的，结构上没有分帧","basis":5,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi6L+Z5LiA5Y+R5LiN5piv5rWB5byP55qE77yM57uT5p6E5LiK5rKh5pyJ5YiG5binIn0=","payload_sha256":"7b754a6d853abfad034312a3947dc29eb1b66b543582eb4028d0e39d62690e4e","prev_hash":"831c0f27fc559a8a862cbee3b59fead76e37ce480cd31351f546d7aa11aac47b","hash":"42362102d379b2a4c7678bce09100a22230bc3f0bbc6acd653f92b96a699cc9a"}
+{"seq":130,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:first_byte_ms","claim":"—（没量到，不是 0）：这一发不是流式的，结构上没有首帧这件事","basis":5,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi6L+Z5LiA5Y+R5LiN5piv5rWB5byP55qE77yM57uT5p6E5LiK5rKh5pyJ6aaW5bin6L+Z5Lu25LqLIn0=","payload_sha256":"d85c8e1bbf836c3edb424a7b6d4c1bf868b6e3da8e9178f129190661ebd3301a","prev_hash":"42362102d379b2a4c7678bce09100a22230bc3f0bbc6acd653f92b96a699cc9a","hash":"dd9ce7288f2d4c1daf3f44f7ed6b3bf4b306e02ed3a27b1a5268bd6f2a6beb99"}
+{"seq":131,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:max_gap_ms","claim":"—（没量到，不是 0）：这一发不是流式的，结构上没有帧间","basis":5,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi6L+Z5LiA5Y+R5LiN5piv5rWB5byP55qE77yM57uT5p6E5LiK5rKh5pyJ5bin6Ze0In0=","payload_sha256":"cf44a0062eeddbdfb4442ec06bf5dfab0233760989d39aef685ff9a12db46c60","prev_hash":"dd9ce7288f2d4c1daf3f44f7ed6b3bf4b306e02ed3a27b1a5268bd6f2a6beb99","hash":"c34d30ed8a5340ffa29ddcf816e3d4e77d9f81dceecc064fc17d23badeb8f48a"}
+{"seq":132,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:tool_calls","claim":"1","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"MQ==","payload_sha256":"6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b","prev_hash":"c34d30ed8a5340ffa29ddcf816e3d4e77d9f81dceecc064fc17d23badeb8f48a","hash":"d6181d97647864cba1c59da2d95df77d0871121ba41879e2f6d378f6fc4a5b3e"}
+{"seq":133,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:malformed_actions","claim":"1","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"MQ==","payload_sha256":"6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b","prev_hash":"d6181d97647864cba1c59da2d95df77d0871121ba41879e2f6d378f6fc4a5b3e","hash":"4f8f9f897923b34b866b3c22812f2b36be3c69875743eba433dae69eb3fd17a7"}
+{"seq":134,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:malformed_streak","claim":"1","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"MQ==","payload_sha256":"6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b","prev_hash":"4f8f9f897923b34b866b3c22812f2b36be3c69875743eba433dae69eb3fd17a7","hash":"4fb163c669ef2b781474cea152ad318d90d74025c1fbe87fd53e7b8a039d2b47"}
+{"seq":135,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:fail_kind","claim":"malformed_action","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"Im1hbGZvcm1lZF9hY3Rpb24i","payload_sha256":"3d44b4c8018bfa6363b83d86b92942a86daf6b7116ee785ab4a9ac0e7529a1f6","prev_hash":"4fb163c669ef2b781474cea152ad318d90d74025c1fbe87fd53e7b8a039d2b47","hash":"e11d2c4652366ae88069cacdb64ecf8742c1e4a1e560c94f089f506ee2197ec3"}
+{"seq":136,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:fail_detail","claim":"第 1 个提议（ledger_add）参数解不出 JSON：'{\"a\": 1'","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"IuesrCAxIOS4quaPkOiuru+8iGxlZGdlcl9hZGTvvInlj4LmlbDop6PkuI3lh7ogSlNPTu+8mid7XCJhXCI6IDEnIg==","payload_sha256":"0dbb896eb69a6b8e7c99cd71e8298a2bfd23d2c95a06b6b3f4380013de01c95e","prev_hash":"e11d2c4652366ae88069cacdb64ecf8742c1e4a1e560c94f089f506ee2197ec3","hash":"e0adc9b2d18a6f984b98fa1fb30f8ebb461a3862599b06cc5aaa8192cec8cd36"}
+{"seq":137,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:fail_status","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"e0adc9b2d18a6f984b98fa1fb30f8ebb461a3862599b06cc5aaa8192cec8cd36","hash":"caf4ea7e91588e3a1a8a7bd6052d28590ebce9f57e9bf3d8a2a9139a546182bb"}
+{"seq":138,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:retry_after_ms","claim":"—（没量到，不是 0）：原样重发不会变好：歪的是这一发的提议本身","basis":5,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi5Y6f5qC36YeN5Y+R5LiN5Lya5Y+Y5aW977ya5q2q55qE5piv6L+Z5LiA5Y+R55qE5o+Q6K6u5pys6LqrIn0=","payload_sha256":"070aa388c0c5cb8699df0663f003016735e792c0aecb60d489876702e2dad843","prev_hash":"caf4ea7e91588e3a1a8a7bd6052d28590ebce9f57e9bf3d8a2a9139a546182bb","hash":"ddc6d075ef1a28e35ea5b48841ffd37bc237e7ac8d787787af5dc82e42b4d779"}
+{"seq":139,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:downgrade","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"ddc6d075ef1a28e35ea5b48841ffd37bc237e7ac8d787787af5dc82e42b4d779","hash":"c865a0cd9de803941ef0d4633db12728061e846897a21a1fca3957bae64e2ea7"}
+{"seq":140,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:sent","claim":"发出去了","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"IuWPkeWHuuWOu+S6hiI=","payload_sha256":"221f8a8d04ca37dcebca110b96852ec20bc5af8a3e2b38a222d994f43049a6d9","prev_hash":"c865a0cd9de803941ef0d4633db12728061e846897a21a1fca3957bae64e2ea7","hash":"56679c9d8ffdf9891bf77a2824574f4f40d601aee65f47d02a616b148d9eac0b"}
+{"seq":141,"session":"tools","actor":"tools_probe","step":3,"kind":"model_output:cost_countable","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0735774Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"56679c9d8ffdf9891bf77a2824574f4f40d601aee65f47d02a616b148d9eac0b","hash":"23423e8c9461964d12008d47f13ea2c767372bb27effcd73132fce4423d4ad16"}
+{"seq":142,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:call","claim":"4","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"NA==","payload_sha256":"4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a","prev_hash":"23423e8c9461964d12008d47f13ea2c767372bb27effcd73132fce4423d4ad16","hash":"a1efcb7bad814974289e563e04f09ec99939087e5edf5dda944bec3290224071"}
+{"seq":143,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:parts","claim":"10 段：system toolspec user history observation user history user truncation-notice user","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"WyJzeXN0ZW0iLCJ0b29sc3BlYyIsInVzZXIiLCJoaXN0b3J5Iiwib2JzZXJ2YXRpb24iLCJ1c2VyIiwiaGlzdG9yeSIsInVzZXIiLCJ0cnVuY2F0aW9uLW5vdGljZSIsInVzZXIiXQ==","payload_sha256":"a9572a5526df8c096229ec129190c897e9c0b4b99cb7d726cf58118bec5524b2","prev_hash":"a1efcb7bad814974289e563e04f09ec99939087e5edf5dda944bec3290224071","hash":"f25ff3f0791926e60fd6be846214a1cf686736ef1ebf55e4efbe2e3fd69c68e2"}
+{"seq":144,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:part_totals","claim":"6 类共 1020 字节：system=1 toolspec=1 user=4 history=2 observation=1 truncation-notice=1","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"W3siS2luZCI6InN5c3RlbSIsIlBhcnRzIjoxLCJCeXRlcyI6MTIwfSx7IktpbmQiOiJ0b29sc3BlYyIsIlBhcnRzIjoxLCJCeXRlcyI6MzU1fSx7IktpbmQiOiJ1c2VyIiwiUGFydHMiOjQsIkJ5dGVzIjoxODV9LHsiS2luZCI6Imhpc3RvcnkiLCJQYXJ0cyI6MiwiQnl0ZXMiOjE5Nn0seyJLaW5kIjoib2JzZXJ2YXRpb24iLCJQYXJ0cyI6MSwiQnl0ZXMiOjExfSx7IktpbmQiOiJ0cnVuY2F0aW9uLW5vdGljZSIsIlBhcnRzIjoxLCJCeXRlcyI6MTUzfV0=","payload_sha256":"92b9cba7d2bd2880bc974f6406c1a677f2e04807735c241da3896eab4a0510f8","prev_hash":"f25ff3f0791926e60fd6be846214a1cf686736ef1ebf55e4efbe2e3fd69c68e2","hash":"1f3308e9af7358a5a5c9b9bbcf80c8d9ab6578f1fa6ea768401622e79df725a2"}
+{"seq":145,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:content_bytes","claim":"1020","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"MTAyMA==","payload_sha256":"f296867839c8befafed32b55a7c11ab4ad14387d2434b970a55237d537bc9353","prev_hash":"1f3308e9af7358a5a5c9b9bbcf80c8d9ab6578f1fa6ea768401622e79df725a2","hash":"1d30a5a052e5b63b87c3b4af5ba549d5c2a258ba1e0d597d8b6ac904278775f1"}
+{"seq":146,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:tokens","claim":"486（转述自 端点响应的 usage.prompt_tokens）","basis":2,"source":"端点响应的 usage.prompt_tokens","ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"eyJOIjo0ODYsIkJhc2lzIjoyLCJTb3VyY2UiOiLnq6/ngrnlk43lupTnmoQgdXNhZ2UucHJvbXB0X3Rva2VucyIsIkFic2VudCI6ZmFsc2UsIlJlZnVzZWQiOmZhbHNlLCJXaHkiOiIifQ==","payload_sha256":"3ed3b6c1dc9e47de744467bf0e262376cdadd565e1f26a754d4c6e86f878ccc1","prev_hash":"1d30a5a052e5b63b87c3b4af5ba549d5c2a258ba1e0d597d8b6ac904278775f1","hash":"885a63a4fc8cfa6c71230fd74f26d3f0b619e40d51d931caba98657b771b9378"}
+{"seq":147,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:call_bytes_ceiling","claim":"32768","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"MzI3Njg=","payload_sha256":"d196d59bf4f8f8d25291f2f0bc606158638bea3fcb582b52481df2063480af60","prev_hash":"885a63a4fc8cfa6c71230fd74f26d3f0b619e40d51d931caba98657b771b9378","hash":"c52934abcad8a11088fd5e81f18e250b8f9dee0dfb7c7afc2239250f25eb5a01"}
+{"seq":148,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:transport_slack_pct","claim":"12","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"MTI=","payload_sha256":"6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918","prev_hash":"c52934abcad8a11088fd5e81f18e250b8f9dee0dfb7c7afc2239250f25eb5a01","hash":"bc04a2b0c4c356a7486ef6c731c912d514a4cb859966e93a9200849c9787a1e1"}
+{"seq":149,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:content_ceiling","claim":"28835","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"Mjg4MzU=","payload_sha256":"db5c66cd9b3d0cf3b7961fc494e81db0649a1c5a6839d5299b12ae5ba97c22b6","prev_hash":"bc04a2b0c4c356a7486ef6c731c912d514a4cb859966e93a9200849c9787a1e1","hash":"1c92651a76bc4ca65d51e69742447c542b34dfbc183c922a9e917d4f72442541"}
+{"seq":150,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:effective_ceiling","claim":"28835","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"Mjg4MzU=","payload_sha256":"db5c66cd9b3d0cf3b7961fc494e81db0649a1c5a6839d5299b12ae5ba97c22b6","prev_hash":"1c92651a76bc4ca65d51e69742447c542b34dfbc183c922a9e917d4f72442541","hash":"43d9d77be5c3c6ad29e9c50fae23a91efe65643d9a407b992ee731bcbcefd9de"}
+{"seq":151,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:clamp_rounds","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"43d9d77be5c3c6ad29e9c50fae23a91efe65643d9a407b992ee731bcbcefd9de","hash":"36d3f679e0ee9bc88da0bdaf0d9a79ae7fa60aaefba9c19fdb3ad04184bca3ca"}
+{"seq":152,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:leftover_pct","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"36d3f679e0ee9bc88da0bdaf0d9a79ae7fa60aaefba9c19fdb3ad04184bca3ca","hash":"00381999e72f99b6a962d299370976ee74610e7ab9a4c5e9b509b36f90cae9a7"}
+{"seq":153,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:fixed_overhead","claim":"≈300（这是估算，不是测量）：估的是骨架+模型名+工具清单的粗估","basis":3,"source":"骨架+模型名+工具清单的粗估","ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"eyJOIjozMDAsIkJhc2lzIjozLCJTb3VyY2UiOiLpqqjmnrYr5qih5Z6L5ZCNK+W3peWFt+a4heWNleeahOeyl+S8sCIsIkFic2VudCI6ZmFsc2UsIlJlZnVzZWQiOmZhbHNlLCJXaHkiOiIifQ==","payload_sha256":"fbc8d2876c981b851e4b7cc64ab048fb5a495ceb8cc78078cdf36655b8acf620","prev_hash":"00381999e72f99b6a962d299370976ee74610e7ab9a4c5e9b509b36f90cae9a7","hash":"af649c1e9784c7b9d2d052d9f99e9c0a7d8df856d4ac9602ab69ddda3e9676d8"}
+{"seq":154,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:shares","claim":"history=18 observation=3 system=11 toolspec=37 truncation-notice=14 user=17","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"WyJoaXN0b3J5PTE4Iiwib2JzZXJ2YXRpb249MyIsInN5c3RlbT0xMSIsInRvb2xzcGVjPTM3IiwidHJ1bmNhdGlvbi1ub3RpY2U9MTQiLCJ1c2VyPTE3Il0=","payload_sha256":"5c1a351ef5031b394f180931619f25afeb38b4864831e6072d8cda089d2f84af","prev_hash":"af649c1e9784c7b9d2d052d9f99e9c0a7d8df856d4ac9602ab69ddda3e9676d8","hash":"e6c66c517fd6427ab3270840c73c4a406c111ca2a94bbdaf2c8e5ed286ef918b"}
+{"seq":155,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:notice_sent","claim":"是","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"dHJ1ZQ==","payload_sha256":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","prev_hash":"e6c66c517fd6427ab3270840c73c4a406c111ca2a94bbdaf2c8e5ed286ef918b","hash":"f411eab4ae6ce0fc6ce084d122070370bd4e53826f1c64bc355c27b311503af2"}
+{"seq":156,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:notice_trimmed","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"f411eab4ae6ce0fc6ce084d122070370bd4e53826f1c64bc355c27b311503af2","hash":"2ae82135cc8d3ff0006e0d7aa9d5fd073ea5d5bad21c1afc6ab6c21738e7938e"}
+{"seq":157,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:notice_why","claim":"上一发的提议里有一个参数解不出 JSON，那条 assistant 消息整段没带进本轮历史；这句通知本身作为 truncation-notice 段真发出去了","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"IuS4iuS4gOWPkeeahOaPkOiurumHjOacieS4gOS4quWPguaVsOino+S4jeWHuiBKU09O77yM6YKj5p2hIGFzc2lzdGFudCDmtojmga/mlbTmrrXmsqHluKbov5vmnKzova7ljoblj7LvvJvov5nlj6XpgJrnn6XmnKzouqvkvZzkuLogdHJ1bmNhdGlvbi1ub3RpY2Ug5q6155yf5Y+R5Ye65Y675LqGIg==","payload_sha256":"f264ed92d1523cda26231aca9e180ea0e93304517436513218e01c4a42b7e219","prev_hash":"2ae82135cc8d3ff0006e0d7aa9d5fd073ea5d5bad21c1afc6ab6c21738e7938e","hash":"29749d10d3a9a0794b58cdf812bdaf1a85cbe6eb7c082620e1b50ad3a3a4d519"}
+{"seq":158,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:notice_text","claim":"上一轮模型给出的工具提议里有一个参数不完整，那一条我们没能带进这一轮的历史；如果你需要它，请重新提议。","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"IuS4iuS4gOi9ruaooeWei+e7meWHuueahOW3peWFt+aPkOiurumHjOacieS4gOS4quWPguaVsOS4jeWujOaVtO+8jOmCo+S4gOadoeaIkeS7rOayoeiDveW4pui/m+i/meS4gOi9rueahOWOhuWPsu+8m+WmguaenOS9oOmcgOimgeWug++8jOivt+mHjeaWsOaPkOiuruOAgiI=","payload_sha256":"5046077a872c086bf37690333f7dd6dde8a1bbec9c85e3f7ca7f8ea36a65ab62","prev_hash":"29749d10d3a9a0794b58cdf812bdaf1a85cbe6eb7c082620e1b50ad3a3a4d519","hash":"9a827e98f6367f0efc8ebcd5256ea0c16c9e18b1bccce5caca7331835de6b0a9"}
+{"seq":159,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:folded","claim":"0 段（裁剪表是空的）","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"W10=","payload_sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","prev_hash":"9a827e98f6367f0efc8ebcd5256ea0c16c9e18b1bccce5caca7331835de6b0a9","hash":"3c2b559a812c99b41342adec470d00e4cbb1ac3d830ca994919627b696513a5b"}
+{"seq":160,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:clipped","claim":"0 段（裁剪表是空的）","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"W10=","payload_sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","prev_hash":"3c2b559a812c99b41342adec470d00e4cbb1ac3d830ca994919627b696513a5b","hash":"e950b2d5b2b2380646f45a993d48fd888f1832fb433955c40a749624f3fd1eaa"}
+{"seq":161,"session":"tools","actor":"tools_probe","step":4,"kind":"model_input:dropped","claim":"1 段：history/第 3 发的 assistant 提议（1 个里 1 个执行不了）","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"W3siS2luZCI6Imhpc3RvcnkiLCJSZWYiOiLnrKwgMyDlj5HnmoQgYXNzaXN0YW50IOaPkOiuru+8iDEg5Liq6YeMIDEg5Liq5omn6KGM5LiN5LqG77yJIiwiUm9sZSI6ImFzc2lzdGFudCIsIlNxdWVlemUiOiJkcm9wcGVkLXdob2xlIiwiRnJvbUJ5dGVzIjoxMzYsIlRvQnl0ZXMiOjAsIlNIQTI1NiI6ImI2YmYzNjhiZDRmYmU1OWRhMDMzNmJmYzI3NGMwMTgzMzlmYjYxMDVjMmM5YzNhZjc5Yjc2YjMyNjdhOTEzODYifV0=","payload_sha256":"ee22a085291a80047d483e649912798fd5bd57953d4f30d1934e9a9e4a36753a","prev_hash":"e950b2d5b2b2380646f45a993d48fd888f1832fb433955c40a749624f3fd1eaa","hash":"3c91de6e34ac4fa9e1a0ec317288bad5e8bdd1d72a42bf53cf3a2541f7b0c1ca"}
+{"seq":162,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:call","claim":"4","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"NA==","payload_sha256":"4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a","prev_hash":"3c91de6e34ac4fa9e1a0ec317288bad5e8bdd1d72a42bf53cf3a2541f7b0c1ca","hash":"7029bf9eae063ed24f23476193a9bb776ad644778ef96b894109e1f97786a627"}
+{"seq":163,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:streaming","claim":"是","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"dHJ1ZQ==","payload_sha256":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","prev_hash":"7029bf9eae063ed24f23476193a9bb776ad644778ef96b894109e1f97786a627","hash":"fabec752f6fcb9b6b2424d130e12f35becf85ef107f8a55a4dd30f883236a4ea"}
+{"seq":164,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:finish","claim":"tool_calls","basis":2,"source":"endpoint-response","ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"InRvb2xfY2FsbHMi","payload_sha256":"afa9a5b7f2f60ef7d67b4495f2edb5204aae87965dd3f2680ab1cf2994524088","prev_hash":"fabec752f6fcb9b6b2424d130e12f35becf85ef107f8a55a4dd30f883236a4ea","hash":"08088399ca8dd2553b254d545d26584be5c7b414aa6b508f2c3bb51ad45433d4"}
+{"seq":165,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:finish_said","claim":"是","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"dHJ1ZQ==","payload_sha256":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","prev_hash":"08088399ca8dd2553b254d545d26584be5c7b414aa6b508f2c3bb51ad45433d4","hash":"dd50d9d5deb3a78c173b60acaa9391bd334e4a3d7c25e7753b53d5c8da37a6ca"}
+{"seq":166,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:endpoint_model","claim":"fake-model","basis":4,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"ImZha2UtbW9kZWwi","payload_sha256":"582eb9070e1f4555202125ac82783628a4baffa1e8844fa88973f05f4f4457fd","prev_hash":"dd50d9d5deb3a78c173b60acaa9391bd334e4a3d7c25e7753b53d5c8da37a6ca","hash":"1aee397bb7afc7a5405d35904ee17a50293b44e1a4d1449353d041ed452605de"}
+{"seq":167,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:endpoint_model_said","claim":"是","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"dHJ1ZQ==","payload_sha256":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","prev_hash":"1aee397bb7afc7a5405d35904ee17a50293b44e1a4d1449353d041ed452605de","hash":"2a80d086fc2c9a634874b44d9a87fb53236125f97581048ae16564c7b51cc970"}
+{"seq":168,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:model_says_bytes","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"2a80d086fc2c9a634874b44d9a87fb53236125f97581048ae16564c7b51cc970","hash":"d428b6e1131defad5f53efb826aec9e8a544cc7118380609070cd17ccb382532"}
+{"seq":169,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:model_says_kept","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"d428b6e1131defad5f53efb826aec9e8a544cc7118380609070cd17ccb382532","hash":"e6ecc15ff2bf69c896c2b206824556afafba8d4b5bb602af37abfa48d26017d6"}
+{"seq":170,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:model_says_clipped","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"e6ecc15ff2bf69c896c2b206824556afafba8d4b5bb602af37abfa48d26017d6","hash":"b78d27e48684de162254f6ce80d34eaeb77322394cac1149b18217b81c738cfa"}
+{"seq":171,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:model_says_sha256","claim":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUi","payload_sha256":"b4b16dad390bac4c7ce42014c594fa668910b49ec1b7771a17891c187d71e0ab","prev_hash":"b78d27e48684de162254f6ce80d34eaeb77322394cac1149b18217b81c738cfa","hash":"c7291299db161db28fe5a0cadf23e648c828121ecbc9d5aa0489062a0ae718d4"}
+{"seq":172,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:usage_in","claim":"486（转述自 端点响应的 usage.prompt_tokens）","basis":2,"source":"端点响应的 usage.prompt_tokens","ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"eyJOIjo0ODYsIkJhc2lzIjoyLCJTb3VyY2UiOiLnq6/ngrnlk43lupTnmoQgdXNhZ2UucHJvbXB0X3Rva2VucyIsIkFic2VudCI6ZmFsc2UsIlJlZnVzZWQiOmZhbHNlLCJXaHkiOiIifQ==","payload_sha256":"3ed3b6c1dc9e47de744467bf0e262376cdadd565e1f26a754d4c6e86f878ccc1","prev_hash":"c7291299db161db28fe5a0cadf23e648c828121ecbc9d5aa0489062a0ae718d4","hash":"787ac2160dd966db4440b7740ebab344a9d6dcbe668bc053d5ab3be1b8d50038"}
+{"seq":173,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:usage_out","claim":"7（转述自 端点响应的 usage.completion_tokens）","basis":2,"source":"端点响应的 usage.completion_tokens","ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"eyJOIjo3LCJCYXNpcyI6MiwiU291cmNlIjoi56uv54K55ZON5bqU55qEIHVzYWdlLmNvbXBsZXRpb25fdG9rZW5zIiwiQWJzZW50IjpmYWxzZSwiUmVmdXNlZCI6ZmFsc2UsIldoeSI6IiJ9","payload_sha256":"04cf7e3145f93b4cc2f3d0b18e10d1cb2e94ce50a5c31bbe289f0644c52daa51","prev_hash":"787ac2160dd966db4440b7740ebab344a9d6dcbe668bc053d5ab3be1b8d50038","hash":"5744cb2a74fd653712c40d659093bd0565c50af3da8a9c61faf1dbab4f772ed4"}
+{"seq":174,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:wire_bytes_out","claim":"1435","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"eyJOIjoxNDM1LCJCYXNpcyI6MSwiU291cmNlIjoiIiwiQWJzZW50IjpmYWxzZSwiUmVmdXNlZCI6ZmFsc2UsIldoeSI6IiJ9","payload_sha256":"862f7e64d9971854e14afa156a37860cf01ff9bf2a770b0fa79fa7b75ec21e41","prev_hash":"5744cb2a74fd653712c40d659093bd0565c50af3da8a9c61faf1dbab4f772ed4","hash":"fa0db4fd1d107a0cbb84413e0cf52272596695525f58e1b5a280fd8698c608e4"}
+{"seq":175,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:wire_bytes_in","claim":"1133","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"eyJOIjoxMTMzLCJCYXNpcyI6MSwiU291cmNlIjoiIiwiQWJzZW50IjpmYWxzZSwiUmVmdXNlZCI6ZmFsc2UsIldoeSI6IiJ9","payload_sha256":"4b424dbd52f4e10a7d1a54522b610e9f5ba9748c42eb28c7a740c81f1f41d444","prev_hash":"fa0db4fd1d107a0cbb84413e0cf52272596695525f58e1b5a280fd8698c608e4","hash":"5124d1494ab534e57b40d786de887d294c59779f4193532b69f34b1f1a81c4f3"}
+{"seq":176,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:chunks","claim":"7","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"eyJOIjo3LCJCYXNpcyI6MSwiU291cmNlIjoiIiwiQWJzZW50IjpmYWxzZSwiUmVmdXNlZCI6ZmFsc2UsIldoeSI6IiJ9","payload_sha256":"deb1b4ea5e25853742a17a18540c4c370a3dd8ec6f4e9973baa5460ec75a75c1","prev_hash":"5124d1494ab534e57b40d786de887d294c59779f4193532b69f34b1f1a81c4f3","hash":"4ee6f088385b61a7c28a66e83942e2eb08b535c096549271e279abed18cc20ff"}
+{"seq":177,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:first_byte_ms","claim":"1","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"eyJOIjoxLCJCYXNpcyI6MSwiU291cmNlIjoiIiwiQWJzZW50IjpmYWxzZSwiUmVmdXNlZCI6ZmFsc2UsIldoeSI6IiJ9","payload_sha256":"70cf9f3877443315e479ad4b1afccfb28167f196667f9094b5070ca07d6fb420","prev_hash":"4ee6f088385b61a7c28a66e83942e2eb08b535c096549271e279abed18cc20ff","hash":"2eedd91f35135b13136019e44df0b80047d49062007379f1db696465d1422af2"}
+{"seq":178,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:max_gap_ms","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MSwiU291cmNlIjoiIiwiQWJzZW50IjpmYWxzZSwiUmVmdXNlZCI6ZmFsc2UsIldoeSI6IiJ9","payload_sha256":"c4a9fad2b34e7e7ec18b500680a059e9f48ebc83c2b70a1dabfaecfe2267bcad","prev_hash":"2eedd91f35135b13136019e44df0b80047d49062007379f1db696465d1422af2","hash":"6cab0a85fbebcc7778908f10c5027b38248024dbea4fc11785d904b3990bc153"}
+{"seq":179,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:tool_calls","claim":"1","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"MQ==","payload_sha256":"6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b","prev_hash":"6cab0a85fbebcc7778908f10c5027b38248024dbea4fc11785d904b3990bc153","hash":"d186c627c0e2a37d41ba5a9de7fceb7d3f5f2647435ea7a656d3758615386324"}
+{"seq":180,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:malformed_actions","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"d186c627c0e2a37d41ba5a9de7fceb7d3f5f2647435ea7a656d3758615386324","hash":"0c639fcb31c7f02cd5753c2b6d312155ef36d8ee6d34ba0defd17300c51cf752"}
+{"seq":181,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:malformed_streak","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"0c639fcb31c7f02cd5753c2b6d312155ef36d8ee6d34ba0defd17300c51cf752","hash":"95986d7ba7ef321572ac207c8a76cabd3292a56505cb6eaae0e508cab0ae2ac2"}
+{"seq":182,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:fail_kind","claim":"（这一格是空的）","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"IiI=","payload_sha256":"12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126","prev_hash":"95986d7ba7ef321572ac207c8a76cabd3292a56505cb6eaae0e508cab0ae2ac2","hash":"0dd714053ce925a43210182b2f9070bb31a4cc679ee7dbcc1d664acfec038214"}
+{"seq":183,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:fail_detail","claim":"（这一格是空的）","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"IiI=","payload_sha256":"12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126","prev_hash":"0dd714053ce925a43210182b2f9070bb31a4cc679ee7dbcc1d664acfec038214","hash":"83a63aeb9b6f302379726af1059f630969c11bbafcb2391d2697ed4e34093bb6"}
+{"seq":184,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:fail_status","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"83a63aeb9b6f302379726af1059f630969c11bbafcb2391d2697ed4e34093bb6","hash":"10ebebf2dfaa2df0c56104a5673a9056b1a57b68c8ea9d0563513459ded80f2a"}
+{"seq":185,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:retry_after_ms","claim":"—（没量到，不是 0）：这一发没断，也就没有要等多久","basis":5,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi6L+Z5LiA5Y+R5rKh5pat77yM5Lmf5bCx5rKh5pyJ6KaB562J5aSa5LmFIn0=","payload_sha256":"325fc478e81889b4e89be7e515cc8efbc925403707077a5993775b796a573e43","prev_hash":"10ebebf2dfaa2df0c56104a5673a9056b1a57b68c8ea9d0563513459ded80f2a","hash":"e4409eca16bbbe50201d478a8028c500306a0de2311aa0b49d8c435fb575a8a1"}
+{"seq":186,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:downgrade","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"e4409eca16bbbe50201d478a8028c500306a0de2311aa0b49d8c435fb575a8a1","hash":"97a011fee30d91139c7f95200d35136499ba2b8be63ae0a51f304fc6085e160f"}
+{"seq":187,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:sent","claim":"发出去了","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"IuWPkeWHuuWOu+S6hiI=","payload_sha256":"221f8a8d04ca37dcebca110b96852ec20bc5af8a3e2b38a222d994f43049a6d9","prev_hash":"97a011fee30d91139c7f95200d35136499ba2b8be63ae0a51f304fc6085e160f","hash":"d5b96e5cbf11c3daed75e1966d68414a4733a57fd379420fc13d56fa713ecce6"}
+{"seq":188,"session":"tools","actor":"tools_probe","step":4,"kind":"model_output:cost_countable","claim":"是","basis":1,"ts":"2026-10-13T14:08:50.0758337Z","payload_b64":"dHJ1ZQ==","payload_sha256":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","prev_hash":"d5b96e5cbf11c3daed75e1966d68414a4733a57fd379420fc13d56fa713ecce6","hash":"da2c989f3e1915872d23fb4887967550de483b4ec51c6e75614663addf41bade"}
+{"seq":189,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:call","claim":"5","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"NQ==","payload_sha256":"ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d","prev_hash":"da2c989f3e1915872d23fb4887967550de483b4ec51c6e75614663addf41bade","hash":"0ae4f891bad58959735a52433384aff9338691f85eb3c09cc9158dcaa7ce6257"}
+{"seq":190,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:parts","claim":"12 段：system toolspec user history observation user history user truncation-notice user history user","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"WyJzeXN0ZW0iLCJ0b29sc3BlYyIsInVzZXIiLCJoaXN0b3J5Iiwib2JzZXJ2YXRpb24iLCJ1c2VyIiwiaGlzdG9yeSIsInVzZXIiLCJ0cnVuY2F0aW9uLW5vdGljZSIsInVzZXIiLCJoaXN0b3J5IiwidXNlciJd","payload_sha256":"5ae1cb06565b479a1bb1e3219b23baef7fee44b9f06935613dad7d2e647c21da","prev_hash":"0ae4f891bad58959735a52433384aff9338691f85eb3c09cc9158dcaa7ce6257","hash":"138ec10f8b8fdfab94a1bca0afd5721e42ee59ba8feba4accccbe2b4af342a53"}
+{"seq":191,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:part_totals","claim":"6 类共 1226 字节：system=1 toolspec=1 user=5 history=3 observation=1 truncation-notice=1","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"W3siS2luZCI6InN5c3RlbSIsIlBhcnRzIjoxLCJCeXRlcyI6MTIwfSx7IktpbmQiOiJ0b29sc3BlYyIsIlBhcnRzIjoxLCJCeXRlcyI6MzU1fSx7IktpbmQiOiJ1c2VyIiwiUGFydHMiOjUsIkJ5dGVzIjoyNDN9LHsiS2luZCI6Imhpc3RvcnkiLCJQYXJ0cyI6MywiQnl0ZXMiOjM0NH0seyJLaW5kIjoib2JzZXJ2YXRpb24iLCJQYXJ0cyI6MSwiQnl0ZXMiOjExfSx7IktpbmQiOiJ0cnVuY2F0aW9uLW5vdGljZSIsIlBhcnRzIjoxLCJCeXRlcyI6MTUzfV0=","payload_sha256":"29f4929d738ef30d94394970d4eb4fc9e6b19a9299ffd4da4f4a42cd93acfa8c","prev_hash":"138ec10f8b8fdfab94a1bca0afd5721e42ee59ba8feba4accccbe2b4af342a53","hash":"16a0a9ff3d0071250b9d42850bfd8314af63c61714646f2bdf0e6f9f9e831fbe"}
+{"seq":192,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:content_bytes","claim":"1226","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"MTIyNg==","payload_sha256":"e66f404f78b6875bb24ff40d80d21b78418607abff2e68d3084f75de4a239095","prev_hash":"16a0a9ff3d0071250b9d42850bfd8314af63c61714646f2bdf0e6f9f9e831fbe","hash":"7974af623d111867403c9938ccb0d7ee15b8fe16b7d18166f12ee1731865cc4d"}
+{"seq":193,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:tokens","claim":"549（转述自 端点响应的 usage.prompt_tokens）","basis":2,"source":"端点响应的 usage.prompt_tokens","ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"eyJOIjo1NDksIkJhc2lzIjoyLCJTb3VyY2UiOiLnq6/ngrnlk43lupTnmoQgdXNhZ2UucHJvbXB0X3Rva2VucyIsIkFic2VudCI6ZmFsc2UsIlJlZnVzZWQiOmZhbHNlLCJXaHkiOiIifQ==","payload_sha256":"d6a7e0184d89eec64fe0e5ef47841e31f9c44ef23970857fb0d960dc83ad1f62","prev_hash":"7974af623d111867403c9938ccb0d7ee15b8fe16b7d18166f12ee1731865cc4d","hash":"ca8f0c5360394188e56afee6a4af6430eefd42941dd5242d4ca0a2283aca73a6"}
+{"seq":194,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:call_bytes_ceiling","claim":"32768","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"MzI3Njg=","payload_sha256":"d196d59bf4f8f8d25291f2f0bc606158638bea3fcb582b52481df2063480af60","prev_hash":"ca8f0c5360394188e56afee6a4af6430eefd42941dd5242d4ca0a2283aca73a6","hash":"562c0bdcd4a198aa16d260242686c66865ce56132a6633768ae9f7bd5bad98c4"}
+{"seq":195,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:transport_slack_pct","claim":"12","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"MTI=","payload_sha256":"6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918","prev_hash":"562c0bdcd4a198aa16d260242686c66865ce56132a6633768ae9f7bd5bad98c4","hash":"4084d34ac1a9aac57e975df0036333e9da6432c46cce444d85610206c9ebe3e1"}
+{"seq":196,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:content_ceiling","claim":"28835","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"Mjg4MzU=","payload_sha256":"db5c66cd9b3d0cf3b7961fc494e81db0649a1c5a6839d5299b12ae5ba97c22b6","prev_hash":"4084d34ac1a9aac57e975df0036333e9da6432c46cce444d85610206c9ebe3e1","hash":"c26cc1bf3193c2e739bc4d072cdbb4328a602613655cc8104cfdbdd84a4aa95a"}
+{"seq":197,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:effective_ceiling","claim":"28835","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"Mjg4MzU=","payload_sha256":"db5c66cd9b3d0cf3b7961fc494e81db0649a1c5a6839d5299b12ae5ba97c22b6","prev_hash":"c26cc1bf3193c2e739bc4d072cdbb4328a602613655cc8104cfdbdd84a4aa95a","hash":"50b98c1d21c0b1de0aed4e3936a3747565154ef69365105cd4fa81dd6fd37445"}
+{"seq":198,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:clamp_rounds","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"50b98c1d21c0b1de0aed4e3936a3747565154ef69365105cd4fa81dd6fd37445","hash":"60adcad610040e4abda1a37448fd1e37b954788dee507d5a797e1b6e6b04a6d1"}
+{"seq":199,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:leftover_pct","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"60adcad610040e4abda1a37448fd1e37b954788dee507d5a797e1b6e6b04a6d1","hash":"0e2f0497de0efb6ef834c4861a5aaf1550512d547444941251c9985d20eb58a7"}
+{"seq":200,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:fixed_overhead","claim":"≈300（这是估算，不是测量）：估的是骨架+模型名+工具清单的粗估","basis":3,"source":"骨架+模型名+工具清单的粗估","ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"eyJOIjozMDAsIkJhc2lzIjozLCJTb3VyY2UiOiLpqqjmnrYr5qih5Z6L5ZCNK+W3peWFt+a4heWNleeahOeyl+S8sCIsIkFic2VudCI6ZmFsc2UsIlJlZnVzZWQiOmZhbHNlLCJXaHkiOiIifQ==","payload_sha256":"fbc8d2876c981b851e4b7cc64ab048fb5a495ceb8cc78078cdf36655b8acf620","prev_hash":"0e2f0497de0efb6ef834c4861a5aaf1550512d547444941251c9985d20eb58a7","hash":"1ddb5039d95d3d64109de184ed86c1ecf4b1500a393f433d29043e309ff692b3"}
+{"seq":201,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:shares","claim":"history=27 observation=3 system=9 toolspec=31 truncation-notice=11 user=19","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"WyJoaXN0b3J5PTI3Iiwib2JzZXJ2YXRpb249MyIsInN5c3RlbT05IiwidG9vbHNwZWM9MzEiLCJ0cnVuY2F0aW9uLW5vdGljZT0xMSIsInVzZXI9MTkiXQ==","payload_sha256":"3997b7037b24102fe963fec63afb36644b70c67b0d9e0870ec852855c504492a","prev_hash":"1ddb5039d95d3d64109de184ed86c1ecf4b1500a393f433d29043e309ff692b3","hash":"c6fe1e330279bf5d00dc11ef62f210d9cdb02d573960d84488383b93e766a35c"}
+{"seq":202,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:notice_sent","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"c6fe1e330279bf5d00dc11ef62f210d9cdb02d573960d84488383b93e766a35c","hash":"e66c30999d41e130ec8d88adeaec15e396695483b49bd1d7997c3fc75258efde"}
+{"seq":203,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:notice_trimmed","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"e66c30999d41e130ec8d88adeaec15e396695483b49bd1d7997c3fc75258efde","hash":"06247bf44a3bce694d6b0a34371aa8b7ad7de14f4a6adb242261e8df6ae44fe8"}
+{"seq":204,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:notice_why","claim":"这一发没折叠、没裁尾、没整段丢弃；被截的是**输出**，由 finish_reason 那一格记","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"Iui/meS4gOWPkeayoeaKmOWPoOOAgeayoeijgeWwvuOAgeayoeaVtOauteS4ouW8g++8m+iiq+aIqueahOaYryoq6L6T5Ye6KirvvIznlLEgZmluaXNoX3JlYXNvbiDpgqPkuIDmoLzorrAi","payload_sha256":"34d09e65501c1063e52b9ba5aef77accf9ff19cfdd9e0b9dae2495c60fb3a796","prev_hash":"06247bf44a3bce694d6b0a34371aa8b7ad7de14f4a6adb242261e8df6ae44fe8","hash":"9afd847c3224c340f267ef19c30fc3555e1041991dfff4aee1a1f6df8c9daa3e"}
+{"seq":205,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:notice_text","claim":"（这一格是空的）","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"IiI=","payload_sha256":"12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126","prev_hash":"9afd847c3224c340f267ef19c30fc3555e1041991dfff4aee1a1f6df8c9daa3e","hash":"8fc84fd20fd20a05e0c99d7e01d6e213277839cb8af9cad66b4c1e6815683d74"}
+{"seq":206,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:folded","claim":"0 段（裁剪表是空的）","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"W10=","payload_sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","prev_hash":"8fc84fd20fd20a05e0c99d7e01d6e213277839cb8af9cad66b4c1e6815683d74","hash":"061d3d39c42bce23d29b869a40645459a83878fe861a2a57110d575dfb2c975d"}
+{"seq":207,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:clipped","claim":"0 段（裁剪表是空的）","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"W10=","payload_sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","prev_hash":"061d3d39c42bce23d29b869a40645459a83878fe861a2a57110d575dfb2c975d","hash":"842ba226320f9513dbd2b0c2e359a031278f4000223f3eedee82efe4a56cd9b9"}
+{"seq":208,"session":"tools","actor":"tools_probe","step":5,"kind":"model_input:dropped","claim":"0 段（裁剪表是空的）","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"W10=","payload_sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","prev_hash":"842ba226320f9513dbd2b0c2e359a031278f4000223f3eedee82efe4a56cd9b9","hash":"ef2be050bd7f4a54a5a6667794e5b141756c7e97489b3bd5a406fdae071ac476"}
+{"seq":209,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:call","claim":"5","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"NQ==","payload_sha256":"ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d","prev_hash":"ef2be050bd7f4a54a5a6667794e5b141756c7e97489b3bd5a406fdae071ac476","hash":"8c932a8039a61c2c7879d6669fbbe8792519e6fe66c88d8c241c38ae26ec5a4d"}
+{"seq":210,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:streaming","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"8c932a8039a61c2c7879d6669fbbe8792519e6fe66c88d8c241c38ae26ec5a4d","hash":"dd31c57598839b023caef4b7baa1e97525f59d3ca56e02a9a791e68701e0eef3"}
+{"seq":211,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:finish","claim":"length","basis":2,"source":"endpoint-response","ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"Imxlbmd0aCI=","payload_sha256":"30f825decffd0dc7f2f4a7e3b65fd154fb6bccf6bf5eb834d02154107cdf4d82","prev_hash":"dd31c57598839b023caef4b7baa1e97525f59d3ca56e02a9a791e68701e0eef3","hash":"75ff6c8784075413793c52aed3cffd9cb9501b8281e7e85b9c4af59a6290c317"}
+{"seq":212,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:finish_said","claim":"是","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"dHJ1ZQ==","payload_sha256":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","prev_hash":"75ff6c8784075413793c52aed3cffd9cb9501b8281e7e85b9c4af59a6290c317","hash":"d24b3cfc219718b7511b437637c9f192d38e4c4a4de8e67691421da495863504"}
+{"seq":213,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:endpoint_model","claim":"fake-model","basis":4,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"ImZha2UtbW9kZWwi","payload_sha256":"582eb9070e1f4555202125ac82783628a4baffa1e8844fa88973f05f4f4457fd","prev_hash":"d24b3cfc219718b7511b437637c9f192d38e4c4a4de8e67691421da495863504","hash":"bf44e2a86516be3ab32a450a7d04bba9d913b577226f0582c230bd6466731d3a"}
+{"seq":214,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:endpoint_model_said","claim":"是","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"dHJ1ZQ==","payload_sha256":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","prev_hash":"bf44e2a86516be3ab32a450a7d04bba9d913b577226f0582c230bd6466731d3a","hash":"1ea4d2584e8875cd784ec246a1c6b8e68b53782625c39ac67a344b32eb9f8ee1"}
+{"seq":215,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:model_says_bytes","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"1ea4d2584e8875cd784ec246a1c6b8e68b53782625c39ac67a344b32eb9f8ee1","hash":"6246004fa59ef1fdfbf80782086b2c74e8b1d9422a617b8ba9445ee717d8e862"}
+{"seq":216,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:model_says_kept","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"6246004fa59ef1fdfbf80782086b2c74e8b1d9422a617b8ba9445ee717d8e862","hash":"8a3978f85a5b51c05b772ae0c02b813c0495d7b1a7e30e58fbd4d4ad24c8e322"}
+{"seq":217,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:model_says_clipped","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"8a3978f85a5b51c05b772ae0c02b813c0495d7b1a7e30e58fbd4d4ad24c8e322","hash":"af9cfafb7e81956b284c5d5ffc21a7ae6d422a8fc891edc4ddd193239a74e3ba"}
+{"seq":218,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:model_says_sha256","claim":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUi","payload_sha256":"b4b16dad390bac4c7ce42014c594fa668910b49ec1b7771a17891c187d71e0ab","prev_hash":"af9cfafb7e81956b284c5d5ffc21a7ae6d422a8fc891edc4ddd193239a74e3ba","hash":"b3c2dbf13070b4b81a53336df44769be1d9b4196ba45aded7b6173a667f1bac4"}
+{"seq":219,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:usage_in","claim":"549（转述自 端点响应的 usage.prompt_tokens）","basis":2,"source":"端点响应的 usage.prompt_tokens","ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"eyJOIjo1NDksIkJhc2lzIjoyLCJTb3VyY2UiOiLnq6/ngrnlk43lupTnmoQgdXNhZ2UucHJvbXB0X3Rva2VucyIsIkFic2VudCI6ZmFsc2UsIlJlZnVzZWQiOmZhbHNlLCJXaHkiOiIifQ==","payload_sha256":"d6a7e0184d89eec64fe0e5ef47841e31f9c44ef23970857fb0d960dc83ad1f62","prev_hash":"b3c2dbf13070b4b81a53336df44769be1d9b4196ba45aded7b6173a667f1bac4","hash":"278c777265bb0e3f531821c7fa66810cda74af896a5a5e54e181fd01ed99f3a9"}
+{"seq":220,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:usage_out","claim":"7（转述自 端点响应的 usage.completion_tokens）","basis":2,"source":"端点响应的 usage.completion_tokens","ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"eyJOIjo3LCJCYXNpcyI6MiwiU291cmNlIjoi56uv54K55ZON5bqU55qEIHVzYWdlLmNvbXBsZXRpb25fdG9rZW5zIiwiQWJzZW50IjpmYWxzZSwiUmVmdXNlZCI6ZmFsc2UsIldoeSI6IiJ9","payload_sha256":"04cf7e3145f93b4cc2f3d0b18e10d1cb2e94ce50a5c31bbe289f0644c52daa51","prev_hash":"278c777265bb0e3f531821c7fa66810cda74af896a5a5e54e181fd01ed99f3a9","hash":"c8886cba75acf795acec4740e7e9fbba2110522d330339087653c7dcb31ae995"}
+{"seq":221,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:wire_bytes_out","claim":"1633","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"eyJOIjoxNjMzLCJCYXNpcyI6MSwiU291cmNlIjoiIiwiQWJzZW50IjpmYWxzZSwiUmVmdXNlZCI6ZmFsc2UsIldoeSI6IiJ9","payload_sha256":"44bbd41b3bf06c4bd83c0ea5831b240c9ff928723cb805451b33a0479ccea9e7","prev_hash":"c8886cba75acf795acec4740e7e9fbba2110522d330339087653c7dcb31ae995","hash":"78a178e9e59a5f40a5bbd04cfc1655768ec2d814dd16eeefe480c6370de62884"}
+{"seq":222,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:wire_bytes_in","claim":"263","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"eyJOIjoyNjMsIkJhc2lzIjoxLCJTb3VyY2UiOiIiLCJBYnNlbnQiOmZhbHNlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5IjoiIn0=","payload_sha256":"644e614235432b7be8bd6de7e395d71de712882a75ccf92f089059c7c9894b8f","prev_hash":"78a178e9e59a5f40a5bbd04cfc1655768ec2d814dd16eeefe480c6370de62884","hash":"d4a254f2d82ac99bf2c8b8dbe84af93af1354f31bec8b864130a8b6319ad34c7"}
+{"seq":223,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:chunks","claim":"—（没量到，不是 0）：这一发不是流式的，结构上没有分帧","basis":5,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi6L+Z5LiA5Y+R5LiN5piv5rWB5byP55qE77yM57uT5p6E5LiK5rKh5pyJ5YiG5binIn0=","payload_sha256":"7b754a6d853abfad034312a3947dc29eb1b66b543582eb4028d0e39d62690e4e","prev_hash":"d4a254f2d82ac99bf2c8b8dbe84af93af1354f31bec8b864130a8b6319ad34c7","hash":"b588d63ea6cf33cd1f047cd83b10caad1d2125eeabe3ed0bbbf2c957f752c6a5"}
+{"seq":224,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:first_byte_ms","claim":"—（没量到，不是 0）：这一发不是流式的，结构上没有首帧这件事","basis":5,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi6L+Z5LiA5Y+R5LiN5piv5rWB5byP55qE77yM57uT5p6E5LiK5rKh5pyJ6aaW5bin6L+Z5Lu25LqLIn0=","payload_sha256":"d85c8e1bbf836c3edb424a7b6d4c1bf868b6e3da8e9178f129190661ebd3301a","prev_hash":"b588d63ea6cf33cd1f047cd83b10caad1d2125eeabe3ed0bbbf2c957f752c6a5","hash":"8bc33fa813fbedf8ddde600d3bed9c9825ee41f99729a77af811c9c3ac277405"}
+{"seq":225,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:max_gap_ms","claim":"—（没量到，不是 0）：这一发不是流式的，结构上没有帧间","basis":5,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi6L+Z5LiA5Y+R5LiN5piv5rWB5byP55qE77yM57uT5p6E5LiK5rKh5pyJ5bin6Ze0In0=","payload_sha256":"cf44a0062eeddbdfb4442ec06bf5dfab0233760989d39aef685ff9a12db46c60","prev_hash":"8bc33fa813fbedf8ddde600d3bed9c9825ee41f99729a77af811c9c3ac277405","hash":"fecf3c12502618daf761ffb07e3af7c0319038507ccd5b2d542dee089bfa6726"}
+{"seq":226,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:tool_calls","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"fecf3c12502618daf761ffb07e3af7c0319038507ccd5b2d542dee089bfa6726","hash":"492d179d67644b201467bb9b7ab12ff695b6e2f3ae65727f0bf202dc7b8c4e0b"}
+{"seq":227,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:malformed_actions","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"492d179d67644b201467bb9b7ab12ff695b6e2f3ae65727f0bf202dc7b8c4e0b","hash":"6272402f33ba18a8bb4c49e9587d87608be7cfd28bd3ab6f0e898016bf9e384e"}
+{"seq":228,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:malformed_streak","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"6272402f33ba18a8bb4c49e9587d87608be7cfd28bd3ab6f0e898016bf9e384e","hash":"7a0b313c1bc000915d93177dc8389d79d6d17423986d2e6c4e11424de8fcfc91"}
+{"seq":229,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:fail_kind","claim":"malformed_action","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"Im1hbGZvcm1lZF9hY3Rpb24i","payload_sha256":"3d44b4c8018bfa6363b83d86b92942a86daf6b7116ee785ab4a9ac0e7529a1f6","prev_hash":"7a0b313c1bc000915d93177dc8389d79d6d17423986d2e6c4e11424de8fcfc91","hash":"22c3ad70b9cb1080dc380941e751a897f35d302592c546a3d72a266af5aa0c36"}
+{"seq":230,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:fail_detail","claim":"端点回了 263 字节、finish='length'、原话 0 字节、0 个提议（补全 token 7）","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"Iuerr+eCueWbnuS6hiAyNjMg5a2X6IqC44CBZmluaXNoPSdsZW5ndGgn44CB5Y6f6K+dIDAg5a2X6IqC44CBMCDkuKrmj5Dorq7vvIjooaXlhaggdG9rZW4gN++8iSI=","payload_sha256":"f77d41b898328cb30dd7187d20711ac5e0867fdf796b2aa56a77a3b79ab511ef","prev_hash":"22c3ad70b9cb1080dc380941e751a897f35d302592c546a3d72a266af5aa0c36","hash":"36fb97e1184334acd0e10ccf53c0892d67e6b4b9d181f384738db52775acecd3"}
+{"seq":231,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:fail_status","claim":"0","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"MA==","payload_sha256":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","prev_hash":"36fb97e1184334acd0e10ccf53c0892d67e6b4b9d181f384738db52775acecd3","hash":"46853d773de2fa8a32df7b82ccb2bdd90d9ecad691bf652c1857f18f7593c80e"}
+{"seq":232,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:retry_after_ms","claim":"—（没量到，不是 0）：原样重发不会变好：同样的额度还会截在同样的地方","basis":5,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"eyJOIjowLCJCYXNpcyI6MCwiU291cmNlIjoiIiwiQWJzZW50Ijp0cnVlLCJSZWZ1c2VkIjpmYWxzZSwiV2h5Ijoi5Y6f5qC36YeN5Y+R5LiN5Lya5Y+Y5aW977ya5ZCM5qC355qE6aKd5bqm6L+Y5Lya5oiq5Zyo5ZCM5qC355qE5Zyw5pa5In0=","payload_sha256":"6e528b985672e093789ec27a47ef52593c8e5404723826f74826333974280554","prev_hash":"46853d773de2fa8a32df7b82ccb2bdd90d9ecad691bf652c1857f18f7593c80e","hash":"e78434eb2b9fd44d1f2d62cf431373271a0183c90bab6a0462fd41975e0817ed"}
+{"seq":233,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:downgrade","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"e78434eb2b9fd44d1f2d62cf431373271a0183c90bab6a0462fd41975e0817ed","hash":"35720849a8099de42c10a8bb2b35853ab0c2f54ec16092477b4059a78f5dcb2c"}
+{"seq":234,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:sent","claim":"发出去了","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"IuWPkeWHuuWOu+S6hiI=","payload_sha256":"221f8a8d04ca37dcebca110b96852ec20bc5af8a3e2b38a222d994f43049a6d9","prev_hash":"35720849a8099de42c10a8bb2b35853ab0c2f54ec16092477b4059a78f5dcb2c","hash":"0d226c78a275d2f4116418071877bd12f5a584b6bc22ad41cca1d5b8570c5478"}
+{"seq":235,"session":"tools","actor":"tools_probe","step":5,"kind":"model_output:cost_countable","claim":"否","basis":1,"ts":"2026-10-13T14:08:50.0770208Z","payload_b64":"ZmFsc2U=","payload_sha256":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","prev_hash":"0d226c78a275d2f4116418071877bd12f5a584b6bc22ad41cca1d5b8570c5478","hash":"a2e9d68b1d4c79ca28b8896855e478754f5b1ea27ff31f60faea6078c5030312"}
+
+
+账本：C:/Users/ADMINI~1/AppData/Local/Temp/fold-control.jsonl（落盘行数 236，按空行切出来的条目数 235）
+
+===== 判定 =====
+PASS  第 1 发落账通过  
+PASS  第 2 发落账通过  
+PASS  第 3 发落账通过  
+PASS  第 4 发落账通过  
+PASS  第 5 发落账通过  
+PASS  5 发之后链自洽（账上 235 条）  
+PASS  (1) 拿到 tool_calls 这一档收尾，且出处是转述  
+PASS  (2) 提议个数这一格是实测的数（不是缺席）  
+PASS  (3) 端点吐出了执行不了的提议，且那一格是实测的  
+PASS  (4a) 工具清单第一次作为独立一段上了段表  
+PASS  (4b) 工具读回来的正文也占一段，段类是 observation 而不是「拼进题面」  
+PASS  (6) 流式提议那一发的三格都是实测  
+PASS  (7) 空手那一发按「动作执行不了」落账，读回来还是这一档（内核没被放宽，是调用方改了口径）  
+PASS  (8) 整段没进的那一条落在 dropped 档，另两档不跟着变（三张名单没并成一个总数）  
+PASS  (8b) 挤掉一段的那一发确实把知情通知发了出去（账上是「是」，正文不是空的）  
+PASS  (8c) 通知那一句本身也占一段，段类是 truncation-notice（发出去的东西才许记账）  
+PASS  (9) 第 3 发按 malformed_action 落账、读回来还是这一档（retry_after 那一格不许长成 0）  
+PASS  (9) 第 5 发按 malformed_action 落账、读回来还是这一档（retry_after 那一格不许长成 0）  
+PASS  (11) 第 2 发发进下一发历史的那句对得上账上原话指纹（内核对这个只做不了：没人比对）  
+PASS  账落盘且不带 key  

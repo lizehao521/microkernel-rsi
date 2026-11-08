@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Desktop\Î¢ÄÚºË\Î¢ÄÚºË\tasks\mcp\tools_probe.py", line 349, in <module>
+    t = post(body)
+  File "C:\Users\Administrator\Desktop\Î¢ÄÚºË\Î¢ÄÚºË\tasks\mcp\tools_probe.py", line 112, in post
+    j = json.loads(raw.decode("utf-8"))
+  File "json\__init__.py", line 352, in loads
+  File "json\decoder.py", line 345, in decode
+  File "json\decoder.py", line 361, in raw_decode
+json.decoder.JSONDecodeError: Unterminated string starting at: line 1 column 38 (char 37)

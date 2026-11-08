@@ -1,0 +1,87 @@
+探索未至之境
+预览版
+dsh-probe-1027
+标准模式
+描述你想要构建的内容, / 调用指令, @ 文件或对话
+工作区内修改
+请选择模型
+设置
+通用设置
+模型
+内置插件
+Agent 预设
+打开配置文件
+关闭
+内置插件
+
+查看内置部署的插件列表
+
+插件列表
+内核看板
+内核记账 · dsh 旁路账与内核账读数
+这张表的每个数都由宿主那一侧同一份 index.js 现读现算（route /kernel-board）；两把臂（改一格 / 原样重抄）与缺席那一格故意放进同一张表，为了证明这把尺子会红。
+重读
+HTTP 200 · 头里 content-length —（fetch 把它列为禁读头，取不到就印 — ，不是 0）· 实收 11879 字节 / 11123 码元（两个口径，中文 JSON 本来就不等）· 往返 28 ms · 客户端件 board-1027-r3
+装载自证：boot 图 70 行 / 3 批 / 同批另 0 个 ｜我们那行 rev 3810eef108d5 ｜url plugins/??dsh-plugin-journal/client.js&rev=3810eef108d5 ｜工厂链路 factory_enter → require_react=ok → factory_return → slot_register=ok
+分母自印 · 旁路账 列 6 / 读到 5 / 缺席 1 ｜行数 113 ｜程数 7
+内核账 列 4 / 读到 3 / 缺席 1 ｜落账 735 发 ｜程数 15 ｜gate 行 3
+reader（宿主那半的字节）11369 B sha256 前 16 4f97b0bc8d898069 ｜kernel-board-reader 1027-r1
+清单来自 board-config-1027.json ｜宿主生成于 2026-10-27T16:50:12.738Z（这一句只报宿主自己的钟，不和浏览器比）
+一、每本账整本读到的
+旁路账（dsh 侧车自己写的链）	状态	行数	程数	链头 12	断点	重锚	字节	sha256 前 16
+外部现场-dsh-1027/journal-web.jsonl	green	26	1	92c7401177cb	0（印 0）	0	53291	3b92b9853cdd9442
+dsh-probe-1027/journal-web.jsonl	green	32	3	8d717ace8feb	0（印 0）	0	55073	6a848fb08cbdf192
+dsh-probe-1027/journal-board-1027.jsonl	green	3	1	ae9ab9eb4d74	0（印 0）	0	831	4fbdca9d884c8211
+臂产物-看板/旁路账-原样重抄.jsonl	green	26	1	92c7401177cb	0（印 0）	0	53291	3b92b9853cdd9442
+臂产物-看板/旁路账-改一格.jsonl	red	26	1	92c7401177cb	1（印 1）	0	53293	5e831afade27038a
+臂产物-看板/旁路账-这一发没写.jsonl	absent	没量到	没量到	—	—	—	—	—
+理由：文件不在盘上（不是 0 行 —— 是没量到）
+二、旁路账里每一程
+程（会话 id）	事件数	i 区间	链头 12	事件类型 top5	属于哪本账
+session-…7beff6	26	0..25	92c7401177cb	user/message 4, agent/inbox/spliced 2, step/start 2, session/title 2, assistant/message 2 …（另有 13 种类型没列）	外部现场-dsh-1027/journal-web.jsonl
+session-…7beff6	26	0..25	92c7401177cb	user/message 4, agent/inbox/spliced 2, step/start 2, session/title 2, assistant/message 2 …（另有 13 种类型没列）	dsh-probe-1027/journal-web.jsonl
+session-…76fb57	3	29..31	8d717ace8feb	permission/preset 1, sandbox/mode 1, approval/policy 1	dsh-probe-1027/journal-web.jsonl
+session-…ef0f48	3	26..28	0e3c664223b5	permission/preset 1, sandbox/mode 1, approval/policy 1	dsh-probe-1027/journal-web.jsonl
+session-…97e762	3	0..2	ae9ab9eb4d74	permission/preset 1, sandbox/mode 1, approval/policy 1	dsh-probe-1027/journal-board-1027.jsonl
+session-…7beff6	26	0..25	92c7401177cb	user/message 4, agent/inbox/spliced 2, step/start 2, session/title 2, assistant/message 2 …（另有 13 种类型没列）	臂产物-看板/旁路账-原样重抄.jsonl
+session-…7beff6	26	0..25	92c7401177cb	user/message 3, agent/inbox/spliced 2, step/start 2, session/title 2, assistant/message 2 …（另有 14 种类型没列）	臂产物-看板/旁路账-改一格.jsonl
+三、内核账整本 + 两个链头对账
+内核账	状态	落账发数	程数	gate 行	链头 12	gate 那行写的链头	两数对上	断点	sha256 前 16
+外部现场-dsh-1027/内核账-dsh-fold-1027.jsonl	green	245	5	1	ee8cc45dedf6	ee8cc45dedf6	相等	0（印 0）	324d877c01f6047b
+臂产物-看板/内核账-原样重抄.jsonl	green	245	5	1	ee8cc45dedf6	ee8cc45dedf6	相等	0（印 0）	324d877c01f6047b
+臂产物-看板/内核账-改一格.jsonl	red	245	5	1	ee8cc45dedf6	ee8cc45dedf6	相等	1（印 1）	890327785c730302
+臂产物-看板/内核账-这一发没写.jsonl	absent	没量到	没量到	没量到	—	—	—	—	—
+理由：文件不在盘上（不是 0 行 —— 是没量到）
+四、内核账里每一程被收了几发
+程（session/actor）	被内核收了几发	占了几格	seq 区间	basis 分布	链头 12	属于哪本账
+dsh-web-1027 / dsh-step1	49	49	1-49	measured 36 · relayed 7 · absent 3 · estimated 2 · model_says 1	daec67dd7a77	外部现场-dsh-1027/内核账-dsh-fold-1027.jsonl
+dsh-web-1027 / dsh-step2	49	49	50-98	measured 36 · relayed 7 · absent 3 · estimated 2 · model_says 1	5363bed8c941	外部现场-dsh-1027/内核账-dsh-fold-1027.jsonl
+relay-raw-1027 / probe1	49	49	99-147	measured 40 · relayed 4 · estimated 2 · absent 2 · model_says 1	ce7cff8e704e	外部现场-dsh-1027/内核账-dsh-fold-1027.jsonl
+relay-raw-1027 / probe2	49	49	148-196	measured 40 · relayed 4 · estimated 2 · absent 2 · model_says 1	b3d48d36901d	外部现场-dsh-1027/内核账-dsh-fold-1027.jsonl
+relay-raw-1027 / probe3	49	49	197-245	measured 40 · relayed 4 · estimated 2 · absent 2 · model_says 1	ee8cc45dedf6	外部现场-dsh-1027/内核账-dsh-fold-1027.jsonl
+dsh-web-1027 / dsh-step1	49	49	1-49	measured 36 · relayed 7 · absent 3 · estimated 2 · model_says 1	daec67dd7a77	臂产物-看板/内核账-原样重抄.jsonl
+dsh-web-1027 / dsh-step2	49	49	50-98	measured 36 · relayed 7 · absent 3 · estimated 2 · model_says 1	5363bed8c941	臂产物-看板/内核账-原样重抄.jsonl
+relay-raw-1027 / probe1	49	49	99-147	measured 40 · relayed 4 · estimated 2 · absent 2 · model_says 1	ce7cff8e704e	臂产物-看板/内核账-原样重抄.jsonl
+relay-raw-1027 / probe2	49	49	148-196	measured 40 · relayed 4 · estimated 2 · absent 2 · model_says 1	b3d48d36901d	臂产物-看板/内核账-原样重抄.jsonl
+relay-raw-1027 / probe3	49	49	197-245	measured 40 · relayed 4 · estimated 2 · absent 2 · model_says 1	ee8cc45dedf6	臂产物-看板/内核账-原样重抄.jsonl
+dsh-web-1027 / dsh-step1	49	49	1-49	measured 36 · relayed 7 · absent 3 · estimated 2 · model_says 1	daec67dd7a77	臂产物-看板/内核账-改一格.jsonl
+dsh-web-1027 / dsh-step2	49	49	50-98	measured 36 · relayed 7 · absent 3 · estimated 2 · model_says 1	5363bed8c941	臂产物-看板/内核账-改一格.jsonl
+relay-raw-1027 / probe1	49	49	99-147	measured 40 · relayed 4 · estimated 2 · absent 2 · model_says 1	ce7cff8e704e	臂产物-看板/内核账-改一格.jsonl
+relay-raw-1027 / probe2	49	49	148-196	measured 40 · relayed 4 · estimated 2 · absent 2 · model_says 1	b3d48d36901d	臂产物-看板/内核账-改一格.jsonl
+relay-raw-1027 / probe3	49	49	197-245	measured 40 · relayed 4 · estimated 2 · absent 2 · model_says 1	ee8cc45dedf6	臂产物-看板/内核账-改一格.jsonl
+五、闸门读数
+gate（内核那一趟自己印的）	rejected	precheck_rejected	precheck_door	door_refused	bad_requests	transport_refused	state
+外部现场-dsh-1027/内核账-dsh-fold-1027.jsonl v2 sha 906d79be4e9a8990	5	1	0	0	0	0	1
+臂产物-看板/内核账-原样重抄.jsonl v2 sha 906d79be4e9a8990	5	1	0	0	0	0	1
+臂产物-看板/内核账-改一格.jsonl v2 sha 906d79be4e9a8990	5	1	0	0	0	0	1
+断点逐名（这一屏列出 2 条 = 上面各本账送来的 bad 条目之和；宿主每本账最多送 8 条，账上真断了几发要看「断点」列的总数，不是这里数的条数）
+旁路账 臂产物-看板/旁路账-改一格.jsonl @行 10 hash_mismatch ｜程 session-0ceac87a-8fd4-48c6-94d2-69c5467beff6 ｜重算=ab8e1f0692df ｜账上=f9d7e0d98e29
+内核账 臂产物-看板/内核账-改一格.jsonl @行 50 seq=51 seal_mismatch ｜程 dsh-web-1027/dsh-step2 ｜重算=fde021326377 ｜账上=bedd82c4c152
+六、两本账的对应关系（声明，不是算出来的）
+旁路账 journal-web.jsonl 是 fold-kernel-1027.py 的输入（脚本第 28 行 SIDECAR 写死这一本）；内核账里 session=dsh-web-1027 的两程 actor=dsh-step1/dsh-step2 是从这一本折出来的。
+这一句是本文件里手写的声明，不是从账上算出来的 ⇒ 只当对应关系记录，不当读数。
+dsh-probe-1027/journal-board-1027.jsonl → absent：这一本没折进内核账 ⇒ 内核侧那一格本来没这回事，不是 0 发
+臂产物-看板/旁路账-原样重抄.jsonl → absent：这一本没折进内核账 ⇒ 内核侧那一格本来没这回事，不是 0 发
+臂产物-看板/旁路账-改一格.jsonl → absent：这一本没折进内核账 ⇒ 内核侧那一格本来没这回事，不是 0 发
+臂产物-看板/旁路账-这一发没写.jsonl → absent：这一本没折进内核账 ⇒ 内核侧那一格本来没这回事，不是 0 发
+能说什么：某一程在这一发被读到几行、链头是哪一枚、被内核收了几发、闸门拒了几发、断点在第几行且属于哪一程。不能说什么：这些数字不等于模型自主决定的证据（basis=model_says 那一档只说明模型这么写）；旁路账与内核账的对应关系是清单里手写的声明；内核 gate 里那些拒发是别的发留下的，不是这一趟新发生的。

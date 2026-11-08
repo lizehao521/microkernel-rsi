@@ -1,0 +1,37 @@
+== 说谎者靶场 · 第二种谎形状：Absent=true 却带着 N=7 · 2026-10-17 11:00:19 ==
+字节 mcphttp.exe
+分母两份并排：源码现场抠出 11 个 tokens fixed_overhead usage_in usage_out wire_bytes_out wire_bytes_in chunks first_byte_ms max_gap_ms fail_status retry_after_ms
+              脚本写死     11 个 tokens fixed_overhead usage_in usage_out wire_bytes_out wire_bytes_in chunks first_byte_ms max_gap_ms fail_status retry_after_ms
+两份一致 = True（不一致就照实印，不许修一边凑齐）
+对照臂（这份装配没被动过）：check isError=False ｜ record isError=False ｜ 整发落账 49 条（输入侧 20 格 + 输出侧 29 格），链上共 49 条
+
+格 ｜ 预检isError ｜ 落账isError ｜ 同判? ｜ 账上读回来的人话
+------------------------------------------------------------------------------
+tokens           ｜ check=True  ｜ record=True  ｜ 同判 ｜ session=av-tokens 的第 1 发 input 侧在链上一条都没有（发号从 1 起；这一发没记过）
+     拒收原话：整发拒收（拒收累计 1 次）：kernel: 输入侧账不自洽，第 1 发整发拒收（输出侧也不写）：kernel: token 数 报的是缺席，却带着数 7 —— 缺席不许顺手塞一个值
+fixed_overhead   ｜ check=True  ｜ record=True  ｜ 同判 ｜ session=av-fixed_overhead 的第 1 发 input 侧在链上一条都没有（发号从 1 起；这一发没记过）
+     拒收原话：整发拒收（拒收累计 2 次）：kernel: 输入侧账不自洽，第 1 发整发拒收（输出侧也不写）：kernel: 固定开销 报的是缺席，却带着数 7 —— 缺席不许顺手塞一个值
+usage_in         ｜ check=True  ｜ record=True  ｜ 同判 ｜ session=av-usage_in 的第 1 发 output 侧在链上一条都没有（发号从 1 起；这一发没记过）
+     拒收原话：整发拒收（拒收累计 3 次）：kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 入 token 报的是缺席，却带着数 7 —— 缺席不许顺手塞一个值
+usage_out        ｜ check=True  ｜ record=True  ｜ 同判 ｜ session=av-usage_out 的第 1 发 output 侧在链上一条都没有（发号从 1 起；这一发没记过）
+     拒收原话：整发拒收（拒收累计 4 次）：kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 出 token 报的是缺席，却带着数 7 —— 缺席不许顺手塞一个值
+wire_bytes_out   ｜ check=True  ｜ record=True  ｜ 同判 ｜ session=av-wire_bytes_out 的第 1 发 output 侧在链上一条都没有（发号从 1 起；这一发没记过）
+     拒收原话：整发拒收（拒收累计 5 次）：kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 过网线的请求体字节 报的是缺席，却带着数 7 —— 缺席不许顺手塞一个值
+wire_bytes_in    ｜ check=True  ｜ record=True  ｜ 同判 ｜ session=av-wire_bytes_in 的第 1 发 output 侧在链上一条都没有（发号从 1 起；这一发没记过）
+     拒收原话：整发拒收（拒收累计 6 次）：kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 通道上收到的字节 报的是缺席，却带着数 7 —— 缺席不许顺手塞一个值
+chunks           ｜ check=True  ｜ record=True  ｜ 同判 ｜ session=av-chunks 的第 1 发 output 侧在链上一条都没有（发号从 1 起；这一发没记过）
+     拒收原话：整发拒收（拒收累计 7 次）：kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 分帧数 报的是缺席，却带着数 7 —— 缺席不许顺手塞一个值
+first_byte_ms    ｜ check=True  ｜ record=True  ｜ 同判 ｜ session=av-first_byte_ms 的第 1 发 output 侧在链上一条都没有（发号从 1 起；这一发没记过）
+     拒收原话：整发拒收（拒收累计 8 次）：kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 首帧等待 报的是缺席，却带着数 7 —— 缺席不许顺手塞一个值
+max_gap_ms       ｜ check=True  ｜ record=True  ｜ 同判 ｜ session=av-max_gap_ms 的第 1 发 output 侧在链上一条都没有（发号从 1 起；这一发没记过）
+     拒收原话：整发拒收（拒收累计 9 次）：kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 最大帧间等待 报的是缺席，却带着数 7 —— 缺席不许顺手塞一个值
+fail_status      ｜ check=False ｜ record=False ｜ 同判 ｜ session=av-fail_status 的第 1 发 output 侧共 29 格，其中缺席 [chunks fail_status first_byte_ms max_gap_ms retry_after_ms]
+retry_after_ms   ｜ check=True  ｜ record=True  ｜ 同判 ｜ session=av-retry_after_ms 的第 1 发 output 侧在链上一条都没有（发号从 1 起；这一发没记过）
+     拒收原话：整发拒收（拒收累计 10 次）：kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 对端要我们等多久 报的是缺席，却带着数 7 —— 缺席不许顺手塞一个值
+
+== 自印分母 ==
+源码抠出的分母=11 ｜ 写死那份=11 ｜ 本轮跑到=11 ｜ 落账被收下=1 ｜ 预检与落账同判=11 ｜ 回话为空的臂=0
+一句实话：『收下』= 内核没拒，不代表账上留下了痕迹 —— 上面那一列是**读回来的人话**，
+        N=7 到底还看得见吗，看那一列里有没有 7；我在这份里不替它判定。
+        这条不变量的另一半（Basis 不许是 measured）由构造保证：cells.go:44-50 见 Absent 就覆写 Basis，
+        所以那一半谎不出来，不需要针 —— 这是本轮读码读出来的，不是我推的。

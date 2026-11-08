@@ -1,0 +1,56 @@
+== 动态档那三格 · Cuts 族逐条撞 · 2026-10-17 12:53:05 ｜ 字节 sha256=daad549714f7fd5e ==
+自核：模板取自源码 17/17 条 ｜ 取不到的：无
+三格在格表里吗：folded/clipped/dropped ｜ 不在的：无
+
+A0 合法装配：check=False record=False ｜ 底样 {"Call": 2, "Order": ["system", "user", "history", "truncation-notice"], "ContentBytes": 70}
+   内容字节相加 70 ｜ 段表 [{"Kind": "system", "Parts": 1, "Bytes": 11}, {"Kind": "user", "Parts": 1, "Bytes": 9}, {"Kind": "history", "Parts": 1, "Bytes": 30}, {"Kind": "truncation-notice", "Parts": 1, "Bytes": 20}] ｜ 份额 {"system": 35, "user": 25, "history": 30, "truncation-notice": 10} ｜ 裁剪 [{"Kind": "history", "Ref": "第 1 发的历史段（演示值·非真实流量）", "RefCall": 1, "Role": "assistant", "Squeeze": "folded", "FromBytes": 100, "ToBytes": 30, "SHA256":
+A0 落账后 read_back（isError=False）里带这三档名的行：
+   clipped                measured  0 段（裁剪表是空的）
+   dropped                measured  0 段（裁剪表是空的）
+   folded                 measured  1 段：history/第 1 发的历史段（演示值·非真实流量）
+   读到 3 行（该有 3 行）｜ 读不到就别把「这三格被算进去了」当结论
+
+目标键 ｜ 臂 ｜ check ｜ record ｜ 同判 ｜ 撞对？ ｜ 原话尾巴
+------------------------------------------------------------------------------
+folded   ｜ A1 折过之后比原文还大                   ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 第 1 条裁剪记录（history/第 1 发的历史段（演示值·非真实流量）） 折过之后 140 字节，原文才 10
+    └ 期望那条：input.go:575 模板「kernel: %s 折过之后 %d 字节，原文才 %d 字节 —— 那它没被折，是被变大了」
+folded   ｜ A2 折过之后 0 字节                   ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 第 1 条裁剪记录（history/第 1 发的历史段（演示值·非真实流量）） 折过之后是 0 字节 —— 桩要么整
+    └ 期望那条：input.go:572 模板「kernel: %s 折过之后是 %d 字节 —— 桩要么整段发，要么记成整段没进」
+clipped  ｜ A3 裁尾却没留下前缀                    ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 第 1 条裁剪记录（history/第 1 发的历史段（演示值·非真实流量）） 留了 100 字节、原文 100 字
+    └ 期望那条：input.go:585 模板「kernel: %s 留了 %d 字节、原文 %d 字节 —— 裁尾要留下一个非空的真前缀」
+dropped  ｜ A4 说整段没进却记着字节                  ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 第 1 条裁剪记录（history/第 1 发的历史段（演示值·非真实流量）） 说是 dropped-whole，却
+    └ 期望那条：input.go:592 模板「kernel: %s 说是 %s，却记着发出去 %d 字节」
+dropped  ｜ A5 未知 squeeze 取值（读码说该拒）        ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 第 1 条裁剪记录（history/第 1 发的历史段（演示值·非真实流量）） 的 squeeze 是 "squee
+    └ 期望那条：input.go:597 模板「kernel: %s 的 squeeze 是 %q，不在四种取值里」
+folded   ｜ A6 squeeze 是空（没被挤）             ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 第 1 条裁剪记录（history/第 1 发的历史段（演示值·非真实流量）） 没被挤，就不该出现在裁剪表里
+    └ 期望那条：input.go:547 模板「kernel: %s 没被挤，就不该出现在裁剪表里」
+folded   ｜ A7 说话人不在四种里                    ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 第 1 条裁剪记录（history/第 1 发的历史段（演示值·非真实流量）） 的说话人是 "nobody"，不在四
+    └ 期望那条：input.go:550 模板「kernel: %s 的说话人是 %q，不在四种取值里 —— 被裁的段丢了说话人，事后就分不清裁掉的是模型自述还是人的指令」
+folded   ｜ A8 原文指纹不是 64 位                 ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 第 1 条裁剪记录（history/第 1 发的历史段（演示值·非真实流量）） 的原文指纹是 3 位，不是 64 位
+    └ 期望那条：input.go:607 模板「kernel: %s是 %d 位，不是 64 位十六进制 —— 拿它核不回原文」
+folded   ｜ A9 Ref 是空的                     ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 第 1 条裁剪记录（history/  ） 没有 ref —— 事后谁也说不清被挤掉的是哪一段
+    └ 期望那条：input.go:560 模板「kernel: %s 没有 ref —— 事后谁也说不清被挤掉的是哪一段」
+folded   ｜ A10 system 这一类不许折              ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 第 1 条裁剪记录（system/第 1 发的历史段（演示值·非真实流量）） 被折成了桩，但 system 这一类不
+    └ 期望那条：input.go:565 模板「kernel: %s 被折成了桩，但 %s 这一类不许折」
+clipped  ｜ A11 system 这一类是整段的（裁尾）         ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 第 1 条裁剪记录（system/第 1 发的历史段（演示值·非真实流量）） 被裁尾，但 system 这一类是整段
+    └ 期望那条：input.go:579 模板「kernel: %s 被裁尾，但 %s 这一类是整段的」
+dropped  ｜ A12 system 记成整段没进              ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 第 1 条裁剪记录（system/第 1 发的历史段（演示值·非真实流量）） 记成 dropped-whole，但 
+    └ 期望那条：input.go:590 模板「kernel: %s 记成 %s，但 %s 这一类是整段的」
+dropped  ｜ A13 挤掉历史没说来自第几发                ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 第 1 条裁剪记录挤掉了一段历史，却没说它来自第几发（RefCall=0）
+    └ 期望那条：input.go:414 模板「kernel: 第 %d 条裁剪记录挤掉了一段历史，却没说它来自第几发（RefCall=%d）」
+folded   ｜ A14 引用了未来那一发                   ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 第 1 条裁剪记录说那段历史来自第 9 发，可现在才第 2 发 —— 引用未来的那一发，账上核不到
+    └ 期望那条：input.go:417 模板「kernel: 第 %d 条裁剪记录说那段历史来自第 %d 发，可现在才第 %d 发 —— 引用未来的那一发，账上核不到」
+folded   ｜ A15 留下字节比段表还多                  ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ history 的裁剪记录说留下了 60 字节，而段表说这一类一共才发了 30 字节 —— 两张表对不上
+    └ 期望那条：input.go:465 模板「kernel: %s 的裁剪记录说留下了 %d 字节，而段表说这一类一共才发了 %d 字节 —— 两张表对不上」
+folded   ｜ A16 留下字节却段表没这行                 ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ history 的裁剪记录说留下了 30 字节，段表里却没有它那一行
+    └ 期望那条：input.go:476 模板「kernel: %s 的裁剪记录说留下了 %d 字节，段表里却没有它那一行」
+dropped  ｜ A17 挤了段却不通知也不说为什么              ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 这一发挤掉了 1 段，却没把那句知情通知发出去，也没说为什么
+    └ 期望那条：input.go:426 模板「kernel: 这一发挤掉了 %d 段，却没把那句知情通知发出去，也没说为什么」
+
+== 自印分母 ==
+臂 18 条（A0 合法装配 1 条 + 谎臂 17 条）｜ A0 被收下 = 是 ｜ 预检与落账同判 17/17
+谎臂里：撞中对上期望那条规则 17 ｜ 打偏（拒了但不是这条拦的）0：无 ｜ 被收下 0：无
+覆盖归因：这一批打的目标键名 = folded/clipped/dropped ｜ 各臂数 folded=11 clipped=2 dropped=5
+读法：A0 收下证明夹具合法，后面的「被拒」才是判据在拒谎；
+      「打偏」要回来改臂（我这批值同时踩了别的规则），不许记在期望那条规则头上；
+      「被收下」= 这一族某个值域今天没人管。演示串都带「演示值·非真实流量」，别读成真流量。

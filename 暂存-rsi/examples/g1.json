@@ -1,0 +1,14 @@
+{
+  "producer": "demo-harness",
+  "generation": 1,
+  "artifacts": [
+    {"path": "harness.py", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "bytes": 2048}
+  ],
+  "criteria_sha256": "criteria-v1",
+  "criteria_diff": [],
+  "readings": [
+    {"metric": "latency_ms", "n": 1200, "basis": 1, "direction": "down"},
+    {"metric": "pass_rate", "n": 8, "basis": 1, "direction": "up", "denominator": 10}
+  ],
+  "claim": "基线：延迟 1200ms，通过率 8/10"
+}

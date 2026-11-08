@@ -1,0 +1,4 @@
+落账 isError：N=7 → False ｜ N=9 → False（两个都 False = 『缺席不许带数』那条判据今天拦不住这一格）
+encode_journal(payload=included) isError=False ｜ 导出行数=99
+带着 fail_status 那一格的行数=0（这本账共 100 条）
+没在这本导出里同时找到那两发的行 —— 上面这些数不许读成结论。

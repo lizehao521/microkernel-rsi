@@ -1,0 +1,111 @@
+== 分母自印 ==
+旁路账事件（去计数行）= 26 条 / 桥 beta 请求 = 3 路 [38307, 920, 38921] / 上游状态 = [404, 404, 200, 200, 200] / 桥补的收尾帧 = [1, 1, 1]
+原始 SSE 探针 = 3 发；对端自报模型 = ['glm-5.3-flash', 'deepseek-v4.1-flash-1017', 'deepseek-v4.1-flash-1017']；线上有收尾原因的 = 0 发
+旁路账各段字节：system=5805 ctx=757 time=262 user=94 skill=1019 toolspec=28850 history=213 obs=152
+dsh-web-1027     dsh-step1 内容=36787  过网线=38307   原话=213   帧=8    首字节=7994   自报模型=glm-5.3-flash
+dsh-web-1027     dsh-step2 内容=37152  过网线=38921   原话=5     帧=5    首字节=977    自报模型=deepseek-v4.1-flash-1017
+dsh-title-1027   dsh-title 内容=663    过网线=920     原话=35    帧=?    首字节=?      自报模型=(没说)
+relay-raw-1027   probe1    内容=141    过网线=251     原话=421   帧=132  首字节=4293   自报模型=glm-5.3-flash
+relay-raw-1027   probe2    内容=141    过网线=251     原话=152   帧=20   首字节=1146   自报模型=deepseek-v4.1-flash-1017
+relay-raw-1027   probe3    内容=141    过网线=251     原话=171   帧=24   首字节=1566   自报模型=deepseek-v4.1-flash-1017
+
+链模型自证（我这份 rehash 与旁路插件盖的是同一枚吗）：是，26/26 逐条对上
+内核 exe = mcpkernel.exe 字节=6107648 sha256=5ce84538a9cc2d63
+celltable：50 行；首行：当前 49 格（输入侧 20 + 输出侧 29）；唯一键名 48 个：
+预检 dsh-step1 过 | 输入侧：自洽
+落账 dsh-step1 过 | 整发落账 49 条（输入侧 20 格 + 输出侧 29 格），链上共 49 条
+重记 dsh-step1 被去重门挡下 | 整发拒收（拒收累计 1 次）：kernel: model_input 第 1 发（session=dsh-web-1027）已经记过了 —— 同一发只许记一次，记两遍会让按键名扫账本的分析层把字节与 token 加两遍
+预检 dsh-step2 过 | 输入侧：自洽
+落账 dsh-step2 过 | 整发落账 49 条（输入侧 20 格 + 输出侧 29 格），链上共 98 条
+重记 dsh-step2 被去重门挡下 | 整发拒收（拒收累计 2 次）：kernel: model_input 第 2 发（session=dsh-web-1027）已经记过了 —— 同一发只许记一次，记两遍会让按键名扫账本的分析层把字节与 token 加两遍
+预检 dsh-title 拒 | 输入侧：自洽
+预检 probe1    过 | 输入侧：自洽
+落账 probe1    过 | 整发落账 49 条（输入侧 20 格 + 输出侧 29 格），链上共 147 条
+重记 probe1    被去重门挡下 | 整发拒收（拒收累计 3 次）：kernel: model_input 第 1 发（session=relay-raw-1027）已经记过了 —— 同一发只许记一次，记两遍会让按键名扫账本的分析层把字节与 token 加两遍
+预检 probe2    过 | 输入侧：自洽
+落账 probe2    过 | 整发落账 49 条（输入侧 20 格 + 输出侧 29 格），链上共 196 条
+重记 probe2    被去重门挡下 | 整发拒收（拒收累计 4 次）：kernel: model_input 第 2 发（session=relay-raw-1027）已经记过了 —— 同一发只许记一次，记两遍会让按键名扫账本的分析层把字节与 token 加两遍
+预检 probe3    过 | 输入侧：自洽
+落账 probe3    过 | 整发落账 49 条（输入侧 20 格 + 输出侧 29 格），链上共 245 条
+重记 probe3    被去重门挡下 | 整发拒收（拒收累计 5 次）：kernel: model_input 第 3 发（session=relay-raw-1027）已经记过了 —— 同一发只许记一次，记两遍会让按键名扫账本的分析层把字节与 token 加两遍
+
+已落账 5 发（每发两侧），拒收 1 发：['dsh-title']
+拒收原话（这是内核在说话，不是我）：
+   dsh-title -> 输入侧：自洽
+         输出侧：kernel: 这一发是流式的，分帧数 却报缺席 —— 流式就该量得到它
+         预检结论：整发会被拒 —— kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 这一发是流式的，分帧数 却报缺席 —— 流式就该量得到它 —— 预检拒收累计 1 发（这一路一条都不写；落账那一路被内核拒的是另一笔：2 次）
+验链：✓ 链自洽（共 245 条，其中 245 条比对过原像）
+分桶：账 245 条（absent=12 estimated=10 measured=192 model_says=5 relayed=26）；被拒的写入 5 次 —— 拒收也要看得见，不然「被拒」会读成「没发生过」；预检（不落账的那一路）被内核判据拒 1 发 —— 10-18 之前这一栏根本没有，外人被拦 24+ 次而账上四栏全 0；预检在门口被挡下 0 次（整块没给／参数解不开，没走到内核判据）；另有 0 次写请求根本没走到内核（外壳在门口挡下：整块没给／写侧没这个键／账本已到上限）（其中容量挡下 0 次，上限=没设（不拦；这本账会一路涨到进程内存尽头））；0 条请求被协议层判成无效（解不开 -32700／没有 method、不是请求 -32600；走到了协议层，只是没走进内核）；0 条请求连协议层都没到（传输层的形状预检挡下，比第三笔更早一步；拒它的是门，不是分类 —— #44）；这几笔数合起来的口径：这一程完整可数
+
+== 逐发 endpoint_model 读回来（同一网关、同一请求体，对端自报的模型逐发不一样） ==
+dsh-web-1027#1.endpoint_model    model_says  glm-5.3-flash  ⟦出处=—（这一格没有出处栏：model_says 档本来就不要求它，不是丢了） 指纹=b434a7ef235
+dsh-web-1027#2.endpoint_model    model_says  deepseek-v4.1-flash-1017  ⟦出处=—（这一格没有出处栏：model_says 档本来就不要求它，不是丢了） 指纹=
+relay-raw-1027#1.endpoint_model  model_says  glm-5.3-flash  ⟦出处=—（这一格没有出处栏：model_says 档本来就不要求它，不是丢了） 指纹=b434a7ef235
+relay-raw-1027#2.endpoint_model  model_says  deepseek-v4.1-flash-1017  ⟦出处=—（这一格没有出处栏：model_says 档本来就不要求它，不是丢了） 指纹=
+relay-raw-1027#3.endpoint_model  model_says  deepseek-v4.1-flash-1017  ⟦出处=—（这一格没有出处栏：model_says 档本来就不要求它，不是丢了） 指纹=
+
+dsh-web-1027#1.chunks                  relayed     8（转述自 旁路账 assistant/message.stream 的帧数（转述框架自己数的））  ⟦出处=旁路账 assistant/message.str
+dsh-web-1027#1.content_bytes           measured    36787  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=777d9e9263007770c40b2e9dcc149b5
+dsh-web-1027#1.cost_countable          measured    是  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=b5bea41b6c623f7c09f1bf24dcae58ebab3
+dsh-web-1027#1.finish                  relayed     （这一格是空的）  ⟦出处=endpoint-response 指纹=12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6
+dsh-web-1027#1.sent                    measured    发出去了  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=221f8a8d04ca37dcebca110b96852ec2
+dsh-web-1027#2.chunks                  relayed     5（转述自 旁路账 assistant/message.stream 的帧数（转述框架自己数的））  ⟦出处=旁路账 assistant/message.str
+dsh-web-1027#2.content_bytes           measured    37152  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=750bc812695e704176ba8725d98b931
+dsh-web-1027#2.cost_countable          measured    是  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=b5bea41b6c623f7c09f1bf24dcae58ebab3
+dsh-web-1027#2.finish                  relayed     （这一格是空的）  ⟦出处=endpoint-response 指纹=12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6
+dsh-web-1027#2.sent                    measured    发出去了  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=221f8a8d04ca37dcebca110b96852ec2
+relay-raw-1027#1.chunks                measured    132  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=908d323ee3c0ec32cdc0bcd1419a2e025
+relay-raw-1027#1.content_bytes         measured    141  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=2c7d5490e6050836f8f2f0d496b1c8d6a
+relay-raw-1027#1.cost_countable        measured    是  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=b5bea41b6c623f7c09f1bf24dcae58ebab3
+relay-raw-1027#1.finish                relayed     （这一格是空的）  ⟦出处=endpoint-response 指纹=12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6
+relay-raw-1027#1.sent                  measured    发出去了  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=221f8a8d04ca37dcebca110b96852ec2
+relay-raw-1027#2.chunks                measured    20  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=213857f5cfcf96305742039dc318f92aa9
+relay-raw-1027#2.content_bytes         measured    141  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=2c7d5490e6050836f8f2f0d496b1c8d6a
+relay-raw-1027#2.cost_countable        measured    是  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=b5bea41b6c623f7c09f1bf24dcae58ebab3
+relay-raw-1027#2.finish                relayed     （这一格是空的）  ⟦出处=endpoint-response 指纹=12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6
+relay-raw-1027#2.sent                  measured    发出去了  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=221f8a8d04ca37dcebca110b96852ec2
+relay-raw-1027#3.chunks                measured    24  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=a6d1efb8ea387e4b03e87b306ee74aa5d2
+relay-raw-1027#3.content_bytes         measured    141  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=2c7d5490e6050836f8f2f0d496b1c8d6a
+relay-raw-1027#3.cost_countable        measured    是  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=b5bea41b6c623f7c09f1bf24dcae58ebab3
+relay-raw-1027#3.finish                relayed     （这一格是空的）  ⟦出处=endpoint-response 指纹=12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6
+relay-raw-1027#3.sent                  measured    发出去了  ⟦出处=—（这一格没有出处栏：measured 档本来就不要求它，不是丢了） 指纹=221f8a8d04ca37dcebca110b96852ec2
+
+encode_journal：124049 字节 JSONL，245 行链上条目 + 1 行闸门计数（口径=这一程完整可数）（写盘是你的事，内核只交字节）
+已写 内核账-dsh-fold-1027.jsonl 行数=246 字节=124049 sha256=324d877c01f6047b
+
+编出来的字节里：链上行 245、闸门计数行 1（计数行不进链，臂 A 只动链上行）
+臂 A 的靶：带原像的 model_output:* 行 145 条，取第 32 行（kind=model_output:model_says_sha256）；筛空了会点名，不会静默跳过
+内核盖法自证（我用 kernel.go:271 那 11 段重算，245 行全对上吗）：全对上 —— 下面的臂才有资格说话
+   反臂（给第 32 行的原话加一个空格、不重盖）：我的判据说不一致 —— 有牙
+臂 A1 只改原话不重算 -> 载入 被拒（预期）：载入被拒：kernel: 读回来的账本链不符，拒绝载入：第 32 条整格指纹重算不符（某格被改）want=ca8b0e30a227 got=91c554784745
+   改的是第 32 行：「d6c8c9ede5f990ab10aae39b4da1a5d1df5fd95cfcb18210e76e92926a07」→「d999999c8c9ede5f990ab10aae39b4da1a5d1df5fd95cfcb18210e76e929」
+臂 A2 改一格+自补链 -> 载入 收下（已知上限：无密钥）：从 245 行里读回 245 条，链上现在 245 条；原像 245 条在手；计数栏：文件里没有这一行 ⇒ 载入前那一段不可知（不是「一次都没拦」）；本程数到的照实带过来，合起来的口径=不可知（手里这份字节里没有计数那一栏）
+   这条与 contract.md §2.3b 那句「防不住铁了心伪造的人」对得上；能防它的只有臂 B 那种跨产物核对
+臂 A 对照 原样载入（同一把刀切 0 处，245 行链上、无计数行）-> 收下（预期）：从 245 行里读回 245 条，链上现在 245 条；原像 245 条在手；计数栏：文件里没有这一行 ⇒ 载入前那一段不可知（不是「一次都没拦」）；本程数到的照实带过来，合起来的口径=不可知（手里这份字节里没有计数那一栏）
+臂 A 对照后再验链：✓ 链自洽（共 245 条，其中 245 条比对过原像）
+
+== 臂 B：把模型的答复 54599 改成 54598，再重算旁路账自己的链 ==
+比对表先自印：账上读回 240 格；臂要问的 11 个数里 10 个在表内、1 个不在（['dsh-web-1027#2.obs_bytes']）—— 不在的那几个下面只能记「看不见」，不能记「没改」
+负对照（只把同一本账重抄一遍、谁都没改）：dsh 验链 bad=[]，现算口径变了 0 个数 —— 必须是 0，否则下面所有「抓到」都不算数（[]）
+改写后的旁路账：dsh 自己的验链 bad=[]（rc=0）链头=2308b7fb3bf86885 —— 它的尺子说这本账没问题
+旁路账现算口径下有 1 个数变了：['dsh-web-1027#2.model_says_sha256']
+   抓到 dsh-web-1027#2.model_says_sha256 内核封的是「6ad7f100b0bc3daf7e5721825c12bca4c0251734c36d471123d0」，改后的旁路账现算出来是 d964c71ad054467f5a00a13721e698c176069cb02cd5f5f875be112f682eb09b
+变了 1 个数：内核那边抓到 1、看不见 0 —— 等长替换（5 字节换 5 字节）里 model_says_bytes 本来就不动，动的是指纹那一格
+
+== 臂 C：改一处不喂任何格子的字段（permission/preset 的值） ==
+臂 C 之后 dsh 自己的验链 bad=[]（rc=0）
+臂 C：现算口径下变了 0 个数（[]）—— 0 个 = 这一族改写内核看不见，写进覆盖边界
+
+== 链头当外部见证：本机把旁路账的链头交给网关回声，账上封的是模型的原话 ==
+旁路账（正本，未改）现算链头=92c7401177cb9e8d（dsh 验链 bad=[]，rc=0）｜探针带去问的 92c7401177cb9e8d —— 同一枚吗：同一枚
+3 发探针的回话里逐字含这一串：全含（发号 [1, 2, 3]）；对端自报模型 ['glm-5.3-flash', 'deepseek-v4.1-flash-1017', 'deepseek-v4.1-flash-1017'] —— 同一请求体两种自报，所以只能说「这串字节确实过了网线、被对面复述回来」，不能说「某个确定模型认了它」
+内核账（内核账-dsh-fold-1027.jsonl 那份字节）里这一串明文出现 0 次 —— 明文没进账，进账的是「回话字节的 sha256」那一格，所以这一枚是**传递锚定**，只能现算比对，不能 grep 账本
+   relay-raw-1027#1.model_says_sha256     现算=0581e4f2ff18e7d08038 账上=0581e4f2ff18e7d08038 一致
+   relay-raw-1027#2.model_says_sha256     现算=33c5c41876c0c7191fce 账上=33c5c41876c0c7191fce 一致
+   relay-raw-1027#3.model_says_sha256     现算=890fc3542023248d6eda 账上=890fc3542023248d6eda 一致
+   这把比对的反臂：回话末尾加一个空格再算 —— 7595dce0665a5188f8e7 vs 0581e4f2ff18e7d08038，换了（比对有牙）
+臂 B 改写后旁路账自己的链头变成 2308b7fb3bf86885（它自己那把尺子照样绿）；账上封的那格指纹还是旧回话算出来的 6ad7f100b0bc3daf，现算出来是 d964c71ad054467f —— 两本产物对不上才是证据，任何一本链自己都不红
+它证不了什么：链头只锚定「那一刻这本账的尾」这一个字符串，且是以回话摘要传递进去的（账内明文 0 处）；见证不设密钥 —— 换一枚链头重放同一 Prompt，回话里的串跟着变，可比对的还是那一格摘要。
+
+正本没动：旁路账 journal-web.jsonl 字节=53291 sha256=3b92b9853cdd9442 与开局一致=True（臂只写副本）
+臂产物：臂A1-改一格原话不重算.jsonl / 臂A2-改一格并把后面全部重算.jsonl / 臂B-旁路账被改写且自补链.jsonl / 臂C-旁路账改了不喂格子的字段.jsonl

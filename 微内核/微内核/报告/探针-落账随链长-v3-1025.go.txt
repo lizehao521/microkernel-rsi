@@ -1,0 +1,257 @@
+// 只读计时探针 v3：量「链越长、落一发账越贵」这笔价到底是多少。
+// v2（ak1025-cost-v2）逐发取纳秒，结果每一档 25 发里有 16～19 发印成 0.00 µs
+// —— 0 到底是「量到的 0」还是「时钟刻度看不见」，逐发这一形自己回答不了，所以 v2 那份不作数。
+// v3 改三件事：① 先量尺子自己（睡 1ms、跑一次已知的忙等、单发落账各印一个数，
+//   这三个数决定「逐发位」能不能用）；② 每档改量**一批**（reps 发的总耗时 ÷ reps），
+//   单发看不见不等于一批看不见；③ 每档并排印链上条数与这一批期间 GC 次数增量，
+//   好让读的人能分「线扫的价」和「垃圾回收的价」。
+// 这一件不改树、不写树，只 import 树上的 kernel；控制台只走 ASCII，读数走 UTF-8 句柄。
+package main
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
+	"io"
+	"math"
+	"os"
+	"os/exec"
+	"runtime"
+	"strings"
+	"time"
+
+	kernel "agentkernel"
+)
+
+const LEDGER = "C:/Users/Admin/Desktop/微内核/构建-1017/客服靶场/导出/账本-全量-1018.jsonl"
+
+func sha(s string) string { h := sha256.Sum256([]byte(s)); return hex.EncodeToString(h[:]) }
+
+func fullShares() map[kernel.PartKind]int {
+	return map[kernel.PartKind]int{
+		kernel.KindSystem: 8, kernel.KindMemory: 18, kernel.KindHistory: 32,
+		kernel.KindObserved: 25, kernel.KindUser: 12, kernel.KindNotice: 5,
+	}
+}
+
+func mkMeta(step int) (kernel.InputMeta, kernel.OutputMeta) {
+	b, err := kernel.DeriveBudget(24000, 25, fullShares(),
+		kernel.EstimatedOf(1200, "骨架+模型名+工具清单+每段 40 字节"))
+	if err != nil {
+		panic(err)
+	}
+	in := kernel.InputMeta{
+		Call:  step,
+		Order: []kernel.PartKind{kernel.KindSystem, kernel.KindUser, kernel.KindHistory, kernel.KindObserved, kernel.KindObserved, kernel.KindNotice},
+		Parts: []kernel.PartCount{
+			{Kind: kernel.KindSystem, Parts: 1, Bytes: 500},
+			{Kind: kernel.KindUser, Parts: 1, Bytes: 1200},
+			{Kind: kernel.KindObserved, Parts: 2, Bytes: 4000},
+			{Kind: kernel.KindHistory, Parts: 1, Bytes: 800},
+			{Kind: kernel.KindNotice, Parts: 1, Bytes: 60},
+		},
+		ContentBytes: 6560,
+		Tokens:       kernel.EstimatedOf(1600, "按段字节数估：CJK 一字一 token、其余四字节一 token"),
+		Budget:       b,
+		Cuts: []kernel.Cut{{
+			Kind: kernel.KindObserved, Ref: "step3:read_file:docs/a.md", Role: kernel.RoleTool,
+			Squeeze: kernel.SqueezeFolded, FromBytes: 5000, ToBytes: 124,
+			SHA256: sha("被折掉的那一段原文"),
+		}},
+		Notice: kernel.Notice{Sent: true, Text: "本节被裁过：观察 1 段折成了桩"},
+	}
+	out := kernel.OutputMeta{
+		Call:      step,
+		Streaming: true,
+		Finish:    kernel.Finish{Reason: "stop", Said: true},
+		Model:     "agnes-1", ModelSaid: true,
+		Says:         kernel.Says{Bytes: 900, Kept: 900, SHA256: sha("模型这一发的原话")},
+		UsageIn:      kernel.RelayedOf(1587, "endpoint:agnes"),
+		UsageOut:     kernel.RelayedOf(244, "endpoint:agnes"),
+		WireBytesOut: kernel.MeasuredOf(11570),
+		WireBytesIn:  kernel.MeasuredOf(4096),
+		Chunks:       kernel.MeasuredOf(37),
+		FirstByteMs:  kernel.MeasuredOf(921),
+		MaxGapMs:     kernel.MeasuredOf(1200),
+		ToolCalls:    1,
+		Failure: kernel.Failure{RetryAfterMs: kernel.AbsentBecause("这一发没故障"),
+			Status: kernel.AbsentBecause("这一发没故障，也就没有要记的状态码")},
+	}
+	return in, out
+}
+
+var pw io.Writer
+var written int
+var tStart = time.Now()
+
+func say(f string, a ...any) {
+	fmt.Fprintln(pw, fmt.Sprintf(f, a...))
+	written++
+}
+
+func gcNow() uint32 {
+	var ms runtime.MemStats
+	runtime.ReadMemStats(&ms)
+	return ms.NumGC
+}
+
+func contenders() string {
+	out, err := exec.Command("tasklist", "/FI", "IMAGENAME eq go.exe", "/NH").Output()
+	if err != nil {
+		return "数不了（tasklist 没回来，不算 0）：" + err.Error()
+	}
+	n := strings.Count(string(out), "go.exe")
+	if n == 0 {
+		return "0 个 go.exe（这一趟是编好的 exe 单跑，不是 go run）"
+	}
+	return fmt.Sprintf("%d 个 go.exe（含编译期残留 ⇒ 这一档的数要打折看）", n)
+}
+
+// 一批的口径：先记 t0，连落 reps 发（每发一个新 session），再记 t1。
+// 返回：这批总耗时（µs）、单发均值（µs）、失败原因（空串＝没有）。
+func batch(l *kernel.Ledger, reps, stepBase int) (float64, float64, string, uint32) {
+	g0 := gcNow()
+	t0 := time.Now()
+	for i := 0; i < reps; i++ {
+		in, out := mkMeta(stepBase + i)
+		n, err := l.RecordCall(fmt.Sprintf("probe-%d-%d", stepBase, i), "assembler", in, out)
+		if err != nil {
+			return 0, 0, fmt.Sprintf("第 %d 发落账被拒：%v", i, err), g0
+		}
+		if n <= 0 {
+			return 0, 0, fmt.Sprintf("第 %d 发落了 %d 条（该 >0）", i, n), g0
+		}
+	}
+	total := float64(time.Since(t0).Microseconds())
+	return total, total / float64(reps), "", gcNow() - g0
+}
+
+// 尺子自检：这三个数决定「单发能不能量」。它们不是产品读数，是测量件的体检单。
+func rulerCheck(l *kernel.Ledger) {
+	say("== 尺子自检（这三行不是产品的价，是「这把尺子有没有眼睛」）==")
+	time.Sleep(time.Millisecond)
+	say("  睡 1 ms 量到 %.0f µs ｜ 睡 250 µs 量到 %.0f µs ｜ 睡 1 µs 量到 %.0f µs",
+		float64(func() time.Duration { t := time.Now(); time.Sleep(time.Millisecond); return time.Since(t) }().Microseconds()),
+		func() float64 { t := time.Now(); time.Sleep(250 * time.Microsecond); return float64(time.Since(t).Microseconds()) }(),
+		func() float64 { t := time.Now(); time.Sleep(time.Microsecond); return float64(time.Since(t).Microseconds()) }())
+	x := 0.0
+	t := time.Now()
+	for i := 0; i < 5000000; i++ {
+		x += math.Sqrt(float64(i))
+	}
+	say("  已知忙等（500 万次开方，实际算出 %.1f）量到 %.0f µs", x, float64(time.Since(t).Microseconds()))
+	in, out := mkMeta(7)
+	tt := time.Now()
+	l.RecordCall("ruler-one", "assembler", in, out)
+	say("  单发落账量到 %.0f µs —— 这一行要是 0，逐发位这一族今天就是量不到（不是量到的 0）",
+		float64(time.Since(tt).Microseconds()))
+	say("")
+}
+
+func rung(tag string, docsBefore, docsAfter, reps int, total, mean float64, gcd uint32, prev float64) float64 {
+	ratio := "（第一档，没有对手）"
+	if prev > 0 {
+		ratio = fmt.Sprintf("×%.2f", mean/prev)
+	}
+	say("%-12s 起测前链上=%-7d 这批后=%-8d 起测前抢=%s", tag, docsBefore, docsAfter, contenders())
+	say("   这批 %d 发合计=%.0f µs ｜ 单发均值=%.1f µs ｜ 相对上一档 %s ｜ 这批期间 GC %d 次",
+		reps, total, mean, ratio, gcd)
+	return mean
+}
+
+func main() {
+	outPath := os.Getenv("AK_OUT")
+	if outPath == "" {
+		outPath = "C:/Users/Admin/AppData/Local/Temp/ak1025-cost-v3-读数.txt"
+	}
+	f, err := os.Create(outPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "OPEN-BAD %v\n", err)
+		os.Exit(3)
+	}
+	defer f.Close()
+	pw = f
+
+	raw, err := os.ReadFile(LEDGER)
+	if err != nil {
+		say("ENV-BAD 出厂账本读不到：%v", err)
+		os.Exit(3)
+	}
+	all := strings.Split(strings.TrimRight(string(raw), "\r\n"), "\n")
+	say("输入（只读）：%s", LEDGER)
+	say("  文件行数=%d（本件自己数的，不引任何摘要）｜ go=%s %s", len(all), runtime.Version(), runtime.GOOS+"/"+runtime.GOARCH)
+	if ex, err := os.Executable(); err != nil {
+		say("  ENV-BAD 取不到本件跑的是哪份 exe：%v ⇒「跑的是哪一份 build」这一栏空着，不算已证", err)
+	} else if s := os.Getenv("AK_EXE_SHA"); s == "" {
+		say("  本件 exe=%s ｜ sha256 没传（AK_EXE_SHA 空）⇒ 身份未自证", ex)
+	} else {
+		say("  本件 exe=%s ｜ sha256=%s", ex, s)
+	}
+
+	rulerCheck(kernel.NewLedger())
+
+	reps := 40
+	say("== 甲：装载出厂账本的前 N 行，再连记 %d 发一批（链长来自出厂件）==", reps)
+	var prevA float64 = -1
+	for _, take := range []int{0, 500, 1000, 2000, len(all) - 1} {
+		body := strings.Join(all[:take+1], "\n") + "\n"
+		if take == 0 {
+			body = ""
+		}
+		l, j, cr, err := kernel.LoadLedger([]byte(body))
+		if err != nil {
+			say("装载 %-6d 这一档装不进去（不是量不到，是拒收）：%v", take, err)
+			continue
+		}
+		before := len(j.Docs)
+		total, mean, bad, gcd := batch(l, reps, 1000+take)
+		if bad != "" {
+			say("装载 %-6d 这批作废：%s ｜ err=nil ｜ 链=%s", take, bad, cr.String())
+			continue
+		}
+		prevA = rung(fmt.Sprintf("装载%-7d", take), before, len(l.Docs()), reps, total, mean, gcd, prevA)
+	}
+
+	say("")
+	say("== 乙：空账本先连记 k 发把链长养出来，再连记 %d 发一批（README 说的「长趟」是这一形）==", reps)
+	var prevB float64 = -1
+	stepBase := 900000
+	for _, k := range []int{0, 200, 500, 1000, 2000} {
+		l := kernel.NewLedger()
+		warmBad := ""
+		for i := 0; i < k; i++ {
+			in, out := mkMeta(stepBase + i)
+			if _, err := l.RecordCall("warm", "assembler", in, out); err != nil {
+				warmBad = fmt.Sprintf("预热第 %d 发被拒：%v", i, err)
+				break
+			}
+		}
+		before := len(l.Docs())
+		if warmBad != "" {
+			say("连记 %-6d 这一档作废（链上只有 %d 条，不是 %d×49）：%s", k, before, k, warmBad)
+			continue
+		}
+		total, mean, bad, gcd := batch(l, reps, stepBase+20000+k)
+		if bad != "" {
+			say("连记 %-6d 这批作废：%s", k, bad)
+			continue
+		}
+		prevB = rung(fmt.Sprintf("连记%-7d", k), before, len(l.Docs()), reps, total, mean, gcd, prevB)
+	}
+
+	say("")
+	say("== 这把尺子自己的校准（外部 wall clock 与它并排看，比值就是它的缩放）==")
+	time.Sleep(200 * time.Millisecond)
+	say("  睡 200 ms 本件时钟量到 %.0f µs", float64(func() time.Duration { t := time.Now(); time.Sleep(200 * time.Millisecond); return time.Since(t) }().Microseconds()))
+	say("  起跑时刻=%s ｜ 到这一行本件时钟累计=%.0f ms（外部 `date` 量的进程总时长要跟这个数比，不是跟上面那些 µs 比）",
+		tStart.Format("2006-01-02T15:04:05.000000000Z07:00"), float64(time.Since(tStart).Microseconds())/1000.0)
+	say("")
+	say("读数口径（三件事缺一不可，否则下面这两个比值不作数）：")
+	say("  · 单发均值 = 一批 %d 发的总耗时 ÷ %d；它是「一批摊到一发」，不是某一发的耗时 —— 别拿它当分布。", reps, reps)
+	say("  · 链上条数是 Record 条数，一发两侧一起记＝约 49 条（49 格），所以「连记 k 发」那一档的链长≈k×49。")
+	say("  · GC 次数增量与均值并排印：均值里有多少是回收，本件不拆，只把两个数一起摆着。")
+	say("自检：甲/乙各自最大档 ÷ 最小档 ≥ 1.5 才算看见增长；两档同一个数 ⇒ 这一族今天没量到，")
+	say("      不许写成「不随链长增长」，也不许写成「已确认平方」。")
+	say("落盘自证：本件往外说了 %d 行（不含这一行）；真实行数按落盘后 `wc -l` 认，别抄这里的数。", written)
+	fmt.Printf("OK reading written\n")
+}

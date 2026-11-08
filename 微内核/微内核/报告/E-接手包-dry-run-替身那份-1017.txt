@@ -1,0 +1,62 @@
+== E 接手包的命令，照抄跑一遍 · 2026-10-17 11:27:47 ==
+
+先把边界写在最前：这一支是「脚本 + agent」照接手包逐条敲的，**不是**一个没参与过这个项目的人。
+  它能证明：接手包里的命令在今天这版字节上打得通、读数自印得出、收尾收得干净。
+  它不能证明：§唯一验收 那一条 —— 那条只在「不是我写的」调用方身上算数（BLOCKLIST 命中即不算，段3 今天对谁都不可 PASS）。
+
+── 接手包第一节：挂面 / 查 / 收 ──
+$ bash tasks/probe/mcphttp_up.sh up
+  退出码=0 ｜ up 这次多自印一行字节（sha256 + 大小），外人抄进往来就能被核
+    UP addr=127.0.0.1:8797 pid=11036
+    bytes sha256=daad549714f7fd5e 大小=12660736 —— 这一行请原样抄进你的往来：没有它，别人核不出你测的是哪份字节
+    server log: 2026/10/17 11:27:48 mcphttp（streamable HTTP）：http://127.0.0.1:8797/mcp —— 10 个工具，账本活在本进程记忆里（当前 0 条），并发刻意不做（排队上限 30s）
+
+$ bash tasks/probe/mcphttp_up.sh status
+  退出码=0 ｜ status 里那句 账 0 条 带「一格都没记过 —— 这不是各档都是 0」
+    UP pid=11036
+    {"id":1,"jsonrpc":"2.0","result":{"content":[{"text":"账 0 条（一格都没记过 —— 这不是各档都是 0，是还没有账）；被拒的写入 0 次 —— 拒收也要看得见，不然「被拒」会读成「没发生过」；另有 0 次写请求根本没走到内核（外壳在门口挡下：整块没给／写侧没这个键）；0 条请求被协议层判成无效（解不开 
+
+$ bash tasks/probe/mcphttp_up.sh down
+  退出码=0 ｜ down 按监听套接字的 owner 收
+    DOWN（收掉了 pid=11036；残留监听数=0）
+
+$ netstat -ano | grep -c ":8797.*LISTENING" || true
+  退出码=0 ｜ 收尾核对：残留监听数（要 0）
+    0
+
+── 接手包第二节：判定命令（原样，只换 --attest-caller 与 --out）──
+$ "C:/Users/Admin/sdk/py314/python.exe" tasks/probe/acceptance_probe.py ../.bin/mcpkernel.exe ../.bin/mcphttp.exe 报告/样例-真流量流式-1017.jsonl --transcript 报告/替身往来-transcript-1017.txt --attest-caller "演示串·非接手（这一行是我打的字，只用来验这条路打得通）" --out 报告/唯一验收-接手包dry-run-1017.txt
+  退出码=1 ｜ 三段各自印；这一发注定段3 FAIL（我就是本项目侧）
+    == \u552f\u4e00\u9a8c\u6536\xb7\u53ef\u6267\u884c\u5f62\u5f0f \xb7 2026-10-17 11:27:54 \xb7 \u5224\u636e\u8868\u7531\u73b0\u573a celltable \u8981\uff0c\u4e0d\u6284 ==
+    \u6bb51 [PASS] tools/list \u5bf9\u7167\uff1a\u5de5\u5177\u6570 stdio=10 http=10\uff1bresult \u89c4\u8303\u5316\u540e\u9010\u5b57\u8282 \u76f8\u540c\uff1b\u539f\u59cb\u56de\u8bdd\u5
+    md5(result) \u4e24\u9762\u90fd\u662f 69ed7b508eb9 \u2014\u2014 \u300c\u534f\u8bae\u53ea\u6709\u4e00\u4e2a owner\u300d\u8fd9\u4e00\u53e5\u4eca\u5929\u6709\u5b57\u8282\u6491\u7740\uf
+    \u6bb52 [PASS] \u5185\u6838\u81ea\u5df1\u600e\u4e48\u8bf4\uff1a\u8f7d\u5165 isError=False \uff5c verify=\u2713 \u94fe\u81ea\u6d3d\uff08\u5171 98 \u6761\uff0c\u5176\u4e2d 98 \u6761\
+    \u7edf\u8ba1\uff08\u4e0d\u662f\u5224\u5b9a\uff09\uff1a\u6761\u76ee 98\u3001\u53d1 2\u3001session ['realsse-content', 'realsse-reasoning'] \uff5c claim \u7a7a 0 \uff5c basis=unset 0
+    \u300c\u6ca1\u91cf\u5230\u5374\u5199\u6210 0\u300d\u8fd9\u4e00\u534a**\u4e0d\u7531\u672c\u811a\u672c\u5224\u5b9a**\uff08\u5224\u636e\u53ea\u6709\u4e00\u4efd\uff0c\u4f4f\u5728\u5185
+    \u6bb53 \u2460 \u88ab\u62d2\u8bb0\u5f55 3 \u6761\uff08\u5176\u4e2d\u843d\u8d26\u62d2\u6536 1 \u6761\uff09\uff5c tally \u81ea\u5370 \u5185\u6838\u62d2\u7684=1 \u6b21 \u2192 \u6210
+    \u2460 \u7684\u540e\u534a\u300c\u6bcf\u4e00\u6b21\u90fd\u6307\u540d\u662f\u54ea\u4e00\u683c\u300d= NOT_CHECKABLE \u2014\u2014 \u5185\u6838\u7684\u6307\u540d\u662f\u4eba\u8bdd\uff0c
+    2026-10-17 03:34:16 \uff5c kernel.record_call \uff5c \u6574\u53d1\u62d2\u6536\uff08\u62d2\u6536\u7d2f\u8ba1 1 \u6b21\uff09\uff1akernel: \u8f93\u5165\u4fa7\u8d26\u4e0d\u81ea\u6d3d\u
+    2026-10-17 03:34:16 \uff5c kernel.check_call \uff5c \u8f93\u5165\u4fa7\uff1a\u81ea\u6d3d \u23ce \u8f93\u51fa\u4fa7\uff1akernel: \u5165 token \u90a3\u4e00\u683c\u7684\u51fa\u5904\u6
+    2026-10-17 03:34:16 \uff5c kernel.check_call \uff5c \u8f93\u5165\u4fa7\uff1a\u81ea\u6d3d \u23ce \u8f93\u51fa\u4fa7\uff1akernel: \u5165 token \u90a3\u4e00\u683c\u7684\u51fa\u5904\u6
+    \u2461 \u7531\u6bb5 2 \u90a3\u4e00\u884c\u51b3\u5b9a\uff08\u5185\u6838\u8bf4\u6536 + sk- 0 \u6b21\uff09\uff1b\u300c\u6ca1\u91cf\u5230\u5199\u6210 0\u300d\u90a3\u4e00\u534a\u4eca\u5
+    \u2462 \u9996\u672b\u65f6\u95f4\u6233\u5dee = 0.0 \u5206\u949f\uff08\u95e8\u69db 30\uff09\u2192 \u6210 \uff5c \u6ce8\u610f\uff1a\u8fd9\u4e00\u652f\u66ff\u8eab\u662f\u811a\u672c\u8f
+    attest \u7684\u8c03\u7528\u65b9\u6765\u5386 = '\u6f14\u793a\u4e32\xb7\u975e\u63a5\u624b\uff08\u8fd9\u4e00\u884c\u662f\u6211\u6253\u7684\u5b57\uff0c\u53ea\u7528\u6765\u9a8c\u8fd9\u6
+    FAIL \u7684\u5168\u90e8\u7406\u7531\uff081 \u6761\uff0c\u9010\u6761\u72ec\u7acb\uff09\uff1a\u2460\u7684\u540e\u534a\u300c\u6bcf\u4e00\u6b21\u90fd\u6307\u540d\u662f\u54ea\u4e00\u683
+    \u6bb53 \u62ff PASS \u4eca\u5929\u53ef\u8fbe\u5417 = \u4e0d\u80fd \u2014\u2014 \u4e0d\u53ef\u8fbe\u7684\u539f\u56e0\u662f\u4e0a\u9762\u90a3\u6761\u300c\u4e0e\u4f60\u662f\u8c01\u65e
+    \u6bb53 [FAIL] \u2014\u2014 \u2460\u7684\u540e\u534a\u300c\u6bcf\u4e00\u6b21\u90fd\u6307\u540d\u662f\u54ea\u4e00\u683c\u300d\u4e0d\u53ef\u673a\u68b0\u6838 \u2014\u2014 \u8fd9\u4e00
+    == \u81ea\u5370\u5206\u6bcd ==
+    \u6bb5 3 \u6bb5\uff1b\u5224\u5b9a \u6bb51 \u4e24\u9762\u540c\u4e00\u4efd\u534f\u8bae=PASS\uff1b\u6bb52 \u8d26\u672c\u88ab\u5185\u6838\u6536\u4e0b=PASS\uff1b\u6bb53 \u4e09\u6761\u9a
+    \u6bb53 \u5224\u5b9a\u8868\u5b9e\u5230 5 \u6761\uff08\u62ac\u5934\u9489 5 \u6761\uff09 \uff5c \u81ea\u6838\uff08\u8fd9\u652f\u811a\u672c\u81ea\u5df1\u7684\u5c3a\u5b50\uff09= OK
+    NOT_RUN \u4e0d\u662f PASS\uff0c\u4e5f\u4e0d\u662f FAIL \u2014\u2014 \u662f\u300c\u8fd9\u4e00\u6761\u4eca\u5929\u6ca1\u8dd1\u6210\u300d\u3002
+    \u672c\u811a\u672c\u4e0d\u91cd\u642d\u5224\u636e\uff1a\u6bb52 \u7684\u6536\u62d2\u7531 `kernel.load_journal`/`kernel.verify` \u8bf4\uff0c\u6bb51 \u53ea\u6bd4\u5b57\u8282\u3002
+    REPORT=C:\\Users\\Admin\\Desktop\\\u5fae\u5185\u6838\\\u5fae\u5185\u6838\\\u5fae\u5185\u6838\\\u62a5\u544a/\u552f\u4e00\u9a8c\u6536-\u63a5\u624b\u5305dry-run-1017.txt
+
+  判定件自印：段1 [PASS] tools/list 对照：工具数 stdio=10 http=10；result 规范化后逐字节 相同；原始回话字节 相同（6765 vs 6765 B）
+  判定件自印：段2 [PASS] 内核自己怎么说：载入 isError=False ｜ verify=✓ 链自洽（共 98 条，其中 98 条比对过原像）
+  判定件自印：   FAIL 的全部理由（1 条，逐条独立）：①的后半「每一次都指名是哪一格」不可机械核 —— 这一条与你是谁无关
+  判定件自印：段 3 段；判定 段1 两面同一份协议=PASS；段2 账本被内核收下=PASS；段3 三条验收=FAIL
+  判定件自印：段3 判定表实到 5 条（抬头钉 5 条） ｜ 自核（这支脚本自己的尺子）= OK
+
+== 自印分母 ==
+接手包里被核的句子：两面 tools/list 字节一致=是（段1 那条 6765 vs 6765，同一份判定件里）
+跑过的命令条数=5 ｜ 其中非 0 退出码=1 条（down/status 的 5 是约定语义，不是失败）

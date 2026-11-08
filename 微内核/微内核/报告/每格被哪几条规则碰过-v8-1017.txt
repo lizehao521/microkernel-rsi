@@ -1,0 +1,85 @@
+== 每格被哪几条规则碰过 · 2026-10-17 14:02:27 ｜ 轴一 = 报告里的键名列，轴二 = 源码里的 fmt.Errorf 行 ==
+自核一：扫到带签名的模板 120 条（行号去重 120）｜ 没签名的 2 条 ｜ 排除的包装层模板 12 条（句里带 %v 的那几条说的是「哪一侧的账不自洽」，不是哪条判据）
+  排除那 12 条逐条列出（判「是不是包装层」用的是「句尾 %v」这一条机械规则，它会误伤真判据 —— 本轮 input.go:610「不是十六进制」就被撞中了，却因句尾带 %v 不计入闸数；要不要改口径，是作者的权）：
+     · input.go:610 ｜ kernel: %s不是十六进制：%v
+     · journal.go:110 ｜ kernel: 第 %d 条编不出来（序号 %d）：%v
+     · journal.go:200 ｜ kernel: %d 行里 %d 行解不开 —— 这不是空账本，是读坏了：%v
+     · output.go:212 ｜ kernel: 入 token 进不了合计：%v
+     · output.go:215 ｜ kernel: 出 token 进不了合计：%v
+     · record.go:33 ｜ kernel: 输入侧账不自洽，第 %d 发整发拒收：%v
+     · record.go:47 ｜ kernel: 输出侧账不自洽，第 %d 发整发拒收：%v
+     · record.go:63 ｜ kernel: 输入侧账不自洽，第 %d 发整发拒收（输出侧也不写）：%v
+     · record.go:67 ｜ kernel: 输出侧账不自洽，第 %d 发整发拒收（输入侧也不写）：%v
+     · record.go:112 ｜ kernel: %s 第 %d 发的 %s 那一格进不了账：%v
+     · record.go:116 ｜ kernel: %s 第 %d 发的 %s 那一格序列化不了：%v
+     · record.go:131 ｜ kernel: %s 第 %d 发的 %s 那一格账本不会收：%v
+自核四（输入集自查）：报告/ 里有臂行的报告 11 份 ｜ 进矩阵 7 份 ｜ 点名排除 4 份 ｜ 两头都不在 0 份
+     · 进矩阵 动态档那三格-Cuts族撞一遍-v3-1017.txt ｜ 臂行 17 行
+     · 进矩阵 没撞过那批-逐格撞一遍-v2-1017.txt ｜ 臂行 17 行
+     · 进矩阵 薄那几格推到两条-v2-1017.txt ｜ 臂行 5 行
+     · 进矩阵 薄那批再推一轮-八臂-1017.txt ｜ 臂行 8 行
+     · 进矩阵 说谎者靶场-缺席带数-1017.txt ｜ 臂行 11 行
+     · 进矩阵 说谎者靶场-转述不给出处-1017.txt ｜ 臂行 11 行
+     · 进矩阵 非Measure那批-运行时撞一遍-v2-1017.txt ｜ 臂行 8 行
+     · 点名排除 动态档那三格-Cuts族撞一遍-v2-1017.txt ｜ 臂行 17 行 ｜ 原因：夹具发号只进输入侧 + dropkind 没重算 LeftoverPct ⇒ 5 臂打偏，同一批 18 臂由 v3 重跑
+     · 点名排除 没撞过那批-逐格撞一遍-去重挤车那轮-1017.txt ｜ 臂行 16 行 ｜ 原因：session 被我截成键名前 6 字 ⇒ 三臂共用一本会话，拒收回话是去重那句，整批当场作废
+     · 点名排除 薄那几格推到两条-五臂-1017.txt ｜ 臂行 5 行 ｜ 原因：v1 的 B1 打偏（响的是 :373 不是 :234），同一批五臂由 v2 重跑
+     · 点名排除 非Measure那批-运行时撞一遍-1017.txt ｜ 臂行 6 行 ｜ 原因：v1 的 N3 只钉 MalformedStreak、底样 ToolCalls 本来 0 ⇒ 记错功，同一批由 v2 重跑
+  非Measure逐值v2     ｜ 臂行 8 ｜ 对上规则行 9 对 ｜ 一条原话命中多规则的 1 行 ｜ 一条都没对上的 0 行（说明行也算在内，不筛掉）
+  Cuts族v3          ｜ 臂行 17 ｜ 对上规则行 15 对 ｜ 一条原话命中多规则的 3 行 ｜ 一条都没对上的 3 行（说明行也算在内，不筛掉）
+  未撞那批v2           ｜ 臂行 17 ｜ 对上规则行 14 对 ｜ 一条原话命中多规则的 2 行 ｜ 一条都没对上的 5 行（说明行也算在内，不筛掉）
+  加厚五臂v2           ｜ 臂行 5 ｜ 对上规则行 5 对 ｜ 一条原话命中多规则的 0 行 ｜ 一条都没对上的 0 行（说明行也算在内，不筛掉）
+  加厚八臂             ｜ 臂行 11 ｜ 对上规则行 7 对 ｜ 一条原话命中多规则的 0 行 ｜ 一条都没对上的 4 行（说明行也算在内，不筛掉）
+  谎形状②缺席带数         ｜ 臂行 11 ｜ 对上规则行 0 对 ｜ 一条原话命中多规则的 0 行 ｜ 一条都没对上的 11 行（说明行也算在内，不筛掉）
+  谎形状③转述无出处        ｜ 臂行 11 ｜ 对上规则行 11 对 ｜ 一条原话命中多规则的 0 行 ｜ 一条都没对上的 0 行（说明行也算在内，不筛掉）
+
+== 尺子自证：签名互相包含时丢掉的命中 2 次（不丢会把字面巧合计成第二条闸）==
+   · input.go:576 ｜ 签名「折过之后」被同里更长那条盖住
+   · output.go:310 ｜ 签名「执行不了的提议」被同里更长那条盖住
+
+== 自核二：从原话反推的规则行 vs 那份报告当场写明的「期望那条」==
+  写明 8 条 ｜ 反推同源 8 条 ｜ 对不上：无
+自核三：歧义率 6/80 行（命中不止一条规则行）｜ 超过一半就判这把尺子分不开
+
+== 矩阵自印分母 ==
+格（键名）33 个 ｜ 碰过它们的规则行 46 条 ｜ 格×规则 61 对 ｜ 只被 1 条碰过的格 15 ｜ 被 ≥2 条碰过的格 18
+只被 1 条规则碰过的格（那条一改口径，这格当场没闸 —— 第一批要回头重测的就是这些）：
+   chunks                 ｜ measure.go:89 ｜ kernel: %s 说是 %s 的，却没说来源（转述谁 / 估的是什么）
+   endpoint_model_said    ｜ output.go:241 ｜ kernel: 模型 id 那一格自相矛盾（said=%v model=%q）—— 端点没报与端点报了个空串
+   fail_status            ｜ output.go:333 ｜ kernel: 说是没故障，却带着说法 %q / 状态 %d
+   finish_said            ｜ output.go:237 ｜ kernel: 收尾原因那一格自相矛盾（said=%v reason=%q）—— 端点没说与端点说了个空串是
+   first_byte_ms          ｜ measure.go:89 ｜ kernel: %s 说是 %s 的，却没说来源（转述谁 / 估的是什么）
+   fixed_overhead         ｜ measure.go:89 ｜ kernel: %s 说是 %s 的，却没说来源（转述谁 / 估的是什么）
+   max_gap_ms             ｜ measure.go:89 ｜ kernel: %s 说是 %s 的，却没说来源（转述谁 / 估的是什么）
+   model_says_sha256      ｜ input.go:607 ｜ kernel: %s是 %d 位，不是 64 位十六进制 —— 拿它核不回原文
+   notice_trimmed         ｜ input.go:430 ｜ kernel: 通知报的是「没发出去」，同时又报「被裁了半句」—— 没发出去的东西裁不了
+   retry_after_ms         ｜ measure.go:89 ｜ kernel: %s 说是 %s 的，却没说来源（转述谁 / 估的是什么）
+   tokens                 ｜ measure.go:89 ｜ kernel: %s 说是 %s 的，却没说来源（转述谁 / 估的是什么）
+   usage_in               ｜ measure.go:89 ｜ kernel: %s 说是 %s 的，却没说来源（转述谁 / 估的是什么）
+   usage_out              ｜ measure.go:89 ｜ kernel: %s 说是 %s 的，却没说来源（转述谁 / 估的是什么）
+   wire_bytes_in          ｜ measure.go:89 ｜ kernel: %s 说是 %s 的，却没说来源（转述谁 / 估的是什么）
+   wire_bytes_out         ｜ measure.go:89 ｜ kernel: %s 说是 %s 的，却没说来源（转述谁 / 估的是什么）
+被 ≥2 条碰过的格：
+   call                   ｜ 2 条：input.go:327 output.go:222
+   clipped                ｜ 3 条：input.go:580 input.go:586 input.go:590
+   content_bytes          ｜ 3 条：input.go:352 input.go:355 input.go:396
+   downgrade              ｜ 2 条：output.go:234 output.go:373
+   dropped                ｜ 3 条：input.go:415 input.go:427 input.go:597
+   fail_detail            ｜ 2 条：output.go:333 output.go:341
+   fail_kind              ｜ 2 条：output.go:225 output.go:347
+   folded                 ｜ 9 条：input.go:418 input.go:466 input.go:477 input.go:548 input.go:551 input.go:561 input.go:566 input.go:573 input.go:576
+   malformed_actions      ｜ 2 条：output.go:307 output.go:310
+   malformed_streak       ｜ 2 条：output.go:315 output.go:318
+   model_says_bytes       ｜ 2 条：output.go:379 output.go:382
+   model_says_kept        ｜ 2 条：output.go:379 output.go:382
+   notice_sent            ｜ 2 条：input.go:434 input.go:447
+   part_totals            ｜ 2 条：input.go:352 input.go:355
+   parts                  ｜ 2 条：input.go:358 input.go:372
+   streaming              ｜ 2 条：output.go:300 output.go:303
+   tool_calls             ｜ 2 条：output.go:307 output.go:323
+   wire_format_said       ｜ 2 条：output.go:245 output.go:251
+
+读法：这张表数的是**闸的条数**，不是「这格守得好不好」；只被一条碰过不代表该加闸（加不加是判据设计，作者的权）。
+      轴一那个键名是「这一臂打的**目标格**」（哪一格的值被我改了），不是「这条规则守的是哪一格」——
+      所以本表只说：在这些撞过的回合里，每格被几条不同的规则接住；不等于这格在全仓总共只有这几条。
+      没进这张表的格 = 这几轮的报告里没有它的臂行（覆盖账面那份数过：45/48 键有条臂，剩 3 个是方法格）。

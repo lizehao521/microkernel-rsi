@@ -1,0 +1,64 @@
+== 每格读者审计 · 分母 = 内核自报 ==
+内核抬头：当前 49 格（输入侧 20 + 输出侧 29）；唯一键名 48 个：
+从那份回话里抠到的行 = 49（抬头说 49，两个数要一致才算数）
+读的 Go 文件 9 个（非测试）：cells.go cmd\mcphttp\main.go input.go journal.go kernel.go mcpsrv\mcpsrv.go measure.go output.go record.go
+
+侧 ｜ 键名 ｜ Field ｜ 登记以外的读者处数 ｜ 出现在哪几个文件
+------------------------------------------------------------------------------
+input  ｜ call                   ｜ Call                       ｜ 28 ｜ input.go mcpsrv\mcpsrv.go output.go record.go
+input  ｜ parts                  ｜ Order                      ｜ 8 ｜ input.go mcpsrv\mcpsrv.go
+input  ｜ part_totals            ｜ Parts                      ｜ 17 ｜ input.go mcpsrv\mcpsrv.go record.go
+input  ｜ content_bytes          ｜ ContentBytes               ｜ 11 ｜ input.go mcpsrv\mcpsrv.go
+input  ｜ tokens                 ｜ Tokens                     ｜ 7 ｜ input.go mcpsrv\mcpsrv.go
+input  ｜ call_bytes_ceiling     ｜ Budget.CallBytesCeiling    ｜ 6 ｜ input.go
+input  ｜ transport_slack_pct    ｜ Budget.TransportSlackPct   ｜ 11 ｜ input.go
+input  ｜ content_ceiling        ｜ Budget.ContentCeiling      ｜ 12 ｜ cells.go input.go
+input  ｜ effective_ceiling      ｜ Budget.EffectiveCeiling    ｜ 15 ｜ input.go
+input  ｜ clamp_rounds           ｜ Budget.ClampRounds         ｜ 8 ｜ input.go
+input  ｜ leftover_pct           ｜ Budget.LeftoverPct         ｜ 4 ｜ input.go
+input  ｜ fixed_overhead         ｜ Budget.FixedOverhead       ｜ 8 ｜ input.go mcpsrv\mcpsrv.go
+input  ｜ shares                 ｜ Budget.Shares              ｜ 6 ｜ input.go
+input  ｜ notice_sent            ｜ Notice.Sent                ｜ 10 ｜ input.go output.go
+input  ｜ notice_trimmed         ｜ Notice.Trimmed             ｜ 3 ｜ input.go
+input  ｜ notice_why             ｜ Notice.Why                 ｜ 10 ｜ input.go mcpsrv\mcpsrv.go measure.go
+input  ｜ notice_text            ｜ Notice.Text                ｜ 4 ｜ input.go mcpsrv\mcpsrv.go
+input  ｜ folded                 ｜ Cuts#folded                ｜ 4 ｜ cells.go input.go
+input  ｜ clipped                ｜ Cuts#clipped               ｜ 3 ｜ input.go mcpsrv\mcpsrv.go
+input  ｜ dropped                ｜ Cuts#dropped               ｜ 5 ｜ input.go
+output ｜ call                   ｜ Call                       ｜ 28 ｜ input.go mcpsrv\mcpsrv.go output.go record.go
+output ｜ streaming              ｜ Streaming                  ｜ 5 ｜ mcpsrv\mcpsrv.go output.go
+output ｜ finish                 ｜ Finish.Reason              ｜ 5 ｜ cells.go output.go
+output ｜ finish_said            ｜ Finish.Said                ｜ 4 ｜ output.go
+output ｜ endpoint_model         ｜ Model                      ｜ 6 ｜ mcpsrv\mcpsrv.go output.go
+output ｜ endpoint_model_said    ｜ ModelSaid                  ｜ 5 ｜ mcpsrv\mcpsrv.go output.go
+output ｜ wire_format            ｜ WireFormat                 ｜ 8 ｜ cells.go mcpsrv\mcpsrv.go output.go
+output ｜ wire_format_said       ｜ WireFormatSaid             ｜ 5 ｜ mcpsrv\mcpsrv.go output.go
+output ｜ model_says_bytes       ｜ Says.Bytes                 ｜ 15 ｜ input.go journal.go output.go record.go
+output ｜ model_says_kept        ｜ Says.Kept                  ｜ 6 ｜ output.go
+output ｜ model_says_clipped     ｜ Says.Clipped()             ｜ 6 ｜ cells.go input.go mcpsrv\mcpsrv.go output.go
+output ｜ model_says_sha256      ｜ Says.SHA256                ｜ 4 ｜ input.go output.go
+output ｜ usage_in               ｜ UsageIn                    ｜ 5 ｜ mcpsrv\mcpsrv.go output.go
+output ｜ usage_out              ｜ UsageOut                   ｜ 5 ｜ mcpsrv\mcpsrv.go output.go
+output ｜ wire_bytes_out         ｜ WireBytesOut               ｜ 12 ｜ mcpsrv\mcpsrv.go output.go
+output ｜ wire_bytes_in          ｜ WireBytesIn                ｜ 6 ｜ mcpsrv\mcpsrv.go output.go
+output ｜ chunks                 ｜ Chunks                     ｜ 3 ｜ mcpsrv\mcpsrv.go output.go
+output ｜ first_byte_ms          ｜ FirstByteMs                ｜ 3 ｜ mcpsrv\mcpsrv.go output.go
+output ｜ max_gap_ms             ｜ MaxGapMs                   ｜ 3 ｜ mcpsrv\mcpsrv.go output.go
+output ｜ tool_calls             ｜ ToolCalls                  ｜ 7 ｜ mcpsrv\mcpsrv.go output.go
+output ｜ malformed_actions      ｜ Malformed                  ｜ 10 ｜ mcpsrv\mcpsrv.go output.go
+output ｜ malformed_streak       ｜ MalformedStreak            ｜ 9 ｜ mcpsrv\mcpsrv.go output.go
+output ｜ fail_kind              ｜ Failure.Kind               ｜ 72 ｜ cells.go input.go journal.go kernel.go mcpsrv\mcpsrv.go output.go record.go
+output ｜ fail_detail            ｜ Failure.Detail             ｜ 11 ｜ cells.go journal.go output.go
+output ｜ fail_status            ｜ Failure.Status             ｜ 14 ｜ cells.go mcpsrv\mcpsrv.go output.go
+output ｜ retry_after_ms         ｜ Failure.RetryAfterMs       ｜ 10 ｜ mcpsrv\mcpsrv.go output.go
+output ｜ downgrade              ｜ Failure.Downgrade          ｜ 4 ｜ output.go
+output ｜ sent                   ｜ Sent()                     ｜ 2 ｜ output.go
+output ｜ cost_countable         ｜ CostCountable()            ｜ 1 ｜ output.go
+
+== 自印分母 ==
+内核自报 49 格 ｜ 抠到 49 ｜ **登记以外 0 读者**的 = 0 格 ｜ 读者 ≤2 处的 = 2 格
+自核（钉尺子自己）：正对照 sent streaming tokens → sent=2 streaming=5 tokens=7 ｜ 坏 = 无
+不许这么读：'有读者 ≥1' ≠ '这一格被某条闸核过' —— 出现在 Errorf 的格式参数里（只是印给人看）也算读者；
+            同名段会撞（不同 struct 同名字段），撞了只会**高报**读者数，所以可信的那一端是 0。
+和 #42 的关系：#42 说非 Measure 那族写不出「没量到」的结构，这条不改那个结论；
+            这条补的是另一半 —— 那 38 格里，哪些值其实**有判据在念**，哪些念都没人念。

@@ -1,0 +1,7 @@
+module kcost
+
+go 1.27
+
+require agentkernel v0.0.0
+
+replace agentkernel => C:/Users/Admin/Desktop/微内核/微内核/微内核

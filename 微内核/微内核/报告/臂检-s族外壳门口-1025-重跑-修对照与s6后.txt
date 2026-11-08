@@ -1,0 +1,110 @@
+起跑前内存闸：连读 5 次 = 7495 7494 7350 7335 7336 MB，中位 7350 MB（阈值 900 MB）—— 放行
+接上交付件那枚尺子：C:\Users\Admin\Desktop\微内核\构建-1017\agentkernel\bin\mcpkernel.exe（对照 0 里 TestSameRulerAsShippedKernel 才有对手）
+
+==== 对照 ====
+对照 0（干净拷贝）：go test 退出码 0、PASS 302 条、FAIL 0 条；kcheck 退出码 0
+对照 T（故意弄坏一个测试文件）：go build 退出码 0（该 0）、go test 输出含 [build failed]=True、有 PASS/FAIL 行=False（该 False）
+
+!! 这一轮**筛过针**（只跑名字里含 s1-/s2-/s3-/s4-/s5-/s6-/s6b-/s7-/s8-/s9-/s10- 的），其余 84 根没跑（表里共 95 根）—— 它不能当整轮结论用，只够回答「筛出来的这几根针咬不咬得住」
+
+共享树起手检查：修回 0 个文件（该是 0 —— 不是 0 说明这棵树不是刚拷的）
+
+
+== s1-读侧解码不拦未知键（#67 复活）
+   点名该红：TestWrongKeyLoadIsRefusedAndChainUntouched, TestReadArgsNameStructFieldAndKeyTable
+   实际报红：TestReadArgsNameStructFieldAndKeyTable, TestWrongKeyLoadIsRefusedAndChainUntouched
+   没红的点名：无
+   全量共红 3 条: TestReadArgsNameStructFieldAndKeyTable, TestReadSideRefusalsAreNotCountedInDoorBucket, TestWrongKeyLoadIsRefusedAndChainUntouched
+
+== s2-类型错不点名结构.字段（归因退回 arguments）
+   点名该红：TestReadArgsNameStructFieldAndKeyTable
+   实际报红：（一条都没红）
+   没红的点名：TestReadArgsNameStructFieldAndKeyTable
+   全量共红 0 条: 
+
+== s3-键名表从 struct 长不出来（念空表）
+   点名该红：TestReadArgsNameStructFieldAndKeyTable
+   实际报红：TestReadArgsNameStructFieldAndKeyTable
+   没红的点名：无
+   全量共红 3 条: TestEveryTurnSettlesExactlyOnce, TestReadArgsNameStructFieldAndKeyTable, TestWrongKeyLoadIsRefusedAndChainUntouched
+
+== s4-空串罪名不并进替换闸
+   点名该红：TestEmptyTextCrimeIsNamed
+   实际报红：TestEmptyTextCrimeIsNamed
+   没红的点名：无
+   全量共红 1 条: TestEmptyTextCrimeIsNamed
+
+== s5-点名换空账后不说那个 0 是谁的
+   点名该红：TestEmptyTextCrimeIsNamed
+   实际报红：TestEmptyTextCrimeIsNamed
+   没红的点名：无
+   全量共红 1 条: TestEmptyTextCrimeIsNamed
+
+== s6-载入在门口被挡不计数
+   点名该红：TestWrongKeyLoadIsRefusedAndChainUntouched
+   实际报红：TestWrongKeyLoadIsRefusedAndChainUntouched
+   没红的点名：无
+   全量共红 1 条: TestWrongKeyLoadIsRefusedAndChainUntouched
+
+== s6b-读一发被挡塞进写那一桶（口径被顺手扩）
+   点名该红：TestReadSideRefusalsAreNotCountedInDoorBucket
+   实际报红：TestReadSideRefusalsAreNotCountedInDoorBucket
+   没红的点名：无
+   全量共红 1 条: TestReadSideRefusalsAreNotCountedInDoorBucket
+
+== s7-出处与指纹两栏不上屏
+   点名该红：TestReadBackShowsSourceAndFingerprint, TestOmittedJournalReadsBackAsNoPreimage
+   实际报红：TestOmittedJournalReadsBackAsNoPreimage, TestReadBackShowsSourceAndFingerprint
+   没红的点名：无
+   全量共红 3 条: TestOmittedJournalReadsBackAsNoPreimage, TestReadBackShowsSourceAndFingerprint, TestSameRulerAsShippedKernel
+
+== s8-无原像那档塌成原像在手
+   点名该红：TestFingerprintColumnKeepsTheThreeStatesApart, TestOmittedJournalReadsBackAsNoPreimage
+   实际报红：TestFingerprintColumnKeepsTheThreeStatesApart, TestOmittedJournalReadsBackAsNoPreimage
+   没红的点名：无
+   全量共红 2 条: TestFingerprintColumnKeepsTheThreeStatesApart, TestOmittedJournalReadsBackAsNoPreimage
+
+== s9-出处为空塌成空串（三态塌）
+   点名该红：TestFingerprintColumnKeepsTheThreeStatesApart
+   实际报红：TestFingerprintColumnKeepsTheThreeStatesApart
+   没红的点名：无
+   全量共红 1 条: TestFingerprintColumnKeepsTheThreeStatesApart
+
+== s10-渲染栏没切掉（下游把渲染读成原话）
+   点名该红：TestStripCellColsReturnsThePreA2LineVerbatim, TestHostClaimDropsTheRenderedCols
+   实际报红：TestHostClaimDropsTheRenderedCols, TestStripCellColsReturnsThePreA2LineVerbatim
+   没红的点名：无
+   全量共红 5 条: TestHostClaimDropsTheRenderedCols, TestRenderedColsMaskOnlyLetsTheRenderedColumnsGo, TestResumeRebuildsHistoryOnlyWhenFingerprintsMatch, TestSameRulerAsShippedKernel, TestStripCellColsReturnsThePreA2LineVerbatim
+
+共享树收尾：修回 1 个文件（该是 1 —— 就是最后一根针改的那一个；多于 1 说明有针改了名单之外的文件）
+
+==== 汇总 ====
+s1-读侧解码不拦未知键（#67 复活）                       RED-WIDER      3
+s2-类型错不点名结构.字段（归因退回 arguments）             VACUOUS        TestReadArgsNameStructFieldAndKeyTable
+s3-键名表从 struct 长不出来（念空表）                   RED-WIDER      3
+s4-空串罪名不并进替换闸                              RED-ONLY-NAMED 1
+s5-点名换空账后不说那个 0 是谁的                        RED-ONLY-NAMED 1
+s6-载入在门口被挡不计数                              RED-ONLY-NAMED 1
+s6b-读一发被挡塞进写那一桶（口径被顺手扩）                    RED-ONLY-NAMED 1
+s7-出处与指纹两栏不上屏                              RED-WIDER      3
+s8-无原像那档塌成原像在手                             RED-ONLY-NAMED 2
+s9-出处为空塌成空串（三态塌）                           RED-ONLY-NAMED 1
+s10-渲染栏没切掉（下游把渲染读成原话）                      RED-WIDER      5
+
+—— 两类针分开数 ——
+go test 针 11 根：RED-ONLY-NAMED 6、RED-WIDER 4、VACUOUS 1、TEST-BROKE(没跑成) 0、TEST-HANG(超时) 0
+kcheck  针 0 根：GATE-RED 0、GATE-GREEN(空) 0、GATE-CRASH(崩) 0
+两类共用：ANCHOR-BAD 0、BUILD-BROKE 0
+取材方式：一棵共享树，每根针前修干净（累计按 SRC 逐字节修回 12 个文件次）
+
+针数 11（go test 11 + kcheck 0）；只有点名的红 6；红得更宽 4；闸门报红 0；空针/坏针 1
+!! 筛过的轮子：跳过 84 根（表里共 95 根）—— 上面那个「针数」不是整轮的分母
+空针/坏针清单：
+  s2-类型错不点名结构.字段（归因退回 arguments）             VACUOUS        TestReadArgsNameStructFieldAndKeyTable
+
+—— 两根对照 ——
+对照 0（干净拷贝全过）：成立
+对照 T（探针认得出「测试没跑起来」）：成立
+
+!! 这一轮**不绿**：1 根针没咬住（VACUOUS / 坏针 / 崩 / 超时） —— 退出码 1。
+   退出码分成四档：0 干净、1 有针没咬住、2 对照不成立（那种连读数都不可信）、3 起跑前内存闸拦下（那一次连报告文件都不写，说明在 <报告路径>.not-run）。第一轮整轮表里有 2 根 VACUOUS，脚本当时照样退出 0 —— 「有一根针是空的」与「这一轮全绿」共用一个 0，等于没说。

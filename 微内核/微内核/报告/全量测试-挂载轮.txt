@@ -1,0 +1,209 @@
+=== RUN   TestEveryExportedFieldHasACell
+    cells_test.go:31: 输入侧：18 个导出字段、20 格；没人替它落账的 0 个 []；指着不存在字段的 0 格 []
+    cells_test.go:31: 输出侧：24 个导出字段、27 格；没人替它落账的 0 个 []；指着不存在字段的 0 格 []
+--- PASS: TestEveryExportedFieldHasACell (0.00s)
+=== RUN   TestDeadFieldHuntActuallyBites
+--- PASS: TestDeadFieldHuntActuallyBites (0.00s)
+=== RUN   TestDerivedCellMustBeWrittenAsAMethod
+--- PASS: TestDerivedCellMustBeWrittenAsAMethod (0.00s)
+=== RUN   TestFieldTagsMustBeDistinct
+--- PASS: TestFieldTagsMustBeDistinct (0.00s)
+=== RUN   TestBasisIsWrittenOncePerCell
+--- PASS: TestBasisIsWrittenOncePerCell (0.00s)
+=== RUN   TestCellOrderIsStable
+--- PASS: TestCellOrderIsStable (0.00s)
+=== RUN   TestUnreadCellsAreCountedAgainstADenominator
+    cells_test.go:316: 读者声明表：键名表 27 格，其中 26 格没有任何声明者读：call chunks cost_countable downgrade endpoint_model endpoint_model_said fail_detail fail_kind fail_status finish finish_said malformed_actions malformed_streak max_gap_ms model_says_bytes model_says_clipped model_says_kept model_says_sha256 retry_after_ms sent streaming tool_calls usage_in usage_out wire_bytes_in wire_bytes_out
+--- PASS: TestUnreadCellsAreCountedAgainstADenominator (0.00s)
+=== RUN   TestCellCountCarriesADenominator
+    cells_test.go:352: 输入侧 18 个字段 / 20 格；输出侧 24 个字段 / 27 格；合计 47 格、42 个字段
+--- PASS: TestCellCountCarriesADenominator (0.00s)
+=== RUN   TestFieldPathsBoundaries
+--- PASS: TestFieldPathsBoundaries (0.00s)
+=== RUN   TestDeriveBudgetIsTheOnlyOwnerOfTheFormula
+--- PASS: TestDeriveBudgetIsTheOnlyOwnerOfTheFormula (0.00s)
+=== RUN   TestHandBuiltBudgetIsRefused
+--- PASS: TestHandBuiltBudgetIsRefused (0.00s)
+=== RUN   TestClampMustActuallyShrink
+--- PASS: TestClampMustActuallyShrink (0.00s)
+=== RUN   TestShareOfSeparatesNoShareFromZeroShare
+--- PASS: TestShareOfSeparatesNoShareFromZeroShare (0.00s)
+=== RUN   TestObservationShareAndItsReverseAgree
+--- PASS: TestObservationShareAndItsReverseAgree (0.00s)
+=== RUN   TestCutListsTableCanBeCaughtBeingWrong
+--- PASS: TestCutListsTableCanBeCaughtBeingWrong (0.00s)
+=== RUN   TestPartBytesMustSumToContentBytes
+--- PASS: TestPartBytesMustSumToContentBytes (0.00s)
+=== RUN   TestPartRowsAreOnePerKindAndNonEmpty
+--- PASS: TestPartRowsAreOnePerKindAndNonEmpty (0.00s)
+=== RUN   TestOrderMustMatchPartCounts
+--- PASS: TestOrderMustMatchPartCounts (0.00s)
+=== RUN   TestEmptyPartsOrOrderIsRefused
+--- PASS: TestEmptyPartsOrOrderIsRefused (0.00s)
+=== RUN   TestEverySentKindNeedsAShare
+--- PASS: TestEverySentKindNeedsAShare (0.00s)
+=== RUN   TestContentOverEffectiveCeilingIsRefused
+--- PASS: TestContentOverEffectiveCeilingIsRefused (0.00s)
+=== RUN   TestFoldOnlyAppliesToContent
+--- PASS: TestFoldOnlyAppliesToContent (0.00s)
+=== RUN   TestStubIsNeverHalfSent
+--- PASS: TestStubIsNeverHalfSent (0.00s)
+=== RUN   TestDroppedCarriesNoBytesAndClipKeepsAPrefix
+--- PASS: TestDroppedCarriesNoBytesAndClipKeepsAPrefix (0.00s)
+=== RUN   TestOnlySystemIsWholeOrNothing
+--- PASS: TestOnlySystemIsWholeOrNothing (0.00s)
+=== RUN   TestCutNeedsRefRoleAndAFullFingerprint
+--- PASS: TestCutNeedsRefRoleAndAFullFingerprint (0.00s)
+=== RUN   TestUnknownSqueezeIsRefused
+--- PASS: TestUnknownSqueezeIsRefused (0.00s)
+=== RUN   TestCutListsCoverEverySqueezeExactlyOnce
+--- PASS: TestCutListsCoverEverySqueezeExactlyOnce (0.00s)
+=== RUN   TestCutsWithoutNoticeMustSayWhy
+--- PASS: TestCutsWithoutNoticeMustSayWhy (0.00s)
+=== RUN   TestNoticeCannotContradictItself
+--- PASS: TestNoticeCannotContradictItself (0.00s)
+=== RUN   TestTokensCannotClaimToBeMeasured
+--- PASS: TestTokensCannotClaimToBeMeasured (0.00s)
+=== RUN   TestThreeSqueezeListsStaySeparate
+--- PASS: TestThreeSqueezeListsStaySeparate (0.00s)
+=== RUN   TestCutsCannotOutliveTheirPartRow
+--- PASS: TestCutsCannotOutliveTheirPartRow (0.00s)
+=== RUN   TestCallNumberStartsAtOne
+--- PASS: TestCallNumberStartsAtOne (0.00s)
+=== RUN   TestSelfIsolation
+    isolate_test.go:15: 隔离检查：扫了 11 个文件、67 条 import；其中标准库 64 条、本模块内 3 条；另扫了 8 个测试文件；✓ 只依赖标准库；依赖闭包 209 个包（全在标准库或本模块内）
+    isolate_test.go:43: 依赖闭包：209 个包，全在标准库或本模块内
+--- PASS: TestSelfIsolation (6.59s)
+=== RUN   TestIsolationGoesRedOnALeak
+--- PASS: TestIsolationGoesRedOnALeak (4.70s)
+=== RUN   TestCgoIsNotCountedAsStdlib
+--- PASS: TestCgoIsNotCountedAsStdlib (0.30s)
+=== RUN   TestLeakInATestFileIsCaughtToo
+--- PASS: TestLeakInATestFileIsCaughtToo (0.48s)
+=== RUN   TestSubdirectoriesAreScanned
+--- PASS: TestSubdirectoriesAreScanned (0.41s)
+=== RUN   TestBacktickedImportIsStillClassified
+--- PASS: TestBacktickedImportIsStillClassified (0.30s)
+=== RUN   TestUnscannableIsUnknownNotVerdict
+--- PASS: TestUnscannableIsUnknownNotVerdict (0.49s)
+=== RUN   TestMissingToolchainIsReportedNotFaked
+--- PASS: TestMissingToolchainIsReportedNotFaked (0.02s)
+=== RUN   TestMentioningTheFrameworkInProseIsNotALeak
+--- PASS: TestMentioningTheFrameworkInProseIsNotALeak (0.30s)
+=== RUN   TestClassifyImportEdgeShapes
+--- PASS: TestClassifyImportEdgeShapes (0.00s)
+=== RUN   TestMarshalRefusesAnUnsetPayloadMode
+--- PASS: TestMarshalRefusesAnUnsetPayloadMode (0.00s)
+=== RUN   TestJournalRoundTripKeepsEveryCellRecomputable
+--- PASS: TestJournalRoundTripKeepsEveryCellRecomputable (0.00s)
+=== RUN   TestOmittedPreimageIsNotAccusedOfTampering
+--- PASS: TestOmittedPreimageIsNotAccusedOfTampering (0.00s)
+=== RUN   TestTamperedPayloadIsStillCaught
+--- PASS: TestTamperedPayloadIsStillCaught (0.00s)
+=== RUN   TestEditedClaimIsCaughtByTheSealNotThePayload
+--- PASS: TestEditedClaimIsCaughtByTheSealNotThePayload (0.00s)
+=== RUN   TestEmptyPreimageRoundTripsAsPresentNotAbsent
+--- PASS: TestEmptyPreimageRoundTripsAsPresentNotAbsent (0.00s)
+=== RUN   TestLoadedLedgerRefusesToRecordTheSameCallTwice
+--- PASS: TestLoadedLedgerRefusesToRecordTheSameCallTwice (0.00s)
+=== RUN   TestBadLineIsReportedWithItsLineNumber
+--- PASS: TestBadLineIsReportedWithItsLineNumber (0.00s)
+=== RUN   TestJournalFieldNamesMatchEntryTags
+--- PASS: TestJournalFieldNamesMatchEntryTags (0.00s)
+=== RUN   TestVerifyDelegatesToTheSameJudgmentAsCheckChain
+--- PASS: TestVerifyDelegatesToTheSameJudgmentAsCheckChain (0.00s)
+=== RUN   TestMissingBasisIsRefusedAndCounted
+--- PASS: TestMissingBasisIsRefusedAndCounted (0.00s)
+=== RUN   TestRelayAndEstimateNeedSource
+--- PASS: TestRelayAndEstimateNeedSource (0.00s)
+=== RUN   TestChainRecomputesAndCatchesTampering
+--- PASS: TestChainRecomputesAndCatchesTampering (0.00s)
+=== RUN   TestTallyBucketsAreExclusive
+--- PASS: TestTallyBucketsAreExclusive (0.00s)
+=== RUN   TestDocsReturnsCopy
+--- PASS: TestDocsReturnsCopy (0.00s)
+=== RUN   TestAbsentIsNotZero
+--- PASS: TestAbsentIsNotZero (0.00s)
+=== RUN   TestPresentWithoutBasisIsRefused
+--- PASS: TestPresentWithoutBasisIsRefused (0.00s)
+=== RUN   TestRelayNeedsSourceAndEstimateSaysSo
+--- PASS: TestRelayNeedsSourceAndEstimateSaysSo (0.00s)
+=== RUN   TestDecidableExcludesEstimateAndModelSays
+--- PASS: TestDecidableExcludesEstimateAndModelSays (0.00s)
+=== RUN   TestTotalRefusesModelSays
+--- PASS: TestTotalRefusesModelSays (0.00s)
+=== RUN   TestTotalSaysWhenItIsNotACompleteFact
+--- PASS: TestTotalSaysWhenItIsNotACompleteFact (0.00s)
+=== RUN   TestEmptyTotalSaysItIsEmpty
+--- PASS: TestEmptyTotalSaysItIsEmpty (0.00s)
+=== RUN   TestDistrustedKeepsTheNumberItRefused
+--- PASS: TestDistrustedKeepsTheNumberItRefused (0.00s)
+=== RUN   TestRefusedAndAbsentCannotImpersonateEachOther
+--- PASS: TestRefusedAndAbsentCannotImpersonateEachOther (0.00s)
+=== RUN   TestNonStreamingCellsAreAbsentNotZero
+--- PASS: TestNonStreamingCellsAreAbsentNotZero (0.00s)
+=== RUN   TestWireBytesAndContentBytesAreTwoNames
+--- PASS: TestWireBytesAndContentBytesAreTwoNames (0.00s)
+=== RUN   TestUsageIsRelayedNotMeasured
+--- PASS: TestUsageIsRelayedNotMeasured (0.00s)
+=== RUN   TestSentIsThreeState
+--- PASS: TestSentIsThreeState (0.00s)
+=== RUN   TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+--- PASS: TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus (0.00s)
+=== RUN   TestUnknownFailKindIsRefused
+--- PASS: TestUnknownFailKindIsRefused (0.00s)
+=== RUN   TestRetrySameAndDowngradeAreTwoQuestions
+--- PASS: TestRetrySameAndDowngradeAreTwoQuestions (0.00s)
+=== RUN   TestSaidVersusEmptyString
+--- PASS: TestSaidVersusEmptyString (0.00s)
+=== RUN   TestSaysFingerprintAndKeptBytes
+--- PASS: TestSaysFingerprintAndKeptBytes (0.00s)
+=== RUN   TestEmptyReplyIsNotANormalFinish
+--- PASS: TestEmptyReplyIsNotANormalFinish (0.00s)
+=== RUN   TestMalformedCountAndStreakAreTwoQuantities
+--- PASS: TestMalformedCountAndStreakAreTwoQuantities (0.00s)
+=== RUN   TestCostCountableDistrustsFailedCalls
+--- PASS: TestCostCountableDistrustsFailedCalls (0.00s)
+=== RUN   TestEndpointModelIsOnlyASelfReport
+--- PASS: TestEndpointModelIsOnlyASelfReport (0.00s)
+=== RUN   TestTokenTotalOnlySumsTokens
+--- PASS: TestTokenTotalOnlySumsTokens (0.00s)
+=== RUN   TestRecordInputRoundTripsCellForCellIntoTheLedger
+--- PASS: TestRecordInputRoundTripsCellForCellIntoTheLedger (0.00s)
+=== RUN   TestAbsentCellsLandOnTheLedgerAsAbsentNotZero
+--- PASS: TestAbsentCellsLandOnTheLedgerAsAbsentNotZero (0.00s)
+=== RUN   TestBrokenInputIsRefusedWholeAndCounted
+--- PASS: TestBrokenInputIsRefusedWholeAndCounted (0.00s)
+=== RUN   TestRecordCallNeverLeavesHalfACallOnTheLedger
+--- PASS: TestRecordCallNeverLeavesHalfACallOnTheLedger (0.00s)
+=== RUN   TestAnAlignedCallIsRecordedOnBothSides
+--- PASS: TestAnAlignedCallIsRecordedOnBothSides (0.00s)
+=== RUN   TestRecordedChainRecomputesAndCatchesTampering
+--- PASS: TestRecordedChainRecomputesAndCatchesTampering (0.00s)
+=== RUN   TestBasisOfRefusesEveryShapeOfBasisLying
+--- PASS: TestBasisOfRefusesEveryShapeOfBasisLying (0.00s)
+=== RUN   TestClaimOfNeverHandsBackAnEmptySentence
+--- PASS: TestClaimOfNeverHandsBackAnEmptySentence (0.00s)
+=== RUN   TestSameCallCannotBeRecordedTwice
+--- PASS: TestSameCallCannotBeRecordedTwice (0.00s)
+=== RUN   TestNoHalfCallEvenWhenTranslationFailsLate
+--- PASS: TestNoHalfCallEvenWhenTranslationFailsLate (0.00s)
+=== RUN   TestCommitAcceptsEveryShapePlanTranslates
+--- PASS: TestCommitAcceptsEveryShapePlanTranslates (0.00s)
+=== RUN   TestPlanRefusesAnEmptyCellList
+--- PASS: TestPlanRefusesAnEmptyCellList (0.00s)
+=== RUN   TestPlanRefusesWhatAppendWouldRefuse
+--- PASS: TestPlanRefusesWhatAppendWouldRefuse (0.00s)
+=== RUN   TestTallyCountsRecordedAbsencesIntoTheAbsentBucket
+--- PASS: TestTallyCountsRecordedAbsencesIntoTheAbsentBucket (0.00s)
+=== RUN   TestCellsOfReadsBackOneCallOneSideOnly
+--- PASS: TestCellsOfReadsBackOneCallOneSideOnly (0.00s)
+=== RUN   TestUnserializableCellIsRefusedAndCounted
+--- PASS: TestUnserializableCellIsRefusedAndCounted (0.00s)
+=== RUN   TestClaimsReadBackAsSentencesComputedFromTheFixture
+--- PASS: TestClaimsReadBackAsSentencesComputedFromTheFixture (0.00s)
+PASS
+ok  	agentkernel	16.802s
+?   	agentkernel/cmd/kcheck	[no test files]
+?   	agentkernel/cmd/kresearch	[no test files]
+?   	agentkernel/cmd/mcpkernel	[no test files]

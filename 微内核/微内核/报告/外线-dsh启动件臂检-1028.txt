@@ -1,0 +1,24 @@
+臂检-四处修复 ｜生成 2026-10-28 12:00:19 ｜判据逻辑 import 自 browser-half-1028.py（不复制：臂打的与被验的是同一段码）
+被检现场：路由 11879 B sha16=a48a079499592d46 ｜reader=kernel-board-reader 1027-r1 11369 B sha16=4f97b0bc8d898069 ｜generated_at=2026-10-28T04:00:19.419Z
+起服那一发：log=board-serve-20261028-115755.log（83 B）｜令牌从 log 现取，长度 43 ｜令牌本身不进本文件
+处一 ｜无令牌可读 = 发现（不是验收）；对照必须不也 200；只听 127.0.0.1 要量出来 ｜绿
+   GET /kernel-board 无令牌 200(11879 B) ｜对照 GET / 401 ｜对照 GET /kernel-board-definitely-not-registered 404HTTPError 404 Not Found ⇒ 这一格只对本路由开，不是整站开
+   监听地址现数：LocalAddress=[127.0.0.1] ｜无令牌正文里真令牌出现吗=False（应为 False）
+   无令牌那一读能看到的本机信息面：绝对路径 12 条（逐名：C:/Users/Admin/Desktop/微内核/外部现场-dsh-1027/看板插件-1027/board-con；C:\\Users\\Admin\\AppData\\Local\\Temp\\dsh-probe-1027\\home；C:\\Users\\Admin\\AppData\\Local\\Temp\\dsh-probe-1027\\jour；C:\\Users\\Admin\\AppData\\Local\\Temp\\dsh-probe-1027\\jour；C:\\Users\\Admin\\Desktop\\微内核\\外部现场-dsh-1027\\journal-web.j；C:\\Users\\Admin\\Desktop\\微内核\\外部现场-dsh-1027\\内核账-dsh-fold-；C:\\Users\\Admin\\Desktop\\微内核\\外部现场-dsh-1027\\看板插件-1027\\臂产；C:\\Users\\Admin\\Desktop\\微内核\\外部现场-dsh-1027\\看板插件-1027\\臂产；C:\\Users\\Admin\\Desktop\\微内核\\外部现场-dsh-1027\\看板插件-1027\\臂产；C:\\Users\\Admin\\Desktop\\微内核\\外部现场-dsh-1027\\看板插件-1027\\臂产；C:\\Users\\Admin\\Desktop\\微内核\\外部现场-dsh-1027\\看板插件-1027\\臂产；C:\\Users\\Admin\\Desktop\\微内核\\外部现场-dsh-1027\\看板插件-1027\\臂产）
+   所以能说什么：任何本机能连 56279 的进程，不带令牌就能读到两本账的行数/链头/sha/落盘路径与内核 gate 计数。   不能说什么：这不等于外部可访问（只监听回环，量到了）；也不等于该关 —— 关不关归作者。
+处二 ｜absent 那档：正对照静默 + 两发负对照各响一条且不是异常 ｜绿
+   前提成立=True（路由两条 exists=False 且都无 rows 字段）｜正对照响 0 条 ｜旁路说成 green 响 1 条 ｜内核说成 green 响 1 条（整段没抛异常 = 第三档接住了）
+   罪名逐字：旁路 臂产物-看板/旁路账-这一发没写.jsonl 屏=green，但路由这条没读数（exists=False，宿主没读它） ｜ 内核 臂产物-看板/内核账-这一发没写.jsonl 屏=green，但路由这条没读数（exists=False，宿主没读它）
+处三 ｜gate 版本/SHA：整数 2 对上屏上 v2 才算对；屏上写 2 也必须红（证明没抹平） ｜绿
+   前提成立=True（路由 gate_version 全是 int：[2, 2, 2]）｜正对照响 0 条 ｜改成 v3 响 1 条 ｜改成裸 2 响 1 条 ｜sha 末位改 1 响 1 条
+   罪名逐字：外部现场-dsh-1027/内核账-dsh-fold-1027.jsonl 版本 屏=v3 路由=2（路由是整数，屏上前缀 v） ｜ 臂产物-看板/内核账-原样重抄.jsonl 版本 屏=2 路由=2（路由是整数，屏上前缀 v） ｜ 臂产物-看板/内核账-改一格.jsonl gate sha 屏=906d79be4e9a8991 路由=906d79be4e9a8990
+处四 ｜逐行取数五处各改一项都要响 + 只印 basename 把同名两本账塌成一行要响 ｜绿
+   正对照响 0 条 ｜改字节 响1条命中1；改程数 响1条命中1；改链头 响1条命中1；改sha 响1条命中1；改行数 响1条命中1 ｜同名塌行响 1 条（路由无此条：journal-web.jsonl）｜内核发数 +1 响 3 条
+   命中罪名逐字（每处第一条）：旁路 臂产物-看板/旁路账-改一格.jsonl 字节 屏=53294 路由=53293 ｜ 旁路 dsh-probe-1027/journal-web.jsonl 程数 屏=4 路由=3 ｜ 旁路 dsh-probe-1027/journal-board-1027.jsonl 链头 屏=ae9ab9eb4d75 路由=ae9ab9eb4d74 ｜ 旁路 臂产物-看板/旁路账-原样重抄.jsonl sha 屏=3b92b9853cdd9443 路由=3b92b9853cdd9442 ｜ 旁路 dsh-probe-1027/journal-board-1027.jsonl 行数 屏=4 路由=3
+处五 ｜启动件逐字节 ASCII + ParseFile 过 + 挡口那档点名当前 pid + 空口绿 ｜绿
+   .ps1 4580 B 非ASCII=0 ｜.cmd 445 B 非ASCII=0 ｜ParseErrors=0 ｜-CheckOnly 默认口 rc=3（应 3，点名 PID 22960：True）｜-CheckOnly -Port 65123 rc=0（应 0，含 free=True）
+   顺带把上一趟欠的那格关上：改后的 .ps1（4580 B）这一发**真起了服**（pid 22960，路由刚答 200）⇒ 「改后那份没起过真服」不再是 NOT_RUN。
+   这一趟新抓到的（红是我的包装不是启动件）：同一个 -CheckOnly，用 -Command "& x.ps1 2>&1|Out-String" 取到 rc=1，用 -File 取到 rc=3 ⇒ 退出码契约只在 -File 那种形式下成立，脚本自己的 exit 3 没动；上一趟「rc=1」就是这条。
+   但 10:48 那一发（pid 17112）在我两趟之间没了：log 末行只有 url、.err 0 字节、无异常输出 ⇒ 不是我收的（我没跑 taskkill），死因没查到，记 absent 带理由。
+臂检分母自印：处数 5 ｜绿 5 ｜红 0 ｜逐名：处一绿、处二绿、处三绿、处四绿、处五绿
+负对照总数：处二 2 发 + 处三 3 发 + 处四 7 发 = 12 发，全部要求响；正对照 3 组要求不响（同一套函数打的）。

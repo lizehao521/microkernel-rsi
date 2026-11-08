@@ -1,0 +1,9 @@
+project-profile failed: Error: git rev-parse --show-toplevel failed: fatal: not a git repository (or any of the parent directories): .git
+    at Nt (file:///C:/Users/Admin/.qoder-cn/plugins/cache/qoder-marketplace/better-harness/0.2.20/scripts/better-harness.mjs:167:2895)
+    at _t (file:///C:/Users/Admin/.qoder-cn/plugins/cache/qoder-marketplace/better-harness/0.2.20/scripts/better-harness.mjs:167:3017)
+    at Zn (file:///C:/Users/Admin/.qoder-cn/plugins/cache/qoder-marketplace/better-harness/0.2.20/scripts/better-harness.mjs:171:4544)
+    at mw (file:///C:/Users/Admin/.qoder-cn/plugins/cache/qoder-marketplace/better-harness/0.2.20/scripts/better-harness.mjs:171:6771)
+    at file:///C:/Users/Admin/.qoder-cn/plugins/cache/qoder-marketplace/better-harness/0.2.20/scripts/better-harness.mjs:171:7557
+    at file:///C:/Users/Admin/.qoder-cn/plugins/cache/qoder-marketplace/better-harness/0.2.20/scripts/better-harness.mjs:2:83
+    at file:///C:/Users/Admin/.qoder-cn/plugins/cache/qoder-marketplace/better-harness/0.2.20/scripts/better-harness.mjs:1078:1415
+    at async file:///C:/Users/Admin/.qoder-cn/plugins/cache/qoder-marketplace/better-harness/0.2.20/scripts/better-harness.mjs:1079:107

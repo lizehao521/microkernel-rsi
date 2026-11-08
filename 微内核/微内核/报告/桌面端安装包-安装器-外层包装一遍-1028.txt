@@ -1,0 +1,66 @@
+# 收件方路径实装一发：解压 微核台-安装包-1028.zip（4 条）→ 用随包的 install-weihetai.cmd 装进 %TEMP%\inst-target-outer。
+# 输出里 \uXXXX 是安装件刻意只印 ASCII（cp936 机器上中文路径会读成乱码），不是坏了。
+rc=0
+[install] script dir : C:\Users\Admin\AppData\Local\Temp\pkg-outer-1028
+
+[install] target     : C:\Users\Admin\AppData\Local\Temp\inst-target-outer
+
+[install] payload zip: \u5FAE\u6838\u53F0-\u4FBF\u643A-1028.zip  227641 bytes
+
+[install] staged: dirs=1 json=1 files=39
+
+[install] placed: \u5FAE\u6838\u53F0-\u4FBF\u643A-1028\ 38 files, manifest beside it = True
+
+[install] verify  : C:/Users/Admin/sdk/py314/python.exe \u5DE5\u5177-\u9A8C\u5305-1028.py
+
+  | \u8BFB\u6570 \u00B7 \u4FBF\u643A\u5305\u9010\u6587\u4EF6\u9A8C\u5305\uFF08\u53EA\u8BFB\uFF09
+
+  | \u5305\u76EE\u5F55            C:\Users\Admin\AppData\Local\Temp\inst-target-outer\\u5fae\u6838\u53f0-\u4fbf\u643a-1028
+
+  | \u6E05\u5355              \u6E05\u5355-\u5FAE\u6838\u53F0-\u4FBF\u643A-1028.json 8226 B sha256 \u524D 16 c8ee5b4198c39d25
+
+  | package           \u5FAE\u6838\u53F0-\u4FBF\u643A-1028 \uFF5C builder \u5DE5\u5177-\u51FA\u5305-1028.py \uFF5C built_at 2026-10-28T02:46:23+08:00
+
+  | source_dir        C:\Users\Admin\Desktop\\u5fae\u5185\u6838\\u4ea4\u4ed8\u5bf9\u8d26-1026\\u8bbe\u8ba1-\u684c\u9762\u7aef-v2
+
+  | \u6E05\u5355\u81EA\u8BC1\u7F3A\u9879      0
+
+  | 
+
+  | \u4E00\u3001\u4E94\u6001\u5206\u5F00\u6570\uFF08\u4E0D\u5E76\u6210\u4E00\u4E2A\u300C\u4E0D\u4E00\u81F4\u300D\uFF09
+
+  |   \u6E05\u5355\u6761\u76EE 38 \uFF5C\u76D8\u4E0A\u5B9E\u6570 38 \uFF5CBAD 0 \uFF5CMISSING 0 \uFF5CEXTRA 0 \uFF5C\u53EF\u53D8\u91CF\u53D8\u4E86 0\uFF08\u8D26\u4E0A\u58F0\u660E\u53EF\u53D8\u91CF 1 \u4E2A\uFF09 \uFF5C\u8FD0\u884C\u65F6\u65B0\u751F 0\uFF08\u8D26\u4E0A\u58F0\u660E\u5141\u8BB8\u6863 2 \u4E2A\uFF09
+
+  | 
+
+  | \u4E8C\u3001\u5B57\u8282\u4E0E totals\uFF08totals \u53EA\u81EA\u8BC1\u6E05\u5355\u5185\u90E8\uFF0C\u4E0D\u7528\u76D8\u4E0A\u5DEE\u5224\u7EA2\uFF09
+
+  |   \u8D26\u4E0A\u81EA\u5370 bytes 813519 \uFF5C\u8D26\u4E0A\u9010\u6761\u76F8\u52A0 813519 \uFF5C\u76D8\u4E0A\u91CD\u7B97\uFF08\u6E05\u5355\u8303\u56F4\u5185\uFF09 813519 \uFF5C\u8D26\u4E0A\u81EA\u76F8\u77DB\u76FE 0
+
+  |   \u76D8\u4E0A\u4E0E\u8D26\u4E0A\u7684\u5B57\u8282\u5DEE = 0\uFF08\u8FD9\u4E00\u6BB5\u662F\u53EF\u53D8/\u635F\u574F\u5728\u52A8\uFF0C\u9010\u540D\u5DF2\u5728 BAD \u4E0E DRIFT-MUTABLE \u91CC\uFF0C\u4E0D\u53E6\u7ACB\u4E00\u6001\uFF09
+
+  |   \u6E05\u5355\u6761\u76EE\u6570 38 \uFF5C\u8D26\u4E0A\u81EA\u5370 files 38 \uFF5C\u6392\u9664\u9010\u540D 5 \u6761
+
+  |   manifest sha256 \u524D 16 c8ee5b4198c39d25\uFF08\u672C\u4EF6\u91CD\u7B97\uFF0C\u4E0D\u662F\u6284\u7684\uFF09
+
+  | 
+
+  | VP | files=38 disk=38 bad=0 missing=0 extra=0 mutable_drift=0 mutable_declared=1 mutable_undeclared=0 runtime_new=0 runtime_declared=2 runtime_shadowed=0 total_drift=0 manifest_fields_missing=0 bytes_manifest=813519 bytes_disk=813519 rc=0
+
+  | RESULT PASS
+
+[install] ruler rc: 0
+
+[install] start app : double-click C:\Users\Admin\AppData\Local\Temp\inst-target-outer\\u5FAE\u6838\u53F0-\u4FBF\u643A-1028\\u542F\u52A8-\u5FAE\u6838\u53F0-\u4FBF\u643A.cmd
+
+[install] IS | installed=1 verify_rc=0 rc=0
+
+
+
+[install-weihetai.cmd] exit code = 0
+
+  0 installed and verified byte-for-byte   1 installed but the ruler went red
+
+  3 refused before placing files           4 placed but verify NOT_RUN (no python / no ruler)
+
+

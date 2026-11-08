@@ -1,0 +1,39 @@
+HTTP 200
+CF-RAY: a49cedc22c958d4d-DLC
+Connection: close
+Content-Length: 429
+Content-Type: application/json
+Date: Tue, 13 Oct 2026 08:21:08 GMT
+Server: cloudflare
+cf-cache-status: DYNAMIC
+content-security-policy: frame-ancestors 'none'
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-litellm-model-name: agnes-3.0-flash
+x-litellm-response-cost-input: 0.0
+x-litellm-response-cost-output: 0.0
+x-litellm-response-cost-tool-usage: 0.0
+x-new-api-version: master-cn-24eea8e18c2bc40aa0c711100d4c6ee58c51fcf1
+x-request-id: fd4d9d4bae3b3ba6f3ba6d95654e1966
+x-trace-id: fd4d9d4bae3b3ba6f3ba6d95654e1966
+
+-- body 里版本类键 --
+object='chat.completion'
+metadata.weight_version='default'
+metadata.weight_versions=[{'version': 'default', 'start': 0, 'end': 2}]
+metadata.weight_versions.0.version='default'
+-- body 顶层键 --
+choices
+created
+id
+metadata
+model
+object
+usage
+
+（set-cookie 那一行在归档时删掉了：里面是 Cloudflare 的会话令牌，不是这一支要的证据）
+
+-- body 顶层（同一次往来的第二次请求）--
+id=7a119e6b7b0e42b685cd107e4e352fe0  created=1791879775  model=agnes-3.0-flash  object=chat.completion
+usage: completion_tokens=2 prompt_tokens=76 total_tokens=78
+metadata: weight_version='default'  weight_versions=[{'version':'default','start':0,'end':2]}

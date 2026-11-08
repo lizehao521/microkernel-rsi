@@ -1,0 +1,83 @@
+agentkernel 挂进会话工具面 —— 第一次从**工具面**（不是 curl、不是 Python 客户端）叫它
+================================================================
+日期：2026-10-15 · 每一行回话都是那个工具自己返回的原话，未编辑、未转述。
+
+挂载的形状（用户在 Qoder 的 MCP 界面里填的，不是我写的配置）：
+    类型 streamable-http
+    URL  http://127.0.0.1:8797/mcp
+服务端：`cmd/mcphttp`（17:33 从封板后源码编，`.bin/mcphttp.exe`），只绑 127.0.0.1，
+        协议层与 stdio 那一面共用同一个 owner（`mcpsrv/`）。
+进工具面的 10 个名字：mcp__agentkernel__kernel_{celltable,check_call,record_call,verify,
+        tally,read_back,declare_reader,readers_report,encode_journal,load_journal}
+
+--------------------------------------------------------------------------
+1) kernel.celltable（认这颗是不是封板那颗）
+   当前 49 格（输入侧 20 + 输出侧 29）；唯一键名 48 个
+   —— 与 报告/封板轮-整轮-1015-012457.txt 那一份对得上；10-13 的旧二进制在这里会报 47/46。
+
+2) kernel.record_call 第 1 趟（session=hello-toolface，一发装配齐全的账）
+   整发落账 49 条（输入侧 20 格 + 输出侧 29 格），链上共 49 条
+
+3) kernel.record_call 第 2 趟（**我手抄漏了一个字段**：Budget 里没给 TransportSlackPct）
+   整发拒收（拒收累计 2 次）：kernel: 输入侧账不自洽，第 1 发整发拒收（输出侧也不写）：
+   kernel: 内容额度记的是 28835，而按公式（上限 32768 扣 0% 余量）该是 32768 —— 这条公式有了第二个 owner
+   —— 拒得对，而且拒的是**我的誊写错误**：漏填的余量被当成 0%，公式复核当场发现额度对不上。
+      这条不是去重门，别混着记。
+
+4) kernel.record_call 第 3 趟（字段补回、与第 1 趟一字不差）
+   整发拒收（拒收累计 3 次）：kernel: model_input 第 1 发（session=hello-toolface）已经记过了 ——
+   同一发只许记一次，记两遍会让按键名扫账本的分析层把字节与 token 加两遍
+   —— 这才是去重门，它自己把后果说清了（扫账本的分析层会重复相加）。
+
+5) kernel.verify
+   ✓ 链自洽（共 49 条，其中 49 条比对过原像）
+
+6) kernel.tally
+   账 49 条（absent=5 estimated=2 measured=37 model_says=1 relayed=4）；被拒的写入 3 次 ——
+   拒收也要看得见，不然「被拒」会读成「没发生过」
+   —— 注意这个 3：第 2、3 趟的两次拒收都没进链，但**都进了数**。
+
+7) kernel.declare_reader(reader=qoder-agent, key=fail_status, side=output)
+   ✓ qoder-agent 声明读 output 侧的 fail_status（这一格从此不再是死格）
+
+8) kernel.read_back(session=hello-toolface, call=1, side=output) —— 29 格全在这里，
+   缺席那 5 格点名带理由，`0` 与「没量到」在读数上分得开：
+     session=hello-toolface 的第 1 发 output 侧共 29 格，其中缺席
+     [chunks fail_status first_byte_ms max_gap_ms retry_after_ms]
+     call                   measured  1
+     chunks                 absent    —（没量到，不是 0）：这一发不是流式的，结构上没有分帧
+     cost_countable         measured  是
+     downgrade              measured  否
+     endpoint_model         model_says some-model
+     endpoint_model_said    measured  是
+     fail_detail            measured  （这一格是空的）
+     fail_kind              measured  （这一格是空的）
+     fail_status            absent    —（没量到，不是 0）：这一发没故障，也就没有要记的状态码
+     finish                 relayed   stop
+     finish_said            measured  是
+     first_byte_ms          absent    —（没量到，不是 0）：这一发不是流式的，没有首帧这件事
+     malformed_actions      measured  0
+     malformed_streak       measured  0
+     max_gap_ms             absent    —（没量到，不是 0）：这一发不是流式的，没有帧间
+     model_says_bytes       measured  2
+     model_says_clipped     measured  否
+     model_says_kept        measured  2
+     model_says_sha256      measured  73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049
+     retry_after_ms         absent    —（没量到，不是 0）：这一发没断，也就没有要等多久
+     sent                   measured  发出去了
+     streaming              measured  否
+     tool_calls             measured  0
+     usage_in               relayed   5（转述自 端点响应的 usage.prompt_tokens）
+     usage_out              relayed   2（转述自 端点响应的 usage.completion_tokens）
+     wire_bytes_in          measured  96
+     wire_bytes_out         measured  180
+     wire_format            relayed   chat.completion
+     wire_format_said       measured  是
+
+--------------------------------------------------------------------------
+顺带撞上的一条（另登在 报告/已落地-空链不许打勾.txt）：这个进程刚起来、一条都没记的时候，
+`kernel.verify` 回的是 `✓ 链自洽（共 0 条，其中 0 条比对过原像）` —— 0 条的 ✓ 和 49 条的 ✓
+长得一样。这不是畸形输入，是每个新进程的第一次 verify。等表态，没擅自改。
+
+这一支还欠着的：账活在本进程记忆里，要留住得调 `kernel.encode_journal` 拿字节、由调用方写盘
+（10-13 那几轮就是这么留下 报告/样例-*.jsonl 的）；这一发我只读到第 8 步，没编出去。

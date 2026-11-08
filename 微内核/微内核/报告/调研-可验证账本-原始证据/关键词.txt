@@ -1,0 +1,8 @@
+verifiable append-only logs
+tamper-evident transparency logs
+Merkle tree consistency proofs
+Certificate Transparency RFC 6962
+non-omission proof
+signed tree head checkpoints
+public witness logging
+inclusion proof verification

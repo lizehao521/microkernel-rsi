@@ -1,0 +1,35 @@
+== 双臂验收 · 2026-10-19 22:16:29 ==
+exe=C:\Users\Admin\AppData\Local\Temp\agentkernel-arms-1019\mcphttp-35240.exe
+exe sha256=f60617409932b57ce164007a1f56742ee2a731abf18451513b40b728524cd0a7
+源码最新 mtime=2026-10-19 02:10:30 ｜ exe mtime=2026-10-19 22:16:18
+端口=18807 ｜ pid=13316 ｜ owner=C:\Users\Admin\AppData\Local\Temp\agentkernel-arms-1019\mcphttp-35240.exe ｜ 监听 pid=13316 ｜ bind 错误=0
+
+C0 干净调用（对照） ｜ isError=False ｜ 整发落账 49 条（输入侧 20 格 + 输出侧 29 格），链上共 49 条
+B1 预检（Basis=3、Source 空） ｜ isError=True ｜ 输入侧：kernel: token 数 说是 estimated 的，却没说来源（转述谁 / 估的是什么） / 输出侧：自洽 / 预检结论：整发会被拒 —— kernel: 输入侧账不自洽，第 1 发整发拒收（输出侧也不写）：kernel: token 数 说是 estimated 的，却没说来源（转述谁 / 估的是什么） —— 预检拒收累计 1 发（这一路一条都不写；落账那一路被内核拒的是另一笔：0 次）
+   预检桶差值：{"rejected": 0, "precheck_rejected": 1, "precheck_door": 0, "door_refused": 0, "bad_requests": 0, "transport_refused": 0}
+B1 落账（同一份坏记录） ｜ isError=True ｜ 整发拒收（拒收累计 1 次）：kernel: 输入侧账不自洽，第 1 发整发拒收（输出侧也不写）：kernel: token 数 说是 estimated 的，却没说来源（转述谁 / 估的是什么）
+   内核拒收桶差值：{"rejected": 1, "precheck_rejected": 0, "precheck_door": 0, "door_refused": 0, "bad_requests": 0, "transport_refused": 0}
+C1 把 B1 修好（补回 Source） ｜ isError=False ｜ 整发落账 49 条（输入侧 20 格 + 输出侧 29 格），链上共 98 条
+B2 对照声明 ｜ isError=False ｜ ✓ arm-reader 声明读 output 侧的 chunks（这一格从此不再是死格）
+B2 重复声明 ｜ isError=True ｜ 声明被拒：kernel: chunks 已经被 arm-reader 声明读过一次 —— 同一个读者声明两遍会把分母数大
+B2 修好后的新读者 ｜ isError=False ｜ ✓ arm-reader-fixed 声明读 output 侧的 chunks（这一格从此不再是死格）
+   B2 三个声明前后六桶差值：{"rejected": 0, "precheck_rejected": 0, "precheck_door": 0, "door_refused": 0, "bad_requests": 0, "transport_refused": 0}
+C3 干净臂的反针（发号=0） ｜ isError=True ｜ 整发拒收（拒收累计 2 次）：kernel: 输入侧账不自洽，第 0 发整发拒收（输出侧也不写）：kernel: 第几发是 0，发号从 1 起（0 会被读成「还没发」）
+链验证 ｜ isError=False ｜ ✓ 链自洽（共 98 条，其中 98 条比对过原像）
+读者报告 ｜ isError=False ｜ 输入侧：键名表 20 格，其中 20 格没有任何声明者读：call call_bytes_ceiling clamp_rounds clipped content_bytes content_ceiling dropped effective_ceiling fixed_overhead folded leftover_pct notice_sent notice_text notice_trimmed notice_why part_totals parts shares tokens transport_sla
+末态六桶 ｜ {"rejected": 2, "precheck_rejected": 1, "precheck_door": 0, "door_refused": 0, "bad_requests": 0, "transport_refused": 0} ｜ 口径=这一程完整可数
+
+B1 点名形状=WEAK ｜ B2 点名形状=STRICT+LABEL
+弱判据=PASS ｜ 原因=无
+严格判据=FAIL ｜ 原因=B2 拒收没有进任何一个计数桶（严格判据）
+严格判据比弱判据多的一条：坏臂的拒收必须进对计数桶；B2 这一族今天六桶全不动。
+
+== 探针自检（尺子会不会红）==
+合成坏结果（C0 被拒）→ 判定=FAIL（期望 FAIL）
+合成无点名文本 → 分类=UNNAMED（期望 UNNAMED）
+
+== 自印分母 ==
+臂 7 条：C0、B1-pre、B1-rec、C1、B2-D0、B2-dup、B2-new、C3 —— 实到 8 条
+链上条目应为 98（C0 49 + C1 49），末态 verify：✓
+这只是脚本化演练：干净臂的「真人 30 分钟接入」今天仍是 NOT_RUN（G10=0）。
+它不证明：不证明所有 Measure 格都这样点名（只测了 tokens 一格）；不证明 declare_reader 的拒收已经有桶。

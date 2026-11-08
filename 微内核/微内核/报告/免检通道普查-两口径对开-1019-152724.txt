@@ -1,0 +1,66 @@
+免检通道普查 · 两口径对开（10-19 午后）
+口径一 = 旧尺子（登记行第三参那个表达式全文匹配，`cell_rule_readers.py`）；口径二 = 这一支（字段名 + 三种接线形状）。
+两端点分开报，分歧逐名归因 —— 这一支的用途就是把 10-17 那份表末尾「得人工看那几行」那句换成机械判据。
+
+【一】分母自印
+  全仓非测试 .go = 17 份（旧尺子只扫 9 份）｜ 逐名：cells.go cmd/kaudit/main.go cmd/kcheck/main.go cmd/kresearch/main.go cmd/kwire/main.go cmd/kwire/report.go cmd/mcphttp/main.go cmd/mcpkernel/main.go input.go isolate.go journal.go kernel.go mcpsrv/mcpsrv.go measure.go output.go record.go tasks/probe/omitjournal/main.go
+  校验器词表从源码 func 声明现取 = 35 个 ｜ 逐名：Add Append BytesToHoldObservations Check CheckCells CheckCutLists Clamp Declare DeriveBudget LoadLedger MarshalJournal MarshalJournalWithGate ReadJournal RecordCall RecordInput RecordOutput TokenTotal Verify axes basisOf buildFixtures buildSpec check checkCutsAgainstParts checkFingerprint checkFreeText checkListen checkRecord commit errChain firstErr gateInputSample ledgerCopy plan usageOK
+  词表锚（每个名字全仓命中次数，任一为 0 我就不落盘）：Add=14 Append=32 BytesToHoldObservations=3 Check=46 CheckCells=8 CheckCutLists=4 Clamp=3 Declare=3 DeriveBudget=11 LoadLedger=15 MarshalJournal=12 MarshalJournalWithGate=9 ReadJournal=8 RecordCall=27 RecordInput=8 RecordOutput=7 TokenTotal=4 Verify=15 axes=3 basisOf=4 buildFixtures=2 buildSpec=2 check=12 checkCutsAgainstParts=3 checkFingerprint=4 checkFreeText=7 checkListen=8 checkRecord=7 commit=10 errChain=3 firstErr=6 gateInputSample=4 ledgerCopy=3 plan=13 usageOK=5
+  登记行抠出的格 = 44 ｜ 键名去重 = 43 ｜ 内核自报键名 = 48 ｜ 两边都对上 = 43
+  内核有、静态抠不到的（=5）：clipped dropped finish folded wire_format
+    ⇒ 这一批走动态登记（`cells.go` 的 CutLists 循环那一族），逐格分类记 `absent（静态分不开）`，不记 0、也不参与下面的归类计数。
+  静态抠到、内核没报的（=0）：无
+  表驱动 Check 的锚：output.go:260、292
+
+【二】19 格嫌疑名单逐格定论（10-17 那份表的嫌疑名单，逐名在这里翻案或坐实）
+  键名 ｜ 旧口径归类 ｜ 新口径判定 ｜ 校验器接线 ｜ 条件读 ｜ 表驱动 ｜ 闸外读 ｜ 证据（file:line[所属函数]）
+  content_ceiling        ｜ 只搬动              ｜ 有判据                                ｜ 0 ｜ 4 ｜ 0 ｜ 0 ｜ input.go:517[check] input.go:544[check] input.go:551[check] input.go:555[check]
+  clamp_rounds           ｜ 只搬动              ｜ 有判据                                ｜ 0 ｜ 3 ｜ 0 ｜ 0 ｜ input.go:548[check] input.go:551[check] input.go:555[check] input.go:549[check]
+  chunks                 ｜ 只搬动              ｜ 有判据                                ｜ 0 ｜ 0 ｜ 1 ｜ 0 ｜ output.go:292[Check] cells.go:137
+  first_byte_ms          ｜ 只搬动              ｜ 有判据                                ｜ 0 ｜ 0 ｜ 1 ｜ 0 ｜ output.go:292[Check] cells.go:138
+  max_gap_ms             ｜ 只搬动              ｜ 有判据                                ｜ 0 ｜ 0 ｜ 1 ｜ 0 ｜ output.go:292[Check] cells.go:139
+  fail_kind              ｜ 只搬动              ｜ 有判据                                ｜ 0 ｜ 14 ｜ 0 ｜ 3 ｜ input.go:581[check] input.go:595[check] input.go:605[check] output.go:224[Check]
+       闸外读（值被谁搬/算，不算闸）：cells.go:167[闸外 failDetailCell] ｜ kernel.go:273[闸外 seal] ｜ output.go:180[闸外 CostCountable]
+  fail_detail            ｜ 只搬动              ｜ 有判据                                ｜ 1 ｜ 3 ｜ 0 ｜ 1 ｜ output.go:346[check] output.go:332[check] output.go:335[check] output.go:340[check]
+       闸外读（值被谁搬/算，不算闸）：cells.go:168[闸外 failDetailCell]
+  call_bytes_ceiling     ｜ 除登记外没人碰          ｜ 有判据                                ｜ 0 ｜ 2 ｜ 0 ｜ 0 ｜ input.go:511[check] input.go:517[check] input.go:512[check] input.go:519[check]
+  transport_slack_pct    ｜ 除登记外没人碰          ｜ 有判据                                ｜ 0 ｜ 2 ｜ 0 ｜ 0 ｜ input.go:514[check] input.go:517[check] input.go:515[check] input.go:519[check]
+  leftover_pct           ｜ 除登记外没人碰          ｜ 有判据                                ｜ 0 ｜ 1 ｜ 0 ｜ 0 ｜ input.go:531[check] input.go:533[check] cells.go:95
+  fixed_overhead         ｜ 除登记外没人碰          ｜ 有判据                                ｜ 1 ｜ 1 ｜ 0 ｜ 0 ｜ input.go:535[check] input.go:538[check] input.go:539[check] cells.go:96
+  shares                 ｜ 除登记外没人碰          ｜ 有判据                                ｜ 0 ｜ 1 ｜ 0 ｜ 1 ｜ input.go:522[check] input.go:529[check] cells.go:97
+       闸外读（值被谁搬/算，不算闸）：input.go:241[闸外 ShareOf]
+  model_says_kept        ｜ 除登记外没人碰          ｜ 有判据                                ｜ 0 ｜ 2 ｜ 0 ｜ 2 ｜ output.go:384[check] output.go:387[check] output.go:385[check] output.go:388[check]
+       闸外读（值被谁搬/算，不算闸）：cmd/kwire/main.go:435[闸外 newBrokenFixture] ｜ output.go:97[闸外 Clipped]
+  model_says_clipped     ｜ 除登记外没人碰          ｜ 派生格（无判据读，但调用方填不了它）                 ｜ 0 ｜ 0 ｜ 0 ｜ 2 ｜ cells.go:131
+       闸外读（值被谁搬/算，不算闸）：input.go:296[定义体 Clipped] ｜ output.go:97[定义体 Clipped]
+  model_says_sha256      ｜ 除登记外没人碰          ｜ 有判据                                ｜ 2 ｜ 0 ｜ 0 ｜ 1 ｜ input.go:573[check] output.go:390[check] cells.go:132
+       闸外读（值被谁搬/算，不算闸）：cmd/kcheck/main.go:264[闸外 main]
+  fail_status            ｜ 除登记外没人碰          ｜ 有判据                                ｜ 0 ｜ 4 ｜ 0 ｜ 0 ｜ output.go:332[check] output.go:352[check] output.go:355[check] output.go:360[check]
+  retry_after_ms         ｜ 除登记外没人碰          ｜ 有判据                                ｜ 1 ｜ 3 ｜ 0 ｜ 0 ｜ output.go:363[check] output.go:366[check] output.go:370[check] output.go:374[check]
+  sent                   ｜ 除登记外没人碰          ｜ 派生格（无判据读，但调用方填不了它）                 ｜ 0 ｜ 0 ｜ 0 ｜ 2 ｜ cells.go:156
+       闸外读（值被谁搬/算，不算闸）：output.go:164[定义体 Sent] ｜ output.go:180[闸外 CostCountable]
+  cost_countable         ｜ 除登记外没人碰          ｜ 派生格（无判据读，但调用方填不了它）                 ｜ 0 ｜ 0 ｜ 0 ｜ 1 ｜ cells.go:157
+       闸外读（值被谁搬/算，不算闸）：output.go:179[定义体 CostCountable]
+  ⇒ 旧表那 19 格里，被新口径翻成「其实有判据读」的 = 16 格 ｜ 逐名：content_ceiling clamp_rounds chunks first_byte_ms max_gap_ms fail_kind fail_detail call_bytes_ceiling transport_slack_pct leftover_pct fixed_overhead shares model_says_kept model_says_sha256 fail_status retry_after_ms
+
+【三】全表归类（两口径都跑，不只嫌疑名单）
+  有判据                                  40 格 ｜ call call_bytes_ceiling chunks clamp_rounds content_bytes content_ceiling downgrade effective_ceiling endpoint_model endpoint_model_said fail_detail fail_kind fail_status finish_said first_byte_ms fixed_overhead leftover_pct malformed_actions malformed_streak max_gap_ms model_says_bytes model_says_kept model_says_sha256 notice_sent notice_text notice_trimmed notice_why part_totals parts retry_after_ms shares streaming tokens tool_calls transport_slack_pct usage_in usage_out wire_bytes_in wire_bytes_out wire_format_said
+  派生格（无判据读，但调用方填不了它）                   3 格 ｜ cost_countable model_says_clipped sent
+  对开：归类计数合计 43 ＋ 静态分不开 5 = 48（该等于 48）
+  严口径（只认名字以 Check/check 起的 9 个函数算闸；宽的那一把连搬运 error 的函数也算，会高报）：Check CheckCells CheckCutLists check checkCutsAgainstParts checkFingerprint checkFreeText checkListen checkRecord
+    有判据                                  40 格 ｜ call call_bytes_ceiling chunks clamp_rounds content_bytes content_ceiling downgrade effective_ceiling endpoint_model endpoint_model_said fail_detail fail_kind fail_status finish_said first_byte_ms fixed_overhead leftover_pct malformed_actions malformed_streak max_gap_ms model_says_bytes model_says_kept model_says_sha256 notice_sent notice_text notice_trimmed notice_why part_totals parts retry_after_ms shares streaming tokens tool_calls transport_slack_pct usage_in usage_out wire_bytes_in wire_bytes_out wire_format_said
+    派生格（无判据读，但调用方填不了它）                   3 格 ｜ cost_countable model_says_clipped sent
+    两把尺子判定不一致的格 = 0 ｜ 逐名：无
+
+【四】这一格能说什么 / 不能说什么
+  能说：静态穷举到全仓 17 份非测试 .go，「无判据读、且调用方能自己往里写」这一族现在有名有名数 = 0（逐名：无）。
+  能说：旧表那 19 格嫌疑名单**是口径产物**，不是 19 个洞 —— 引用它的人要连这句一起引。
+  能说：`fail_status` 那一格的准确形状是「条件读 4 处、校验器接线 0 处」——
+        #55 说的不是「这一格没人碰」，是「碰它的几条都只看 Decidable()，没有一条走 Check() 那道『缺席却带数』的闸」。
+  不能说：这些判定在**运行时**也拦得住 —— 这一支只读源码，没起靶场；运行时那一侧另有 `lie_uncovered_sweep.py`。
+  不能说：静态分不开那 5 格没有闸 —— 它们只是这一支按登记行分不出键名，读数记 absent，不记 0。
+  不能推广：派生格「调用方填不了」这句的依据是格值由方法当场算出（`cells.go` 登记行的第三参就是那个方法调用），
+        它不等于「派生格的输入也没人判」—— 输入格的判定看上面【三】那一行，不在这一句里。
+
+【五】这一发的分母自己印（收尾）
+  源件 17 ｜ 校验器名 35 ｜ 登记格 43 ｜ 键名对上 43/48 ｜ 翻案 16 ｜ 免检（可独立填）0 ｜ 逐名预期 24 条全中 ｜ 退出码 0

@@ -1,0 +1,51 @@
+== 剩下的薄格再推一轮 · 2026-10-17 13:43:35 ｜ 字节 sha256=daad549714f7fd5e ｜ 判据表照旧 49 格 ==
+自核：模板取自源码 8/8 条 ｜ 取不到的：无
+自核：期望那条被 `rule_hit_matrix.py` 判成包装层（句尾 %v）的臂 = 1：C7 64 位但不是十六进制
+      —— 这类臂就算撞对，矩阵那本账也不计入闸数（是尺子的口径，不是这格的实情）。
+目标格都在格表里 = 是 ｜ 不在的：无
+A0 合法装配（必须被收下）：check=False record=False ｜ 整发落账 49 条（输入侧 20 格 + 输出侧 29 格），链上共 49 条
+
+目标格 ｜ 臂 ｜ check ｜ record ｜ 同判 ｜ 撞对？ ｜ 原话尾巴
+------------------------------------------------------------------------------
+fail_detail        ｜ C1 说法末尾多敲一个空格            ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 故障说法首尾带空白（"演示：说法末尾多一个空格 "）—— 它会被抄进日志，也会被人拿去比对
+    └ 期望那条：output.go:341 模板「kernel: 故障说法首尾带空白（%q）—— 它会被抄进日志，也会被人拿去比对」
+fail_kind          ｜ C2 按响应分的类别却没有状态码         ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ http 这一类是按对端响应分的，却没有状态码 —— 读的人分不清它收到响应没有
+    └ 期望那条：output.go:347 模板「kernel: %s 这一类是按对端响应分的，却没有状态码 —— 读的人分不清它收到响应没有」
+malformed_actions  ｜ C3 提议数写成负                ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 工具提议 0 个、执行不了的 -1 个、链上连歪 0 发
+    └ 期望那条：output.go:307 模板「kernel: 工具提议 %d 个、执行不了的 %d 个、链上连歪 %d 发」
+malformed_streak   ｜ C4 这发没歪链上却记 2            ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 这一发没有执行不了的提议，链上却记着连歪 2 发
+    └ 期望那条：output.go:315 模板「kernel: 这一发没有执行不了的提议，链上却记着连歪 %d 发」
+model_says_bytes   ｜ C5 原话改短到低于留下             ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 留下了 27 字节，而原话只有 1 字节 —— 裁不会把话裁长
+    └ 期望那条：output.go:382 模板「kernel: 留下了 %d 字节，而原话只有 %d 字节 —— 裁不会把话裁长」
+model_says_kept    ｜ C6 留下改长到高于原话             ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 留下了 32 字节，而原话只有 27 字节 —— 裁不会把话裁长
+    └ 期望那条：output.go:382 模板「kernel: 留下了 %d 字节，而原话只有 %d 字节 —— 裁不会把话裁长」
+model_says_sha256  ｜ C7 64 位但不是十六进制           ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 原话指纹不是十六进制：encoding/hex: invalid byte: U+0067 'g'
+    └ 期望那条：input.go:610 模板「kernel: %s不是十六进制：%v」
+wire_format_said   ｜ C8 说自报格式却没收到响应           ｜ True  ｜ True  ｜ 同判   ｜ 拒-撞对     ｜ 说对端自报了格式 "chat.completion"，可 transport 这一类压根没收到对端响应 —— 那串字
+    └ 期望那条：output.go:251 模板「kernel: 说对端自报了格式 %q，可 %s 这一类压根没收到对端响应 —— 那串字是从哪来的？」
+
+== 到不了那 3 格：源码里读这个字段名的每一行（机械分类，原始行一并印出供复核）==
+   notice_trimmed       ｜ 字段名 Notice.Trimmed ｜ 出现 2 处，其中落在 if 条件里 1 处
+        cells.go:76 ｜ 记账行 ｜ cell("notice_trimmed", "Notice.Trimmed", m.Notice.Trimmed, BasisMeasured),
+        input.go:429 ｜ if 条件 ｜ if !m.Notice.Sent && m.Notice.Trimmed {
+        → 只有一条判据读它：第二闸得等新判据，不是我造个值就能多出来的。（静态提示，不作覆盖结论）
+   finish_said          ｜ 字段名 Finish.Said ｜ 出现 4 处，其中落在 if 条件里 1 处
+        cells.go:97 ｜ 记账行 ｜ cell("finish_said", "Finish.Said", m.Finish.Said, BasisMeasured),
+        output.go:128 ｜ 字段声明 ｜ ModelSaid bool   // 端点到底有没有自报 —— 与 Finish.Said 同形：没报不等于报了个空串
+        output.go:236 ｜ if 条件 ｜ if m.Finish.Said != (m.Finish.Reason != "") {
+        output.go:238 ｜ 其他 ｜ m.Finish.Said, m.Finish.Reason)
+        → 只有一条判据读它：第二闸得等新判据，不是我造个值就能多出来的。（静态提示，不作覆盖结论）
+   endpoint_model_said  ｜ 字段名 ModelSaid ｜ 出现 6 处，其中落在 if 条件里 1 处
+        cells.go:100 ｜ 记账行 ｜ cell("endpoint_model_said", "ModelSaid", m.ModelSaid, BasisMeasured),
+        output.go:128 ｜ 字段声明 ｜ ModelSaid bool   // 端点到底有没有自报 —— 与 Finish.Said 同形：没报不等于报了个空串
+        output.go:240 ｜ if 条件 ｜ if m.ModelSaid != (m.Model != "") {
+        output.go:242 ｜ 其他 ｜ m.ModelSaid, m.Model)
+        mcpsrv/mcpsrv.go:245 ｜ 其他 ｜ "description": "OutputMeta 的导出字段：Call、Streaming、Finish、Model、ModelSaid、WireF
+        mcpsrv/mcpsrv.go:511 ｜ 注释 ｜ // 标量键（`Model`、`ModelSaid` 这类）在 Go 里分不出"没给"与"给了零值"，
+        → 只有一条判据读它：第二闸得等新判据，不是我造个值就能多出来的。（静态提示，不作覆盖结论）
+
+== 自印分母 ==
+臂 8 条 ｜ 真打到内核 8 条 ｜ 造不出值 0：无 ｜ A0 被收下 = 是 ｜ 预检与落账同判 8/8 ｜ 撞对 8 ｜ 打偏 0：无 ｜ 被收下 0：无
+到不了那 3 格：只把处数印出来，不记成覆盖 —— 它们仍算「只被 1 条接住」，要报给作者。
+读法：撞对的那几格要从「1 条」升到「2 条」，得回写进矩阵才知道 —— 重跑 `rule_hit_matrix.py`（把这份报告加进它的 REPORTS）让它自己数；
+      打偏 = 我这批值同时踩了别的规则（回来改臂，不许记在期望那条头上）；被收下 = 这条规则今天不咬这格，那才是要报的。

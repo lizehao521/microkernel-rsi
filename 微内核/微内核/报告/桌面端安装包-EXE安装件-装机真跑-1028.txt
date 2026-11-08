@@ -1,0 +1,94 @@
+读数 · 装好的应用真跑一发（1028）
+setup.exe 3672576 B sha256:16 5c80724f45ce789a
+目标   C:\\Users\\Admin\\AppData\\Local\\Temp\\weihetai-run-1028b\\install
+
+一、装（基线：运行时目录还是空的）
+  IS 行=IS | installed=1 verify=rc=0 rc=0
+  [OK] 装-rc                     期望=0 实得=0
+  [OK] 装-运行时新生                  期望=0 实得=0
+  启动件=\u542f\u52a8-\u5fae\u6838\u53f0-\u4fbf\u643a.cmd
+  [OK] 装后地址文件在否（还没跑，应无）         期望=False 实得=False
+
+二、起服（走安装件落的 .cmd；stdout/stderr 进文件，不走管道）
+  cmd pid=16304 ｜WEIHETAI_PY=C:\\Users\\Admin\\sdk\\py314\\python.exe
+  url=127.0.0.1:54716（端口由 OS 挑，读数来自应用自己写的 服务地址.txt）
+  首次拿到地址 = 0.5 秒
+  该端口 LISTEN 连接数=1
+  [OK] 端口有人在听                   期望=1 实得=1
+
+三、HTTP 读数（取字节前先看状态码）
+  GET / -> 200 148207 B text/html; charset=utf-8 sha e671b133e38de299
+  [OK] 根路径状态码                   期望=200 实得=200
+  [OK] 根路径非空                    期望=True 实得=True
+  自带 HTTP 尺：rc=0 ｜PASS 92 ｜FAIL 0 ｜SKIP 6
+    SKIP kernel gate done
+    SKIP kernel gate rc=0 bad=0
+    SKIP kernel counts non-zero
+    SKIP kernel exe hash 64 hex
+    SKIP kernel readout matches snapshot
+    SKIP D1 receipt has kernel readout
+    RESULT PASS pass=92 fail=0 skip=6 total=98
+  [OK] HTTP 尺 rc                期望=0 实得=0
+  [OK] HTTP 尺 FAIL              期望=0 实得=0
+
+四、应用自己写出来的文件，让 RUNTIME 那一格走成真现场
+  原生 rc=0 runtime_new=5 extra=0 mutable_drift=1
+  python rc=0 runtime_new=5 extra=0 mutable_drift=1 ｜同树逐字段差=0
+    |     RUNTIME \u56DE\u6267/receipt-D-1026-01-20261028-131203.html | 7387 B | under declared runtime prefix \u56DE\u6267/ | \u64CD\u4F5C\u6A21\u5F0F\u6BCF\u70B9\u4E00\u6B21\u6536/\u9000\u843D\u4E00\u5F20 HTML\uFF0C\u5C5E\u6536\u4EF6\u65B9\u81EA\u5DF1\u7684\u51B3\u5B9A\u5386\u53F2 => not counted EXTRA
+    |     RUNTIME \u56DE\u6267/receipt-D-1026-02-20261028-131203.html | 7010 B | under declared runtime prefix \u56DE\u6267/ | \u64CD\u4F5C\u6A21\u5F0F\u6BCF\u70B9\u4E00\u6B21\u6536/\u9000\u843D\u4E00\u5F20 HTML\uFF0C\u5C5E\u6536\u4EF6\u65B9\u81EA\u5DF1\u7684\u51B3\u5B9A\u5386\u53F2 => not counted EXTRA
+    |     RUNTIME \u56DE\u6267/receipt-D-1026-03-20261028-131203.html | 7112 B | under declared runtime prefix \u56DE\u6267/ | \u64CD\u4F5C\u6A21\u5F0F\u6BCF\u70B9\u4E00\u6B21\u6536/\u9000\u843D\u4E00\u5F20 HTML\uFF0C\u5C5E\u6536\u4EF6\u65B9\u81EA\u5DF1\u7684\u51B3\u5B9A\u5386\u53F2 => not counted EXTRA
+    |     RUNTIME \u8BFB\u6570/\u670D\u52A1\u5730\u5740.txt | 100 B | under declared runtime prefix \u8BFB\u6570/ | \u670D\u52A1\u4E00\u542F\u52A8\u5C31\u5199 \u8BFB\u6570/\u670D\u52A1\u5730\u5740.txt\uFF1B\u5185\u6838\u95F8\u8DD1\u8FC7\u518D\u5199 \u8BFB\u6570/\u5185\u6838\u5FEB\u95F8.json \u4E0E -\u8F93\u51FA.txt => not counted EXTRA
+    |     RUNTIME \u8BFB\u6570/\u9A8C\u6536-HTTP.txt | 8346 B | under declared runtime prefix \u8BFB\u6570/ | \u670D\u52A1\u4E00\u542F\u52A8\u5C31\u5199 \u8BFB\u6570/\u670D\u52A1\u5730\u5740.txt\uFF1B\u5185\u6838\u95F8\u8DD1\u8FC7\u518D\u5199 \u8BFB\u6570/\u5185\u6838\u5FEB\u95F8.json \u4E0E -\u8F93\u51FA.txt => not counted EXTRA
+  [OK] 跑过之后仍判绿                  期望=0 实得=0
+  [OK] 运行时新生>0（不是臂造的，是应用自己长的）   期望=True 实得=True
+  [OK] 跑过之后没有 EXTRA             期望=0 实得=0
+  [OK] 跑过之后两把尺逐字段差              期望=0 实得=0
+
+五、收进程（只收本发：命令行必须含本发安装路径；含别的一律不收）
+  本发 pid=16304 ｜命令行=cmd /c C:\\Users\\Admin\\AppData\\Local\\Temp\\weihetai-run-1028b\\install\\\u03a2\ufffd\ufffd\u0328-\ufffd\ufffd\u042f-1028\\\ufffd\ufffd\ufffd\ufffd-\u03a2\ufffd\ufffd\u0328-\ufffd\ufffd\u042f.cmd
+  本发 pid=21864 ｜命令行=C:\\Users\\Admin\\sdk\\py314\\python.exe  "C:\\Users\\Admin\\AppData\\Local\\Temp\\weihetai-run-1028b\\install\\\u03a2\ufffd\ufffd\u0328-\ufffd\ufffd\u042f-1028\\_weihetai_launch.
+  本发 pid=25072 ｜命令行=C:\\Users\\Admin\\sdk\\py314\\python.exe C:\\Users\\Admin\\AppData\\Local\\Temp\\weihetai-run-1028b\\install\\\u03a2\ufffd\ufffd\u0328-\ufffd\ufffd\u042f-1028\\\ufffd\ufffd\ufffd\ufffd-\ufffd\ufffd\ufffd\u0637\ufffd\ufffd\ufffd.py --n
+  [OK] 认领越界（命令行不含本发安装路径）        期望=0 实得=0
+  端口 54716 的主人 pid=25072 ｜都在本发认领名单里=True
+  [OK] 端口主人属本发                  期望=True 实得=True
+  [OK] 收后端口空                    期望=0 实得=0
+  [OK] 收后本发进程残留                 期望=0 实得=0
+  应用退出后启动件控制台末 3 行：
+    | READY http://127.0.0.1:54716/
+    | BOOT 6c3863 VERSION 0.3.0-prototype
+    | MODEL off -
+
+五之二、上一发越界收进程的事故（留在读数里，不删）
+  上一版的认领式是 `-like '*weihetai-run-1028b*' -or -like '*本地服务*'`，
+  后半截是通用名，把开发树上不是本发的两发一起 taskkill /T /F 了：PID 9052（当时听 8901）、
+  PID 15340（当时听 60638）。那两发的 owner 是本机其它会话的开发树，不是这一发的。
+  现在 8901 端口：FREE
+  现在 60638 端口：FREE
+  这条不改成本发能替别人负责的样子：那两发要不要再起，归 owner 决定，本发不起。
+
+六、卸载与残留
+  自报=leftover-target=0 leftover-lnk=0 leftover-reg=0 ｜独立复算=INDEP 0 0 0
+  [OK] 卸载残留自报                   期望=0/0/0 实得=0/0/0
+  [OK] 卸载残留独立复算                 期望=0/0/0 实得=0/0/0
+
+七、判定表与分母自印
+  装-rc                       期望=0            实得=0            OK
+  装-运行时新生                    期望=0            实得=0            OK
+  装后地址文件在否（还没跑，应无）           期望=False        实得=False        OK
+  端口有人在听                     期望=1            实得=1            OK
+  根路径状态码                     期望=200          实得=200          OK
+  根路径非空                      期望=True         实得=True         OK
+  HTTP 尺 rc                  期望=0            实得=0            OK
+  HTTP 尺 FAIL                期望=0            实得=0            OK
+  跑过之后仍判绿                    期望=0            实得=0            OK
+  运行时新生>0（不是臂造的，是应用自己长的）     期望=True         实得=True         OK
+  跑过之后没有 EXTRA               期望=0            实得=0            OK
+  跑过之后两把尺逐字段差                期望=0            实得=0            OK
+  认领越界（命令行不含本发安装路径）          期望=0            实得=0            OK
+  端口主人属本发                    期望=True         实得=True         OK
+  收后端口空                      期望=0            实得=0            OK
+  收后本发进程残留                   期望=0            实得=0            OK
+  卸载残留自报                     期望=0/0/0        实得=0/0/0        OK
+  卸载残留独立复算                   期望=0/0/0        实得=0/0/0        OK
+  判定行 18 ｜绿 18 ｜红 0
+RUN | rc=0 判定行=18 红=0 ｜HTTP PASS=92 FAIL=0 SKIP=6

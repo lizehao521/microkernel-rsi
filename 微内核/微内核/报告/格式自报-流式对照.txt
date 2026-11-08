@@ -1,0 +1,35 @@
+wire_format probe: same prompt, stream=False then stream=True
+endpoint=https://api.agnes-ai.cn/v1/chat/completions  model=agnes-3.0-flash
+
+stream=False  HTTP=200  content-type=application/json  bytes_in=428  frames=0  took=29701ms
+   object self-reported by peer: chat.completion
+   distinct values over all frames: 1
+   x-new-api-version                  = master-cn-24eea8e18c2bc40aa0c711100d4c6ee58c51fcf1
+   x-litellm-model-name               = agnes-3.0-flash
+   x-request-id                       = 7b38e8039dbf43087fdee5c5eff580e4
+   x-litellm-response-cost-output     = 0.0
+
+stream=True  HTTP=200  content-type=text/event-stream  bytes_in=858  frames=5  took=5492ms
+   object self-reported by peer: chat.completion.chunk
+   distinct values over all frames: 1
+   x-new-api-version                  = master-cn-24eea8e18c2bc40aa0c711100d4c6ee58c51fcf1
+   x-litellm-model-name               = (absent)
+   x-request-id                       = b8cae19d3c1398b9c967e699666e04dd
+   x-litellm-response-cost-output     = (absent)
+
+VERDICT: peer's `object` CHANGES when stream flips  (non-stream=['chat.completion'] stream=['chat.completion.chunk'])
+header count: non-stream=18 stream=12
+
+full header dump (stream=True):
+  cache-control: no-cache
+  cf-cache-status: DYNAMIC
+  cf-ray: a49cff000ac6f23e-DLC
+  connection: close
+  content-type: text/event-stream
+  date: Tue, 13 Oct 2026 08:32:54 GMT
+  server: cloudflare
+  (redacted: cloudflare session token): 
+  transfer-encoding: chunked
+  x-new-api-version: master-cn-24eea8e18c2bc40aa0c711100d4c6ee58c51fcf1
+  x-request-id: b8cae19d3c1398b9c967e699666e04dd
+  x-trace-id: b8cae19d3c1398b9c967e699666e04dd

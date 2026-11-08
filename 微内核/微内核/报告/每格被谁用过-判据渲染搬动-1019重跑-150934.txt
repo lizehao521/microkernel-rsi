@@ -1,0 +1,66 @@
+== 49 格逐格：这格的值被拿来判过、只被印过、还是只是搬了一下手 ==
+分母来源：登记行现读（第三参 = 这格的值从哪来），扫 9 个非测试 Go 文件：cells.go cmd\mcphttp\main.go input.go journal.go kernel.go mcpsrv\mcpsrv.go measure.go output.go record.go
+
+键名 ｜ Field ｜ 值来自 ｜ 判据 ｜ 渲染 ｜ 搬动 ｜ 归类
+------------------------------------------------------------------------------
+chunks                 ｜ Chunks                   ｜ m.Chunks                   ｜ 0 ｜ 0 ｜ 1 ｜ 只搬动
+clamp_rounds           ｜ Budget.ClampRounds       ｜ m.Budget.ClampRounds       ｜ 0 ｜ 0 ｜ 1 ｜ 只搬动
+content_ceiling        ｜ Budget.ContentCeiling    ｜ m.Budget.ContentCeiling    ｜ 0 ｜ 0 ｜ 1 ｜ 只搬动
+fail_detail            ｜ Failure.Detail           ｜ m.Failure.Detail           ｜ 0 ｜ 0 ｜ 1 ｜ 只搬动
+fail_kind              ｜ Failure.Kind             ｜ string(m.Failure.Kind)     ｜ 0 ｜ 0 ｜ 1 ｜ 只搬动
+first_byte_ms          ｜ FirstByteMs              ｜ m.FirstByteMs              ｜ 0 ｜ 0 ｜ 1 ｜ 只搬动
+max_gap_ms             ｜ MaxGapMs                 ｜ m.MaxGapMs                 ｜ 0 ｜ 0 ｜ 1 ｜ 只搬动
+call                   ｜ Call                     ｜ m.Call                     ｜ 3 ｜ 4 ｜ 3 ｜ 有判据
+call                   ｜ Call                     ｜ m.Call                     ｜ 3 ｜ 4 ｜ 3 ｜ 有判据
+content_bytes          ｜ ContentBytes             ｜ m.ContentBytes             ｜ 2 ｜ 1 ｜ 1 ｜ 有判据
+downgrade              ｜ Failure.Downgrade        ｜ m.Failure.Downgrade        ｜ 1 ｜ 0 ｜ 0 ｜ 有判据
+effective_ceiling      ｜ Budget.EffectiveCeiling  ｜ m.Budget.EffectiveCeiling  ｜ 1 ｜ 0 ｜ 1 ｜ 有判据
+endpoint_model         ｜ Model                    ｜ m.Model                    ｜ 1 ｜ 0 ｜ 1 ｜ 有判据
+endpoint_model_said    ｜ ModelSaid                ｜ m.ModelSaid                ｜ 1 ｜ 0 ｜ 1 ｜ 有判据
+finish_said            ｜ Finish.Said              ｜ m.Finish.Said              ｜ 1 ｜ 0 ｜ 1 ｜ 有判据
+malformed_actions      ｜ Malformed                ｜ m.Malformed                ｜ 4 ｜ 4 ｜ 0 ｜ 有判据
+malformed_streak       ｜ MalformedStreak          ｜ m.MalformedStreak          ｜ 3 ｜ 3 ｜ 0 ｜ 有判据
+model_says_bytes       ｜ Says.Bytes               ｜ m.Says.Bytes               ｜ 1 ｜ 0 ｜ 0 ｜ 有判据
+notice_sent            ｜ Notice.Sent              ｜ m.Notice.Sent              ｜ 5 ｜ 0 ｜ 0 ｜ 有判据
+notice_text            ｜ Notice.Text              ｜ m.Notice.Text              ｜ 2 ｜ 0 ｜ 0 ｜ 有判据
+notice_trimmed         ｜ Notice.Trimmed           ｜ m.Notice.Trimmed           ｜ 1 ｜ 0 ｜ 0 ｜ 有判据
+notice_why             ｜ Notice.Why               ｜ m.Notice.Why               ｜ 2 ｜ 0 ｜ 0 ｜ 有判据
+part_totals            ｜ Parts                    ｜ m.Parts                    ｜ 5 ｜ 0 ｜ 0 ｜ 有判据
+parts                  ｜ Order                    ｜ m.Order                    ｜ 4 ｜ 0 ｜ 1 ｜ 有判据
+streaming              ｜ Streaming                ｜ m.Streaming                ｜ 3 ｜ 0 ｜ 0 ｜ 有判据
+tokens                 ｜ Tokens                   ｜ m.Tokens                   ｜ 2 ｜ 1 ｜ 0 ｜ 有判据
+tool_calls             ｜ ToolCalls                ｜ m.ToolCalls                ｜ 3 ｜ 2 ｜ 0 ｜ 有判据
+usage_in               ｜ UsageIn                  ｜ m.UsageIn                  ｜ 2 ｜ 0 ｜ 1 ｜ 有判据
+usage_out              ｜ UsageOut                 ｜ m.UsageOut                 ｜ 2 ｜ 0 ｜ 1 ｜ 有判据
+wire_bytes_in          ｜ WireBytesIn              ｜ m.WireBytesIn              ｜ 2 ｜ 1 ｜ 0 ｜ 有判据
+wire_bytes_out         ｜ WireBytesOut             ｜ m.WireBytesOut             ｜ 4 ｜ 2 ｜ 2 ｜ 有判据
+wire_format_said       ｜ WireFormatSaid           ｜ m.WireFormatSaid           ｜ 2 ｜ 0 ｜ 1 ｜ 有判据
+call_bytes_ceiling     ｜ Budget.CallBytesCeiling  ｜ m.Budget.CallBytesCeiling  ｜ 0 ｜ 0 ｜ 0 ｜ 除登记外没人碰
+cost_countable         ｜ CostCountable()          ｜ m.CostCountable()          ｜ 0 ｜ 0 ｜ 0 ｜ 除登记外没人碰
+fail_status            ｜ Failure.Status           ｜ m.Failure.Status           ｜ 0 ｜ 0 ｜ 0 ｜ 除登记外没人碰
+fixed_overhead         ｜ Budget.FixedOverhead     ｜ m.Budget.FixedOverhead     ｜ 0 ｜ 0 ｜ 0 ｜ 除登记外没人碰
+leftover_pct           ｜ Budget.LeftoverPct       ｜ m.Budget.LeftoverPct       ｜ 0 ｜ 0 ｜ 0 ｜ 除登记外没人碰
+model_says_clipped     ｜ Says.Clipped()           ｜ m.Says.Clipped()           ｜ 0 ｜ 0 ｜ 0 ｜ 除登记外没人碰
+model_says_kept        ｜ Says.Kept                ｜ m.Says.Kept                ｜ 0 ｜ 0 ｜ 0 ｜ 除登记外没人碰
+model_says_sha256      ｜ Says.SHA256              ｜ m.Says.SHA256              ｜ 0 ｜ 0 ｜ 0 ｜ 除登记外没人碰
+retry_after_ms         ｜ Failure.RetryAfterMs     ｜ m.Failure.RetryAfterMs     ｜ 0 ｜ 0 ｜ 0 ｜ 除登记外没人碰
+sent                   ｜ Sent()                   ｜ m.Sent().String()          ｜ 0 ｜ 0 ｜ 0 ｜ 除登记外没人碰
+shares                 ｜ Budget.Shares            ｜ SortedKinds(m.Budget.Shares) ｜ 0 ｜ 0 ｜ 0 ｜ 除登记外没人碰
+transport_slack_pct    ｜ Budget.TransportSlackPct ｜ m.Budget.TransportSlackPct ｜ 0 ｜ 0 ｜ 0 ｜ 除登记外没人碰
+
+== 自印分母 ==
+登记行抠出的格 = 44
+内核自报键名 48 个 ｜ 我从登记行抠到 43 个 ｜ 两边都对上的 43 个
+内核有、我抠不到的（=5）：clipped dropped finish folded wire_format
+我抠到、内核没报的（=0）：无
+⇒ 上面这份分类表只覆盖『两边都对上』的那 43 格；抠不到的那些**不参与归类计数**，它们走的是动态登记（`cells.go:84` 那个 CutLists 循环一类），静态分不开键名 —— 这条不是漏，是口径，写清楚。
+   只搬动              7 格
+   有判据              25 格
+   除登记外没人碰          12 格
+   嫌疑名单 [只渲染]：无
+   嫌疑名单 [只搬动]：content_ceiling clamp_rounds chunks first_byte_ms max_gap_ms fail_kind fail_detail
+   嫌疑名单 [除登记外没人碰]：call_bytes_ceiling transport_slack_pct leftover_pct fixed_overhead shares model_says_kept model_says_clipped model_says_sha256 fail_status retry_after_ms sent cost_countable
+自核（钉尺子自己）：正对照 Tokens=2 WireBytesIn=2 Streaming=3 ｜ 坏 = 无
+它不证明：分类按**行**猜 —— 同一行既判又印时算判据（偏保守，宁可少报「没人判」）；
+          同名表达式跨 struct 会并起来数（只会高报判据数），所以「只渲染 / 只搬动」两份名单是**上界**；
+          要说某一格确实没有判据读它，得人工看那几行 —— 这份的用途是把嫌疑名单缩到能看完的量。

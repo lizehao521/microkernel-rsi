@@ -1,0 +1,48 @@
+复算 v2：验证端带回的四组数（10-19 中午，本跳全部现场重跑，没有一个数搬自回报）
+（第一版 `...复算-验证端带回的四组数-1019-第一版04读数用错那版.txt` 留着，它第 27 行把“40”归给了归档件，而那份自己印的是 41）
+
+[1] 交付位 kcheck.exe 两臂（同一个字节串，只换 PATH）
+    A 裸 PATH（剔掉含 sdk 的段）：exit=0 行=128 ✓=40 —=7 ✗=0
+    B 同一支、PATH 里有 go：exit=0 行=128 ✓=41 —=6 ✗=0
+    A 多出来的那一行：— 依赖闭包核不了：PATH 上找不到 go，也没给 GOBIN_EXE（这一路核不了，不是合格）
+    小结：“40”与“41”都是真数，差的是同一路在没 go 的环境里降成了“核不了”；两臂 exit 都是 0。
+    那么“exit 0 即合格”这句能不能说？不能 —— 降级那行自己写着“这一路核不了，不是合格”，却不把退出码成为非 0；而打包器只断言退出码（构建-1017/打包.py 里唯一的 subprocess.run）。
+
+[2] 交付包里：二进制与凭据不是同一天的东西
+    zip 条目总数=33，其中 .exe=5
+    kaudit.exe           zip 内时间=2026-10-19 11:46:48 字节=10092032
+    kcheck.exe           zip 内时间=2026-10-19 11:46:48 字节=6529024
+    kresearch.exe        zip 内时间=2026-10-19 11:46:50 字节=11999744
+    mcphttp.exe          zip 内时间=2026-10-19 12:04:32 字节=13125632
+    mcpkernel.exe        zip 内时间=2026-10-19 12:04:32 字节=6090240
+    02-build-each.txt    zip 内时间=2026-10-18 23:35:34 字节=127
+    03-go-test.txt       zip 内时间=2026-10-18 23:35:40 字节=369
+    04-kcheck-exe.txt    zip 内时间=2026-10-18 23:35:40 字节=13449
+    盘上 02-build-each.txt mtime=10-18 23:35:35
+    盘上 03-go-test.txt mtime=10-18 23:35:40
+    盘上 04-kcheck-exe.txt mtime=10-18 23:35:41
+    归档 04-kcheck-exe.txt 自己印的：行=130 ✓=41 —=6 ✗=0 （→ 与 B 臂同数，说明它那一跱跑的时候 PATH 里有 go）
+    归档 03-go-test.txt 自己印的分母行：
+      | === go test -p 1 -count=1 ./... ===
+      | ok  	agentkernel	0.976s
+      | ok  	agentkernel/cmd/kaudit	0.079s
+      | ?   	agentkernel/cmd/kcheck	[no test files]
+      | ?   	agentkernel/cmd/kresearch	[no test files]
+      | ok  	agentkernel/cmd/mcphttp	1.565s
+      | ?   	agentkernel/cmd/mcpkernel	[no test files]
+      | ok  	agentkernel/mcpsrv	0.137s
+      | ?   	agentkernel/tasks/probe/omitjournal	[no test files]
+      | 退出码 0
+    → 包内二进制是 10-19 的 5 支；包内那三份凭据是 10-18 23:35 的留痕，它们说的不是包里这几个字节。打包器只把 日志/ 复制进去，从来不重新生成它们。
+
+[3] 今天改过的 contract.md 到底进没进包
+    仓库 contract.md sha256=494f2d7fd708
+    包内 docs/contract.md sha256=494f2d7fd708 相同=True
+    → 包内那份就是今天 12:13 改完的一版。“哪一跑做的同步”不再需要去辨：两跑都会同步，而现在包内字节与仓库字节相同，这句话可以直接核。
+
+[4] 本轮新写的尺子 kwire 在不在交付件里
+    包内含 kwire 的条目=0；盘上 bin 里含 kwire 的文件=0
+    仓库 cmd/kwire 里的文件：['main.go', 'report.go']
+    盘上 bin 里现在有的：['kaudit.exe', 'kcheck.exe', 'kresearch.exe', 'mcphttp.exe', 'mcphttp.exe~', 'mcpkernel.exe']
+    → 交付件技术面 5 支 exe，本轮那把新尺子没被打进去（bin 里也没）。另：bin 里还留着 mcphttp.exe~ 这个垃圾形状，它被打包器认出并剔除，没进包。
+    包内 .exe 逐个：['kaudit.exe', 'kcheck.exe', 'kresearch.exe', 'mcphttp.exe', 'mcpkernel.exe']

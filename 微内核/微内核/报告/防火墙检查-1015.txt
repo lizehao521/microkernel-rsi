@@ -1,0 +1,64 @@
+跨机连接前的防火墙与监听状态（**只查未改**）
+================================================================
+日期：2026-10-15 19:1x · 结论一句话：**现在别的机器连不上，而且拦路的不止一道，
+其中最近的一道是我们自己——内核那面只绑了 127.0.0.1。**
+
+查的指令（可复跑；都只读）：
+
+```
+powershell -NoProfile -Command "Get-NetConnectionProfile | Select NetworkCategory"
+powershell -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 | Select IPAddress,PrefixLength,PrefixOrigin"
+powershell -NoProfile -Command "Get-NetFirewallProfile | Select Name,Enabled,DefaultInboundAction,AllowInboundRules"
+powershell -NoProfile -Command "Get-NetFirewallRule -Direction Inbound -Enabled True -Action Allow | Get-NetFirewallPortFilter"
+powershell -NoProfile -Command "Get-NetTCPConnection -State Listen | Where LocalPort -in 8788,8789,8797,8798"
+netsh advfirewall firewall show rule name=all dir=in        （grep 879 / mcphttp / kaudit / agentkernel）
+```
+
+## 查到的事实
+
+1. **监听只有一个**：`127.0.0.1:8797`（pid 2540，`cmd/mcphttp`）。
+   `8788/8789/8798` 上现在什么都没有（只读外壳 `kaudit` 那两趟用完就收了）。
+   跨机的第一道墙**不在防火墙**：`mcphttp` 默认只绑回环；绑非回环又没给
+   `AGENTKERNEL_TOKEN` 时它**自己拒绝启动**（这条判据有测试 `TestCheckListenRefusesPublicBindWithoutToken`
+   和一根针 `h7-网段无口令也起来` 钉着）。也就是说：**目前没有任何一个对外 socket 可被连**。
+2. **当前网络类别 = `Public`**（接口 index=9）。IPv4 `192.168.3.142/16`，来源 DHCP。
+   Public 是三档里最严的一档，Windows 在这一档默认还额外关掉网络发现与文件共享。
+3. **三个配置集都开着**，而默认入站动作全是 `NotConfigured`：
+   ```
+   profile=Domain enabled=True defaultInbound=NotConfigured allowInbound=NotConfigured
+   profile=Private enabled=True defaultInbound=NotConfigured allowInbound=NotConfigured
+   profile=Public  enabled=True defaultInbound=NotConfigured allowInbound=NotConfigured
+   ```
+   `NotConfigured` 不是"没设防"，是"没被组策略改过"——**生效的就是出厂默认：未被明确放行的入站一律阻止**。
+4. **没有任何规则替我们开门**：`netsh ... show rule name=all dir=in` 里 grep `879x / mcphttp / kaudit /
+   agentkernel / microkernel` **全空**；PowerShell 逐条查已启用的 Allow 入站规则，
+   命中 8780..8810 端口段的也是 **0 条**。
+   枚举里有 15 条 `LocalPort=Any` 的内置规则（`CoreNet-IPv6-In`、`PlayTo-In-UDP-*`、`AllJoyn-Router-In-UDP` 等），
+   它们各自绑服务/程序/作用域，**不会顺带放行一个陌生 TCP 端口**——这点要说清，
+   否则"有 15 条 any-port 规则"很容易被读成"门是开着的"。
+5. **系统层没登记第三方防火墙**：`root/SecurityCenter2` 的 `FirewallProduct` 查询返回空。
+   但进程表里有 `HipsDaemon` 这类主机安全代理——它是否另外拦入站，**我在 Windows 防火墙这一层看不到，标为未验**。
+6. 这台机器是云桌面（`CtyunDesktopMaster` 在跑）。**上位网络/安全组是否放行 8797，从机器内部无法确认**，
+   那是第二道门，需要在控制台层面查——这条也标为未验。
+
+## 所以"跨机能连吗"的诚实回答
+
+按今天的状态：**不能**，而且是两层都没开：①服务端只绑回环（我们自己要求的）；②防火墙没有放行规则，
+且当前落在最严的 Public 档。这两层都是**默认安全**的样子，不是配错。
+
+## 要真打开，需要三步（我一条都没做，等你的话）
+
+1. 起服务时改绑网段地址并给口令：`mcphttp -listen 192.168.3.142:8797` + 环境变量
+   `AGENTKERNEL_TOKEN=…`（口令只走环境变量，绝不进仓库、绝不进账本）。
+2. 加一条**范围收到最窄**的入站规则：仅 TCP、仅 `LocalPort=8797`、
+   `RemoteAddress` 限定到对端那个 IP（或它的 /24），profile 只挂当前实际生效的那一档。
+   注意别顺手写成"Any 端口 + Any 远程地址"——那才是真的把机器开出去。
+3. 在云侧控制台确认安全组允许该入站端口，并从**另一台机器**打一次 `curl http://192.168.3.142:8797/mcp`
+   （带口令那趟要 200、不带口令要 401、POST 要 405——三条都是外壳自己的判据，正好当验收项）。
+
+## 两件我自己的失误，如实记在这里
+
+- 第一次我把 `netsh`/`ipconfig` 的中文标签直接落进 UTF-8 报告，出来是一片花码——
+  **那份文件不能当证据**。已换成只回 ASCII 值的 PowerShell 查法重跑，这份是重跑后的。
+- 我想给 `.ps1` 写中文注释，结果 PowerShell 5.1 按 ANSI 读脚本文件，**中文把解析器搞崩了**
+  （报的是"字符串缺少终止符"这种看不懂的错）。教训：`.ps1` 里只写 ASCII，中文一律走 UTF-8 数据文件。

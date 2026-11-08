@@ -1,0 +1,9 @@
+export run to C:\Users\Administrator\Desktop\???\???\??\???
+  pair 200kong-as-normal    rejected_assembly_in_log=True  corrected_on_book=True  -> BOTH-HALFS
+  pair protocol-with-200    rejected_assembly_in_log=True  corrected_on_book=True  -> BOTH-HALFS
+  pair config-with-401      rejected_assembly_in_log=False corrected_on_book=True  -> HALF-ONLY
+  pair usage-basis-wrong    rejected_assembly_in_log=False corrected_on_book=True  -> HALF-ONLY
+
+LEDGERS   turns=110 cells=2617 absent_cells=218
+VERDICTS  rows_written=68 known_correction_pairs=2/4
+KEY_SCAN  occurrences_of_sk_in_ledgers=0 (must be 0)

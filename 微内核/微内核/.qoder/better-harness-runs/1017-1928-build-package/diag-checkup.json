@@ -1,0 +1,257 @@
+{
+  "kind": "harness-customization-checkup",
+  "schemaVersion": 1,
+  "phase": "scan",
+  "provider": "qoder",
+  "locale": "en",
+  "workspace": "微内核",
+  "observationWindow": {
+    "since": "2026-09-17T11:30:07.193Z",
+    "until": "2026-10-17T11:30:07.193Z",
+    "sessionLimit": 40,
+    "selection": "all-eligible",
+    "includeGlobalCapabilities": false,
+    "minimumSessions": 5,
+    "newInstallGraceDays": 7
+  },
+  "coverage": {
+    "sources": [
+      {
+        "id": "source-d3147d9d2748",
+        "kind": "audit-jsonl",
+        "role": "tool-permission-audit",
+        "exists": false,
+        "enabled": true,
+        "workspaceScoped": false
+      },
+      {
+        "id": "source-00cea26c6b3f",
+        "kind": "run-manifest",
+        "role": "run-metadata",
+        "exists": false,
+        "enabled": true,
+        "workspaceScoped": false
+      },
+      {
+        "id": "source-335a814487c6",
+        "kind": "logs-session",
+        "role": "execution-events",
+        "exists": false,
+        "enabled": true,
+        "workspaceScoped": true
+      },
+      {
+        "id": "source-6fc741788519",
+        "kind": "project-jsonl",
+        "role": "project-session-store",
+        "exists": false,
+        "enabled": true,
+        "workspaceScoped": true
+      },
+      {
+        "id": "source-e563a718beef",
+        "kind": "home-session",
+        "role": "session-compat",
+        "exists": false,
+        "enabled": true,
+        "workspaceScoped": false
+      },
+      {
+        "id": "source-04b530c84dc9",
+        "kind": "cache-project-session",
+        "role": "cache-conversation",
+        "exists": false,
+        "enabled": false,
+        "workspaceScoped": false
+      },
+      {
+        "id": "source-264f631df191",
+        "kind": "global-project-jsonl",
+        "role": "user-global-project-session-store",
+        "exists": false,
+        "enabled": false,
+        "workspaceScoped": false
+      }
+    ],
+    "eligibleSessions": 0,
+    "analyzedSessions": 0,
+    "minimumSessions": 5,
+    "sufficient": false,
+    "cleanupEligible": false,
+    "cleanupReason": "runtime-evidence-unavailable",
+    "selectionStrategy": "all-eligible",
+    "populationComplete": true,
+    "runtimeAvailable": false,
+    "userGlobal": "not-included",
+    "userGlobalCovered": false,
+    "globalSessionCount": 0
+  },
+  "configuredInventory": {
+    "summary": {
+      "total": 0,
+      "byKind": {},
+      "byScope": {}
+    },
+    "assets": [],
+    "sourceFingerprints": {}
+  },
+  "observedUse": {
+    "skills": [],
+    "hooks": [],
+    "mcpTools": [],
+    "plugins": [],
+    "hookRuntime": {
+      "finishedExecutions": 0,
+      "startedWithoutFinish": 0,
+      "ambiguousCompletions": 0,
+      "groups": [],
+      "commands": []
+    }
+  },
+  "instructionReview": {
+    "profile": "agents-md-review",
+    "provider": "qoder",
+    "sourceLedger": [],
+    "summary": {
+      "findings": 3,
+      "errors": 0,
+      "warnings": 3,
+      "advisories": 0
+    },
+    "findingCodes": [
+      "missing-verification-command",
+      "no-agent-entrypoint",
+      "no-canonical-agents-md"
+    ],
+    "detectorCounts": {}
+  },
+  "assetReview": {
+    "profile": "agent-assets-review",
+    "summary": {
+      "findings": 0,
+      "errors": 0,
+      "warnings": 0,
+      "advisories": 0
+    },
+    "findingCodes": []
+  },
+  "repeatedFrictionTriage": null,
+  "capabilityReviewLead": null,
+  "findings": [],
+  "summary": {
+    "statusCounts": {},
+    "cleanup": {
+      "eligible": false,
+      "reason": "runtime-evidence-unavailable"
+    },
+    "capabilityUse": [
+      {
+        "kind": "skill",
+        "configured": 0,
+        "observed": 0,
+        "unobserved": 0,
+        "configuredOnly": 0,
+        "unavailable": 0,
+        "candidate": 0,
+        "blockers": {}
+      },
+      {
+        "kind": "mcp",
+        "configured": 0,
+        "observed": 0,
+        "unobserved": 0,
+        "configuredOnly": 0,
+        "unavailable": 0,
+        "candidate": 0,
+        "blockers": {}
+      },
+      {
+        "kind": "plugin",
+        "configured": 0,
+        "observed": 0,
+        "unobserved": 0,
+        "configuredOnly": 0,
+        "unavailable": 0,
+        "candidate": 0,
+        "blockers": {}
+      }
+    ],
+    "attention": []
+  },
+  "diagnostics": {
+    "inventoryAvailable": true,
+    "configuredSourceState": "unavailable",
+    "runtimeSourceState": "unavailable",
+    "qoderSourceResolution": {
+      "provider": "qoder",
+      "state": "selected",
+      "activeHomeEvidence": "inventory-resolver",
+      "activeHomeExists": true,
+      "sources": [
+        {
+          "id": "qoder-user-authored",
+          "role": "user-authored",
+          "exists": false,
+          "selected": true,
+          "editable": true,
+          "generated": false,
+          "precedence": 10
+        },
+        {
+          "id": "qoder-user-merged-runtime",
+          "role": "user-merged-runtime",
+          "exists": false,
+          "selected": false,
+          "editable": false,
+          "generated": true,
+          "precedence": 20
+        },
+        {
+          "id": "qoder-project-authored",
+          "role": "project-authored",
+          "exists": false,
+          "selected": false,
+          "editable": true,
+          "generated": false,
+          "precedence": 30
+        },
+        {
+          "id": "qoder-project-fallback",
+          "role": "project-compatibility-fallback",
+          "exists": false,
+          "selected": false,
+          "editable": true,
+          "generated": false,
+          "precedence": 25
+        },
+        {
+          "id": "qoder-legacy-shared-client",
+          "role": "legacy-or-client-authored",
+          "exists": false,
+          "selected": false,
+          "editable": false,
+          "generated": false,
+          "precedence": 5
+        },
+        {
+          "id": "qoder-shared-cache-merged-runtime",
+          "role": "alternate-merged-runtime",
+          "exists": false,
+          "selected": false,
+          "editable": false,
+          "generated": true,
+          "precedence": null
+        }
+      ],
+      "selectedProjectSource": null,
+      "alternateHomesMerged": false,
+      "generatedRuntimeSourcesEditable": false
+    },
+    "warningCodes": [
+      "disabled-source-root",
+      "missing-optional-root"
+    ],
+    "privacy": "paths-prompts-session-ids-and-command-arguments-omitted",
+    "scanDigest": "15d8f86ad401ac8b03115dfcfe7b2dd85369ca767302bcabb95cca39c3a043a0"
+  }
+}

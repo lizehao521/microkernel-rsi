@@ -1,0 +1,14 @@
+{
+  "producer": "demo-harness",
+  "generation": 2,
+  "artifacts": [
+    {"path": "harness.py", "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "bytes": 1976}
+  ],
+  "criteria_sha256": "criteria-v1",
+  "criteria_diff": [],
+  "readings": [
+    {"metric": "latency_ms", "n": 900, "basis": 1, "direction": "down"},
+    {"metric": "pass_rate", "n": 9, "basis": 1, "direction": "up", "denominator": 10}
+  ],
+  "claim": "这一代：延迟 900ms，通过率 9/10"
+}

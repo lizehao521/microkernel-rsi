@@ -1,0 +1,229 @@
+这份报告**不作数**：2026-10-13 我用 taskkill /IM python.exe 想把本地假端点停掉，
+按映像名杀进程把跑到一半的探针（PID 9324）一起杀了。下面是它死之前写下的部分，留着只为记录这次操作失误。
+
+==== 对照 ====
+对照 0（干净拷贝）：go test 退出码 0、PASS 100 条、FAIL 0 条；kcheck 退出码 0
+对照 T（故意弄坏一个测试文件）：go build 退出码 0（该 0）、go test 输出含 [build failed]=True、有 PASS/FAIL 行=False（该 False）
+
+
+== m13b-份额超过100也放行
+   点名该红：TestDeriveBudgetIsTheOnlyOwnerOfTheFormula
+   实际报红：TestDeriveBudgetIsTheOnlyOwnerOfTheFormula
+   没红的点名：无
+   全量共红 1 条: TestDeriveBudgetIsTheOnlyOwnerOfTheFormula
+
+== m20-预算公式不复核
+   点名该红：TestHandBuiltBudgetIsRefused
+   实际报红：TestHandBuiltBudgetIsRefused
+   没红的点名：无
+   全量共红 1 条: TestHandBuiltBudgetIsRefused
+
+== m21-回夹不必真收小
+   点名该红：TestClampMustActuallyShrink
+   实际报红：TestClampMustActuallyShrink
+   没红的点名：无
+   全量共红 1 条: TestClampMustActuallyShrink
+
+== m22-协议也允许裁
+   点名该红：TestOnlySystemIsWholeOrNothing
+   实际报红：TestOnlySystemIsWholeOrNothing
+   没红的点名：无
+   全量共红 1 条: TestOnlySystemIsWholeOrNothing
+
+== m23-token白名单变黑名单
+   点名该红：TestUsageIsRelayedNotMeasured, TestTokenTotalOnlySumsTokens
+   实际报红：TestTokenTotalOnlySumsTokens, TestUsageIsRelayedNotMeasured
+   没红的点名：无
+   全量共红 2 条: TestTokenTotalOnlySumsTokens, TestUsageIsRelayedNotMeasured
+
+== m24-没数到冒充没发出去
+   点名该红：TestSentIsThreeState
+   实际报红：TestSentIsThreeState
+   没红的点名：无
+   全量共红 1 条: TestSentIsThreeState
+
+== m25-两个字节量又共用一个键名
+   点名该红：TestPartBytesMustSumToContentBytes, TestCallNumberStartsAtOne
+   实际报红：TestCallNumberStartsAtOne, TestPartBytesMustSumToContentBytes
+   没红的点名：无
+   全量共红 29 条
+
+== m26-拼错的读者声明也收
+   点名该红：TestUnreadCellsAreCountedAgainstADenominator
+   实际报红：TestUnreadCellsAreCountedAgainstADenominator
+   没红的点名：无
+   全量共红 1 条: TestUnreadCellsAreCountedAgainstADenominator
+
+== m27-框架模块前缀不匹配
+   点名该红：TestIsolationGoesRedOnALeak, TestClassifyImportEdgeShapes
+   实际报红：TestClassifyImportEdgeShapes, TestIsolationGoesRedOnALeak
+   没红的点名：无
+   全量共红 4 条: TestClassifyImportEdgeShapes, TestIsolationGoesRedOnALeak, TestLeakInATestFileIsCaughtToo, TestSubdirectoriesAreScanned
+
+== m28-cgo算成标准库
+   点名该红：TestCgoIsNotCountedAsStdlib, TestClassifyImportEdgeShapes
+   实际报红：TestCgoIsNotCountedAsStdlib, TestClassifyImportEdgeShapes
+   没红的点名：无
+   全量共红 2 条: TestCgoIsNotCountedAsStdlib, TestClassifyImportEdgeShapes
+
+== m29-不扫子目录
+   点名该红：TestSubdirectoriesAreScanned, TestSelfIsolation
+   实际报红：TestSelfIsolation, TestSubdirectoriesAreScanned
+   没红的点名：无
+   全量共红 9 条
+
+== m30-裁剪表与段表不互核
+   点名该红：TestCutsCannotOutliveTheirPartRow
+   实际报红：TestCutsCannotOutliveTheirPartRow
+   没红的点名：无
+   全量共红 1 条: TestCutsCannotOutliveTheirPartRow
+
+== m31-通知说了却没正文也放行
+   点名该红：TestNoticeCannotContradictItself
+   实际报红：TestNoticeCannotContradictItself
+   没红的点名：无
+   全量共红 1 条: TestNoticeCannotContradictItself
+
+== m32-顺序表与段表个数不互核
+   点名该红：TestOrderMustMatchPartCounts
+   实际报红：TestOrderMustMatchPartCounts
+   没红的点名：无
+   全量共红 1 条: TestOrderMustMatchPartCounts
+
+== m33-故障说法带空白也放行
+   点名该红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   实际报红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   没红的点名：无
+   全量共红 1 条: TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+
+== m34-对非流式也建议换非流式
+   点名该红：TestRetrySameAndDowngradeAreTwoQuestions
+   实际报红：TestRetrySameAndDowngradeAreTwoQuestions
+   没红的点名：无
+   全量共红 1 条: TestRetrySameAndDowngradeAreTwoQuestions
+
+== m35-模型id自相矛盾也放行
+   点名该红：TestSaidVersusEmptyString
+   实际报红：TestSaidVersusEmptyString
+   没红的点名：无
+   全量共红 1 条: TestSaidVersusEmptyString
+
+== m36-连歪计数与这一发不互核
+   点名该红：TestMalformedCountAndStreakAreTwoQuantities
+   实际报红：TestMalformedCountAndStreakAreTwoQuantities
+   没红的点名：无
+   全量共红 1 条: TestMalformedCountAndStreakAreTwoQuantities
+
+== m38-说话人不核
+   点名该红：TestCutNeedsRefRoleAndAFullFingerprint
+   实际报红：TestCutNeedsRefRoleAndAFullFingerprint
+   没红的点名：无
+   全量共红 1 条: TestCutNeedsRefRoleAndAFullFingerprint
+
+== m39-指纹只在一侧被守
+   点名该红：TestCutNeedsRefRoleAndAFullFingerprint, TestSaysFingerprintAndKeptBytes
+   实际报红：TestCutNeedsRefRoleAndAFullFingerprint, TestSaysFingerprintAndKeptBytes
+   没红的点名：无
+   全量共红 2 条: TestCutNeedsRefRoleAndAFullFingerprint, TestSaysFingerprintAndKeptBytes
+
+== m40-空段表也放行
+   点名该红：TestEmptyPartsOrOrderIsRefused
+   实际报红：TestEmptyPartsOrOrderIsRefused
+   没红的点名：无
+   全量共红 1 条: TestEmptyPartsOrOrderIsRefused
+
+== m41-认不出模块名也静默放过
+   点名该红：TestMissingToolchainIsReportedNotFaked
+   实际报红：TestMissingToolchainIsReportedNotFaked
+   没红的点名：无
+   全量共红 1 条: TestMissingToolchainIsReportedNotFaked
+
+== m42-生效额度可以大于公式额度
+   点名该红：TestHandBuiltBudgetIsRefused
+   实际报红：TestHandBuiltBudgetIsRefused
+   没红的点名：无
+   全量共红 1 条: TestHandBuiltBudgetIsRefused
+
+== m18b-份额那一格不排序
+   点名该红：TestCellOrderIsStable
+   实际报红：TestCellOrderIsStable
+   没红的点名：无
+   全量共红 1 条: TestCellOrderIsStable
+
+== m43-反函数取整方向写反
+   点名该红：TestObservationShareAndItsReverseAgree
+   实际报红：TestObservationShareAndItsReverseAgree
+   没红的点名：无
+   全量共红 1 条: TestObservationShareAndItsReverseAgree
+
+== m44-空键名表也算过
+   点名该红：TestCellCountCarriesADenominator
+   实际报红：TestCellCountCarriesADenominator
+   没红的点名：无
+   全量共红 1 条: TestCellCountCarriesADenominator
+
+== m45-派生格不必写成方法
+   点名该红：TestDerivedCellMustBeWrittenAsAMethod
+   实际报红：TestDerivedCellMustBeWrittenAsAMethod
+   没红的点名：无
+   全量共红 24 条
+
+== m46-不可信却不是缺席也放行
+   点名该红：TestRefusedAndAbsentCannotImpersonateEachOther
+   实际报红：TestRefusedAndAbsentCannotImpersonateEachOther
+   没红的点名：无
+   全量共红 1 条: TestRefusedAndAbsentCannotImpersonateEachOther
+
+== m47-不可信渲染成没量到
+   点名该红：TestDistrustedKeepsTheNumberItRefused
+   实际报红：TestDistrustedKeepsTheNumberItRefused
+   没红的点名：无
+   全量共红 1 条: TestDistrustedKeepsTheNumberItRefused
+
+== m48-分档表漏一档也不报
+   点名该红：TestCutListsTableCanBeCaughtBeingWrong
+   实际报红：TestCutListsTableCanBeCaughtBeingWrong
+   没红的点名：无
+   全量共红 1 条: TestCutListsTableCanBeCaughtBeingWrong
+
+== m49-空回话算正常收尾
+   点名该红：TestEmptyReplyIsNotANormalFinish
+   实际报红：TestEmptyReplyIsNotANormalFinish
+   没红的点名：无
+   全量共红 1 条: TestEmptyReplyIsNotANormalFinish
+
+== m51-空顺序表也放行
+   点名该红：TestEmptyPartsOrOrderIsRefused
+   实际报红：TestEmptyPartsOrOrderIsRefused
+   没红的点名：无
+   全量共红 1 条: TestEmptyPartsOrOrderIsRefused
+
+== m52-预算挡下可以没数到
+   点名该红：TestSentIsThreeState
+   实际报红：TestSentIsThreeState
+   没红的点名：无
+   全量共红 1 条: TestSentIsThreeState
+
+== m53-plan不再用账本判据先过一遍
+   点名该红：TestPlanRefusesWhatAppendWouldRefuse
+   实际报红：TestPlanRefusesWhatAppendWouldRefuse
+   没红的点名：无
+   全量共红 1 条: TestPlanRefusesWhatAppendWouldRefuse
+
+== m54-同一发同一侧可以记两遍
+   点名该红：TestSameCallCannotBeRecordedTwice, TestNoHalfCallEvenWhenTranslationFailsLate
+   实际报红：TestNoHalfCallEvenWhenTranslationFailsLate, TestSameCallCannotBeRecordedTwice
+   没红的点名：无
+   全量共红 3 条: TestLoadedLedgerRefusesToRecordTheSameCallTwice, TestNoHalfCallEvenWhenTranslationFailsLate, TestSameCallCannotBeRecordedTwice
+
+== m55-RecordCall不先核输入侧
+   点名该红：TestRecordCallNeverLeavesHalfACallOnTheLedger
+   实际报红：TestRecordCallNeverLeavesHalfACallOnTheLedger
+   没红的点名：无
+   全量共红 1 条: TestRecordCallNeverLeavesHalfACallOnTheLedger
+
+== m56-两侧发号对不上也收
+   点名该红：TestRecordCallNeverLeavesHalfACallOnTheLedger
+   实际报红：TestRecordCallNeverLeavesHalfACallOnTheLedger
+   没红的点名：无
+   全量共红 1 条: TestRecordCallNeverLeavesHalfACallOnTheLedger

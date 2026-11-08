@@ -1,0 +1,29 @@
+起跑前内存闸：连读 5 次 = 7328 7330 7307 7191 7109 MB，中位 7307 MB（阈值 900 MB）—— 放行
+接上交付件那枚尺子：C:\Users\Admin\Desktop\微内核\构建-1017\agentkernel\bin\mcpkernel.exe（对照 0 里 TestSameRulerAsShippedKernel 才有对手）
+
+==== 对照 ====
+对照 0（干净拷贝）：go test 退出码 0、PASS 303 条、FAIL 0 条；kcheck 退出码 0
+对照 T（故意弄坏一个测试文件）：go build 退出码 0（该 0）、go test 输出含 [build failed]=True、有 PASS/FAIL 行=False（该 False）
+
+!! 这一轮**筛过针**（只跑名字里含 d1-/d2-/d3-/d4-/d5- 的），其余 95 根没跑（表里共 100 根）—— 它不能当整轮结论用，只够回答「筛出来的这几根针咬不咬得住」
+
+共享树起手检查：修回 0 个文件（该是 0 —— 不是 0 说明这棵树不是刚拷的）
+
+
+== d1-三行页没声明viewport
+   点名该红：TestEveryServedPageDeclaresViewportAndBreakpoint
+   实际报红：TestEveryServedPageDeclaresViewportAndBreakpoint
+   没红的点名：无
+   全量共红 1 条: TestEveryServedPageDeclaresViewportAndBreakpoint
+
+== d2-轨迹页没声明viewport
+   点名该红：TestEveryServedPageDeclaresViewportAndBreakpoint
+   实际报红：TestEveryServedPageDeclaresViewportAndBreakpoint
+   没红的点名：无
+   全量共红 1 条: TestEveryServedPageDeclaresViewportAndBreakpoint
+
+== d3-轨迹页没有断点
+   点名该红：TestEveryServedPageDeclaresViewportAndBreakpoint
+   实际报红：TestEveryServedPageDeclaresViewportAndBreakpoint
+   没红的点名：无
+   全量共红 1 条: TestEveryServedPageDeclaresViewportAndBreakpoint

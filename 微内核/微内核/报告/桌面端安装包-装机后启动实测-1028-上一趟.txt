@@ -1,0 +1,61 @@
+<!-- 本文件是留档：被 装机后启动实测-1028.txt 取代于 10-28 这一趟 -->
+# 装好的那一份真起一发：用树里的 启动-微核台-便携.cmd --no-open 起服务，随机空闲端口，跑完即收。
+# 三方对账（这一趟新加的口径）：HTTP serve 到的字节 sha == 装到盘上那份 .html 的 sha == /api/state 自报的 html_sha256。
+# 两份现场各跑一遍（载荷 zip 直装 / 外层包装一遍），sha16 都是 e671b133e38de299，与设计树正本 e671b133e38de299（148207 B）相同。
+# 用完之后复验：files=38 disk=39 runtime_new=1（服务自己写的 读数/服务地址.txt）⇒ 按账上允许档放行，不算 EXTRA。
+# kernel.state=disabled 是因为驱动用 --no-open 且没起内核闸：这一格是没跑，不是跑绿。
+
+
+〔现场一：载荷 zip 直装 %TEMP%\inst-target，本会话控制台留的那一发（落盘件后被现场二盖掉，这里逐字贴回）〕
+[launch] cmd = C:\Users\Admin\AppData\Local\Temp\inst-target\微核台-便携-1028\启动-微核台-便携.cmd
+[launch] url = http://127.0.0.1:52676/
+LA | served=148207 disk=148207 三方相同=True（served==disk==state 自报）version=0.3.0-prototype port=52676
+LA | sha16 served=e671b133e38de299 disk=e671b133e38de299 state=e671b133e38de299
+LA | kernel.state=disabled kernel.why=--no-kernel：这一格没跑，不是跑绿 top_keys=bundles,evidence,kernel,memory,memory_meta,model,ok,server
+[launch] stopped alive=False
+LA | re-verify rc=0 VP | files=38 disk=39 bad=0 missing=0 extra=0 mutable_drift=0 mutable_declared=1 mutable_undeclared=0 runtime_new=1 runtime_declared=2 runtime_shadowed=0 total_drift=0 manifest_fields_missing=0 bytes_manifest=808830 bytes_disk=808830 rc=0
+
+〔现场二：外层包装一遍 → %TEMP%\inst-target-outer，落盘件 installed-run.txt 这份〕
+cmd=C:\Users\Admin\AppData\Local\Temp\inst-target-outer\微核台-便携-1028\启动-微核台-便携.cmd
+url=http://127.0.0.1:55460/
+VP | files=38 disk=39 bad=0 missing=0 extra=0 mutable_drift=0 mutable_declared=1 mutable_undeclared=0 runtime_new=1 runtime_declared=2 runtime_shadowed=0 total_drift=0 manifest_fields_missing=0 bytes_manifest=808830 bytes_disk=808830 rc=0
+rc=0
+
+读数 · 便携包逐文件验包（只读）
+
+包目录            C:\Users\Admin\AppData\Local\Temp\inst-target-outer\\u5fae\u6838\u53f0-\u4fbf\u643a-1028
+
+清单              清单-微核台-便携-1028.json 8226 B sha256 前 16 b483403386f2ed48
+
+package           微核台-便携-1028 ｜ builder 工具-出包-1028.py ｜ built_at 2026-10-28T02:28:49+08:00
+
+source_dir        C:\Users\Admin\Desktop\\u5fae\u5185\u6838\\u4ea4\u4ed8\u5bf9\u8d26-1026\\u8bbe\u8ba1-\u684c\u9762\u7aef-v2
+
+清单自证缺项      0
+
+
+
+一、五态分开数（不并成一个「不一致」）
+
+  清单条目 38 ｜盘上实数 39 ｜BAD 0 ｜MISSING 0 ｜EXTRA 0 ｜可变量变了 0（账上声明可变量 1 个） ｜运行时新生 1（账上声明允许档 2 个）
+
+    RUNTIME 读数/服务地址.txt ｜100 B ｜落在账上声明的运行时目录 读数/ ｜理由：服务一启动就写 读数/服务地址.txt；内核闸跑过再写 读数/内核快闸.json 与 -输出.txt ⇒ 不记 EXTRA
+
+
+
+二、字节与 totals（totals 只自证清单内部，不用盘上差判红）
+
+  账上自印 bytes 808830 ｜账上逐条相加 808830 ｜盘上重算（清单范围内） 808830 ｜账上自相矛盾 0
+
+  盘上与账上的字节差 = 0（这一段是可变/损坏在动，逐名已在 BAD 与 DRIFT-MUTABLE 里，不另立一态）
+
+  清单条目数 38 ｜账上自印 files 38 ｜排除逐名 5 条
+
+  manifest sha256 前 16 b483403386f2ed48（本件重算，不是抄的）
+
+
+
+VP | files=38 disk=39 bad=0 missing=0 extra=0 mutable_drift=0 mutable_declared=1 mutable_undeclared=0 runtime_new=1 runtime_declared=2 runtime_shadowed=0 total_drift=0 manifest_fields_missing=0 bytes_manifest=808830 bytes_disk=808830 rc=0
+
+RESULT PASS
+

@@ -1,0 +1,54 @@
+== 说谎者靶场 A0 · 2026-10-17 10:05:14 · 实例 127.0.0.1:8799 ==
+   替身声明：这一支是**脚本**（agent 写的 bash+curl），不是「没参与过这个项目的人」。
+   它能证明「谎落在门上会被结构化地拦住」，不能替 产品定位 §唯一验收 打勾 —— 那条要真人/真框架。
+
+  种法：s/"Sent":false/"Sent":true/
+  正文(check) 
+  正文(record) 
+  原始(record) 
+  种法：s/"Chunks":{"N":0,"Basis":0,"Source":"","Absent":true/"Chunks":{"N":0,"Basis":1,"Source":"","Absent":false/
+  正文(check) 
+  正文(record) 
+  原始(record) 
+  种法：s/"UsageIn":{"N":5,"Basis":2/"UsageIn":{"N":5,"Basis":1/
+  正文(check) 
+  正文(record) 
+  原始(record) 
+  种法：s/这一发没故障，也就没有要记的状态码/无/
+  正文(check) 
+  正文(record) 
+  原始(record) 
+  种法：s|"SHA256":"73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049"|"SHA256":"03475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049"|
+  正文(check) 
+  正文(record) 
+  原始(record) 
+  种法：s/"ContentBytes":20/"ContentBytes":999999/
+  正文(check) 
+  正文(record) 
+  原始(record) 
+  种法：s/,"Notice":{[^}]*}//
+  正文(check) 
+  正文(record) 
+  原始(record) 
+  C1 正文 
+  C2 正文 
+
+kernel.tally → （回话正文抠不出第一行 —— 这一栏没有读数，不许读成通过）
+kernel.verify → （回话正文抠不出第一行 —— 这一栏没有读数，不许读成通过）
+kernel.readers_report → （回话正文抠不出第一行 —— 这一栏没有读数，不许读成通过）
+
+臂 | check.isError | record.isError | 锚点
+------------------------------
+L1 声称通知发了 | check= | record= | 命中 1
+L2 非流式把分帧写成量到0 | check= | record= | 命中 1
+L3 转述的token标成实测 | check= | record= | 命中 1
+L4 缺席不带理由 | check= | record= | 命中 1
+L5 模型原话指纹写歪 | check= | record= | 命中 1
+L6 手搭预算（额度对不上） | check= | record= | 命中 1
+L9 整块不给Notice | check= | record= | 命中 1
+C1 合法落账（应收） | — | record= |
+C2 同一发重记（应拒） | — | record= |
+
+== 自印分母 ==
+种谎臂 7 条 + 对照 2 条；锚点命中 1 处 = 7；ANCHOR-BAD = 0；洗过残缺尾字节的行数（由本文件自己数出来）= 1（非 0 表示那些行被 cut 剁在半字上，已洗成合法 UTF-8；要复核就数 ⟨半字已洗⟩）
+靶场只用 bash+curl（本机 go/python 状态见备注），不动仓库一行代码。

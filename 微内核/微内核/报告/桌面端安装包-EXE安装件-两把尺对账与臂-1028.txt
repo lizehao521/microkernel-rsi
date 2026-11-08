@@ -1,0 +1,132 @@
+读数 · EXE 安装件 · 装机整条路 + 两把尺同树对账（1028）
+setup.exe  3672576 B sha256:16 5c80724f45ce789a
+工作目录   C:\\Users\\Admin\\AppData\\Local\\Temp\\weihetai-setup-1028b
+
+一、-check 预检（应零写入）
+  rc=0 机器行=IS | installed=0 verify=NOT_RUN rc=0
+  载荷身份  zip 227641 B sha bbe17d1fcad6c7f1 ｜清单 8226 B sha c8ee5b4198c39d25
+  [OK] check-rc                   期望=0 实得=0
+  [OK] check-installed=0          期望=0 实得=0
+  [OK] check-写入文件数                期望=0 实得=0
+
+二、安装 + 原生逐文件验包
+  | [setup] exe      : C:\Users\Admin\Desktop\\u5FAE\u5185\u6838\\u4EA4\u4ED8\u5BF9\u8D26-1026\\u684C\u9762\u7AEF\u51FA\u5305-1028\setup-1028\\u5FAE\u6838\u53F0-setup-1028.exe (3672576 B sha 5c80724f45ce789a)
+  | [setup] payload  : embedded zip 227641 B sha bbe17d1fcad6c7f1 | manifest 8226 B sha c8ee5b4198c39d25
+  | [setup] target   : C:\Users\Admin\AppData\Local\Temp\weihetai-setup-1028b\install
+  | [setup] placed: 39 files under C:\Users\Admin\AppData\Local\Temp\weihetai-setup-1028b\install\\u5FAE\u6838\u53F0-\u4FBF\u643A-1028 | manifest 8226 B sha c8ee5b4198c39d25
+  |   | VP-NATIVE | files=38 disk=38 bad=0 missing=0 extra=0 mutable_drift=0 mutable_declared=1 mutable_undeclared=0 runtime_new=0 runtime_declared=2 runtime_shadowed=0 total_drift=0 manifest_fields_missing=0 bytes_manifest=813519 bytes_disk=813519 rc=0
+  |   | RESULT-NATIVE PASS
+  | [setup] start app: double-click C:\Users\Admin\AppData\Local\Temp\weihetai-setup-1028b\install\\u5FAE\u6838\u53F0-\u4FBF\u643A-1028\\u542F\u52A8-\u5FAE\u6838\u53F0-\u4FBF\u643A.cmd
+  | [setup] shortcut rc=0 out=LNK=True err=
+  | [setup] uninstall-entry rc=0 out=REG=True err=
+  | IS | installed=1 verify=rc=0 rc=0
+  [OK] install-rc                 期望=0 实得=0
+  [OK] installed=1                期望=1 实得=1
+  树目录=\u5fae\u6838\u53f0-\u4fbf\u643a-1028 ｜清单在树旁=1
+  [OK] 清单落在树旁                     期望=1 实得=1
+  [OK] 快捷方式                       期望=LNK=True 实得=LNK=True
+  [OK] 卸载登记                       期望=REG=True 实得=REG=True
+
+三、两把尺同树对账（同一棵树、同一份清单，逐字段 diff）
+  python 尺 rc=0 ｜原生尺 rc=0
+  字段：共用 16 ｜只在 python 0 ｜只在原生 0
+    bad                      python=0        = native=0       
+    bytes_disk               python=813519   = native=813519  
+    bytes_manifest           python=813519   = native=813519  
+    disk                     python=38       = native=38      
+    extra                    python=0        = native=0       
+    files                    python=38       = native=38      
+    manifest_fields_missing  python=0        = native=0       
+    missing                  python=0        = native=0       
+    mutable_declared         python=1        = native=1       
+    mutable_drift            python=0        = native=0       
+    mutable_undeclared       python=0        = native=0       
+    rc                       python=0        = native=0       
+    runtime_declared         python=2        = native=2       
+    runtime_new              python=0        = native=0       
+    runtime_shadowed         python=0        = native=0       
+    total_drift              python=0        = native=0       
+  [OK] 同树逐字段差                     期望=0 实得=0
+  [OK] 两把尺 rc 一致                  期望=0 实得=0
+  python 尺全文：
+    读数 · 便携包逐文件验包（只读）
+    包目录            C:\Users\Admin\AppData\Local\Temp\weihetai-setup-1028b\install\\u5fae\u6838\u53f0-\u4fbf\u643a-1028
+    清单              清单-微核台-便携-1028.json 8226 B sha256 前 16 c8ee5b4198c39d25
+    package           微核台-便携-1028 ｜ builder 工具-出包-1028.py ｜ built_at 2026-10-28T02:46:23+08:00
+    source_dir        C:\Users\Admin\Desktop\\u5fae\u5185\u6838\\u4ea4\u4ed8\u5bf9\u8d26-1026\\u8bbe\u8ba1-\u684c\u9762\u7aef-v2
+    清单自证缺项      0
+    
+    一、五态分开数（不并成一个「不一致」）
+      清单条目 38 ｜盘上实数 38 ｜BAD 0 ｜MISSING 0 ｜EXTRA 0 ｜可变量变了 0（账上声明可变量 1 个） ｜运行时新生 0（账上声明允许档 2 个）
+    
+    二、字节与 totals（totals 只自证清单内部，不用盘上差判红）
+      账上自印 bytes 813519 ｜账上逐条相加 813519 ｜盘上重算（清单范围内） 813519 ｜账上自相矛盾 0
+      盘上与账上的字节差 = 0（这一段是可变/损坏在动，逐名已在 BAD 与 DRIFT-MUTABLE 里，不另立一态）
+      清单条目数 38 ｜账上自印 files 38 ｜排除逐名 5 条
+      manifest sha256 前 16 c8ee5b4198c39d25（本件重算，不是抄的）
+    
+    VP | files=38 disk=38 bad=0 missing=0 extra=0 mutable_drift=0 mutable_declared=1 mutable_undeclared=0 runtime_new=0 runtime_declared=2 runtime_shadowed=0 total_drift=0 manifest_fields_missing=0 bytes_manifest=813519 bytes_disk=813519 rc=0
+    RESULT PASS
+
+四、载荷账目（placed 与清单条目为什么不是同一个数）
+  zip 文件条目=39 ｜树内=38 ｜树外顶层=1 ['\\u6e05\\u5355-\\u5fae\\u6838\\u53f0-\\u4fbf\\u643a-1028.json']
+  清单条目=38 ｜盘上实数=38 ｜安装件自称 placed=39
+  [OK] placed = 树内 + 清单副本         期望=39 实得=39
+
+五、臂（负对照必须咬，两把尺都要咬在同一格上）
+  [OK] bad                前提成立=字节确实变了=True ｜原生 bad=1 rc=1 ｜python bad=1 rc=1 ｜同树字段差=0 
+  [OK] missing            前提成立=删的确实是账上的文件=True ｜原生 missing=1 rc=1 ｜python missing=1 rc=1 ｜同树字段差=0 
+  [OK] extra              前提成立=新文件确实不在账上=True ｜原生 extra=1 rc=1 ｜python extra=1 rc=1 ｜同树字段差=0 
+  [OK] mutable-drift      前提成立=变的确实是账上声明可变的 记忆/记忆.json ｜原生 mutable_drift=1 rc=0 ｜python mutable_drift=1 rc=0 ｜同树字段差=0 
+  [OK] manifest-row       前提成立=文件还在盘上=True ｜清单少了 1 条(38->37) ｜原生 extra=1 rc=1 ｜python extra=1 rc=1 ｜同树字段差=0 
+  [OK] runtime-new        前提成立=落在账上声明的运行时目录 读数/ 里=True ｜原生 runtime_new=1 rc=0 ｜python runtime_new=1 rc=0 ｜同树字段差=0 
+  [OK] runtime-shadow     前提成立=罩住了账上 4 条（原允许档 ['读数/', '回执/']） ｜原生 runtime_shadowed=4 rc=1 ｜python runtime_shadowed=4 rc=1 ｜同树字段差=0 
+  [OK] mut-undeclared     前提成立=该档在盘上=True 且已从 files 摘掉 ⇒ 绕过逐文件比对 ｜原生 mutable_undeclared=1 rc=1 ｜python mutable_undeclared=1 rc=1 ｜同树字段差=0 
+  目标非空拒装：rc=3 机器行=IS | installed=0 verify=NOT_RUN rc=3 ｜理由行 2 条 ｜别人的文件还在=True ｜没偷偷装树=True
+      理由行: [setup] FAIL: target already holds 1 files and -force was not given; this installer will not
+      理由行: [setup]       silently overwrite an existing install. Re-run with -force to replace it.
+  正对照（干净重装，必须静默）：原生 rc=0 python rc=0 bad=0 extra=0
+
+五之二、防拉链越界那一臂（go test，与被安装件同一段 extractFrom）
+  | zipslip_test.go:95: ZIPSLIP | entries=5 越界名喂进=3 written=2 rejected=3 盘上实数=2 tree外=0
+  | zipslip_test.go:113: REALPAYLOAD | files=39 rejected=0（正对照，应静默）
+  | zipslip_test.go:142: DEAD-GUARD | 同一批名字：改前拒=1 改后拒=3 ｜改前会换名写进目标根的越界名=2
+  | ok  	weihetai-setup	0.073s
+
+六、卸载与残留（现数，不是声称）
+  | [setup] uninstall rc=0 out=leftover-target=0 leftover-lnk=0 leftover-reg=0 err=
+  | IS | installed=0 verify=NOT_RUN rc=0
+  安装件自报：leftover-target=0 leftover-lnk=0 leftover-reg=0
+  独立复算：INDEP 0 0 0
+
+七、臂分母自印与判定表
+  名                    期望                     实得                                 判
+  check-rc             0                      0                                  OK
+  check-installed=0    0                      0                                  OK
+  check-写入文件数          0                      0                                  OK
+  install-rc           0                      0                                  OK
+  installed=1          1                      1                                  OK
+  清单落在树旁               1                      1                                  OK
+  快捷方式                 LNK=True               LNK=True                           OK
+  卸载登记                 REG=True               REG=True                           OK
+  同树逐字段差               0                      0                                  OK
+  两把尺 rc 一致            0                      0                                  OK
+  placed = 树内 + 清单副本   39                     39                                 OK
+  bad                  bad=1 rc=1             n:1/1 p:1/1 字段差0                   OK
+  missing              missing=1 rc=1         n:1/1 p:1/1 字段差0                   OK
+  extra                extra=1 rc=1           n:1/1 p:1/1 字段差0                   OK
+  mutable-drift        mutable_drift=1 rc=0   n:1/0 p:1/0 字段差0                   OK
+  manifest-row         extra=1 rc=1           n:1/1 p:1/1 字段差0                   OK
+  runtime-new          runtime_new=1 rc=0     n:1/0 p:1/0 字段差0                   OK
+  runtime-shadow       runtime_shadowed=4 rc=1 n:4/1 p:4/1 字段差0                   OK
+  mut-undeclared       mutable_undeclared=1 rc=1 n:1/1 p:1/1 字段差0                   OK
+  busy-target          rc=3 installed=0 理由行>0 rc=3 installed=0 理由2               OK
+  正对照-干净重装             0/0                    0/0                                OK
+  go-test-zipslip      rc=0 且三发读数齐            rc=0 读数3                           OK
+  卸载残留-自报              0/0/0                  0/0/0                              OK
+  卸载残留-独立复算            0/0/0                  0/0/0                              OK
+  自报=独立复算              一致                     一致                                 OK
+  臂分母自印：判定行 25 ｜绿 25 ｜红 0 ｜变异臂 8 发（按名字数，不手抄）｜拒装臂 1 发 ｜正对照 1 发
+  变异臂逐名：bad=OK missing=OK extra=OK mutable-drift=OK manifest-row=OK runtime-new=OK runtime-shadow=OK mut-undeclared=OK busy-target=OK
+  两把尺同树逐字段：共用 16 字段 ｜干净树差 0 ｜变异树各臂差见上
+RECONCILE | rc=0 判定行=25 红=0

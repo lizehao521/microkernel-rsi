@@ -1,0 +1,19 @@
+挂载前对二进制的核验 —— 由 tasks/mcp/pin_check.py 自己印出，未编辑。跑于 2026-10-15 11:4x。
+问题：.qoder/settings.local.json 里挂的是路径 .bin\mcpkernel.exe，而路径不说明它是哪天编的。配置里那份是 10-13 03:31 编的，比封板后的内核旧两天。
+
+旧那份（改名留档为 .bin/mcpkernel-1013-0331.exe）：
+PIN server=agentkernel version=0.1 tools=10
+PIN celltable first line (utf-8 in file, ascii here): len=2242 head='当前 47 格（输入侧 20 + 输出侧 27）；唯一键名 46 个：'
+PIN rows_with_side=47
+PIN check_call_isError=False
+PIN exited=0
+
+重编后（.bin/mcpkernel.exe，源码 = 封板后）：
+PIN server=agentkernel version=0.1 tools=10
+PIN celltable first line (utf-8 in file, ascii here): len=2336 head='当前 49 格（输入侧 20 + 输出侧 29）；唯一键名 48 个：'
+PIN rows_with_side=49
+PIN check_call_isError=False
+PIN exited=0
+
+两行的差异就是封板那两条新格：47 格（20+27）/46 键 → 49 格（20+29）/48 键（wire_format、wire_format_said）。
+格位表全文（新那份）：报告/挂载前-pin_check.txt

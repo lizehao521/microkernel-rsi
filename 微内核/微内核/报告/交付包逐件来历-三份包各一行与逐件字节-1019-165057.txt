@@ -1,0 +1,72 @@
+交付包 · 逐件来历 —— 尺子（只读数，不动包、不动树）
+生成 2026-10-19 16:50:57 ｜ 仓库根 C:\Users\Admin\Desktop\微内核\微内核\微内核 ｜ 包落点 C:\Users\Admin\Desktop\微内核\构建-1017 ｜ 环境变量 PS_PKG_DIR 可换
+
+== 反臂 · 这把尺子自己会不会红（TEMP 里造微型假包，四件事逐条）==
+  对上 ｜ 甲 · exe 早于源码要判旧（这把尺子会红） ｜ 现判 旧
+  对上 ｜ 乙 · exe 晚于源码要判不旧 ｜ 现判 不旧
+  对上 ｜ 丙 · 源码侧一份都没有要判核不了（不许读成 0 所以合格） ｜ 现判 核不了 ｜ 扫到 0 份
+  对上 ｜ 丁 · 包里与盘上字节不同要报不一致（不许默认同一件） ｜ 两份字节相同 = False（必须 False）
+  反臂结论：对上，下面那三份读数才许读
+
+== 四 · 分母自印 ==
+  有话：按 mtime 取最新那份 zip：agentkernel-2026-10-19-win-x64.zip（目录里共 3 份 .zip）
+  源码侧：扫到 .go/go.mod 36 份（读不了 0 支）｜ 最新时间 2026-10-19 02:35:30 ｜ 那一支 = cmd/kwire/report.go
+      2026-10-19 02:35:30  cmd/kwire/report.go
+      2026-10-19 02:29:28  mcpsrv/mcpsrv_test.go
+      2026-10-19 02:23:21  cmd/kwire/main.go
+  包侧：zip 条目共 33 条 ｜ 其中 .exe 5 支 ｜ evidence/ 22 份 ｜ 盘上 bin 有 ｜ 盘上 evidence 有
+
+== 一 · 包内 exe 逐件（zip 那份字节 ↔ 盘上那份字节 ↔ 源码侧最新时间）==
+  kaudit.exe ｜ zip 内 date_time 2026-10-19 11:46:48 ｜ 盘上 mtime 2026-10-19 11:46:48 ｜ 两份字节相同 = True ｜ 判 不旧
+      zip 里 sha256 3a9c863dfdc58c36…（10092032 B）
+  kcheck.exe ｜ zip 内 date_time 2026-10-19 11:46:48 ｜ 盘上 mtime 2026-10-19 11:46:49 ｜ 两份字节相同 = True ｜ 判 不旧
+      zip 里 sha256 1858e0892d2462b0…（6529024 B）
+  kresearch.exe ｜ zip 内 date_time 2026-10-19 11:46:50 ｜ 盘上 mtime 2026-10-19 11:46:50 ｜ 两份字节相同 = True ｜ 判 不旧
+      zip 里 sha256 9dca0d37f39ee676…（11999744 B）
+  mcphttp.exe ｜ zip 内 date_time 2026-10-19 12:04:32 ｜ 盘上 mtime 2026-10-19 12:04:33 ｜ 两份字节相同 = True ｜ 判 不旧
+      zip 里 sha256 f60617409932b57c…（13125632 B）
+  mcpkernel.exe ｜ zip 内 date_time 2026-10-19 12:04:32 ｜ 盘上 mtime 2026-10-19 12:04:32 ｜ 两份字节相同 = True ｜ 判 不旧
+      zip 里 sha256 468c6e322e59c899…（6090240 B）
+  ⇒ 判「旧」（源码侧有比这两份都新的文件）：0 支
+  口径：取 zip 与盘上**较早**那一发来判（宁可说旧）；整棵树的最新时间当参照 = 上界，不是这条依赖链的精确答案。
+
+== 一·附 · 包落点里逐份 zip 对照（不只最新那一份；只数、不判修法）==
+  agentkernel-2026-10-19-win-x64.zip     条目 33 ｜ exe 5 支（最新 date_time 2026-10-19 12:04:32）｜ 判旧的 exe 0 支 ｜ evidence 22 份（旧于该 exe 20 份）
+  agentkernel-2026-10-19T0240-pre66-win-x64.zip 条目 33 ｜ exe 5 支（最新 date_time 2026-10-18 23:35:34）｜ 判旧的 exe 5 支 ｜ evidence 22 份（旧于该 exe 15 份）
+  agentkernel-2026-10-18-win-x64.zip     条目 33 ｜ exe 5 支（最新 date_time 2026-10-18 23:35:34）｜ 判旧的 exe 5 支 ｜ evidence 22 份（旧于该 exe 15 份）
+  ⇒ 这一行是给「今天这份包还旧不旧」与「上一版包当时旧成什么样」两个问题各自一个数；引用时别把两行并成一句。
+
+== 二 · evidence 逐件（凭据的话 vs 包里的字节）==
+  00-toolchain.txt                   2026-10-17 19:25:50 ｜ 122 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  01-go-build.txt                    2026-10-18 23:35:32 ｜ 69 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  02-build-each.txt                  2026-10-18 23:35:34 ｜ 127 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  03-go-test.txt                     2026-10-18 23:35:40 ｜ 369 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  04-kcheck-exe.txt                  2026-10-18 23:35:40 ｜ 13449 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  05-denominators.txt                2026-10-17 19:26:14 ｜ 82 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  07-sha256sum-independent.txt       2026-10-17 19:28:18 ｜ 392 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  08-mobile-use.txt                  2026-10-17 19:28:54 ｜ 2209 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  09-BH-bundle.json                  2026-10-17 19:30:48 ｜ 18286 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  10-BH-analyze.json                 2026-10-17 19:30:50 ｜ 9230 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  11-BH-checkup.json                 2026-10-17 19:30:50 ｜ 6447 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  12-BH-git-cause.txt                2026-10-17 19:30:50 ｜ 1201 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  13-BH-canvas-init.json             2026-10-17 19:30:50 ｜ 4832 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  14-BH-ledger.txt                   2026-10-17 19:42:22 ｜ 2110 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  15-extracted-independent-check.txt 2026-10-17 19:31:34 ｜ 59 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  16-extracted-gate.txt              2026-10-17 19:31:34 ｜ 65 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  18-binary-smoke.txt                2026-10-18 23:35:44 ｜ 2247 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  19-tools-list-both-faces.txt       2026-10-18 23:35:42 ｜ 15288 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  20-BH-checkup-plan.md              2026-10-17 19:47:34 ｜ 961 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  21-BH-plan-determinism.txt         2026-10-17 19:47:34 ｜ 1345 B ｜ 早于包里最新那支 exe ⇒ 话比字节旧
+  pack-readings.txt                  2026-10-19 12:15:58 ｜ 2932 B ｜ 不早于
+  source-fingerprint.sha256          2026-10-19 12:15:54 ｜ 2983 B ｜ 不早于
+  ⇒ evidence 里比包里最新 exe 旧的：20 份：00-toolchain.txt、01-go-build.txt、02-build-each.txt、03-go-test.txt、04-kcheck-exe.txt、05-denominators.txt、07-sha256sum-independent.txt、08-mobile-use.txt、09-BH-bundle.json、10-BH-analyze.json、11-BH-checkup.json、12-BH-git-cause.txt、13-BH-canvas-init.json、14-BH-ledger.txt、15-extracted-independent-check.txt、16-extracted-gate.txt、18-binary-smoke.txt、19-tools-list-both-faces.txt、20-BH-checkup-plan.md、21-BH-plan-determinism.txt
+
+== 三 · kwire 那一格三个数并排（只数、不判）==
+  包内含 kwire 的条目 0 ｜ 盘上 bin 含 kwire 的文件 0 ｜ 仓库 cmd/kwire 里的文件 2 份：main.go、report.go
+  ⇒ 前两个数是 0、第三个数不是 0 的那一刻：拿到包的人重算不出接口对账那一行（待跑第 3 张卡说的事）。
+
+== 五 · 这把尺子看不见的路（谁引用这份读数都该知道）==
+  · 「旧」是按整棵树最新时间判的**上界**：任何一支 .go 新于 exe 就报旧，哪怕 exe 那条依赖链其实没变 ⇒ 会蒙对也会蒙严。
+  · mtime 不是来历：有人在树上 touch 过、或从别处拷文件（时间戳带过来）都能让这一列变红或变绿；真要钉来历得比字节（比如把 exe 里嵌的版本格读出来），这一发没做，也不许读成「来历已核」。
+  · zip 里 .exe 的 date_time 是**打包时**写进条目的，不是编译时刻；盘上那份的 mtime 才是落地时刻，两个都可能晚于真正 `go build` 的那一刻。
+  · 这一支只读数、不是闸门 ⇒ 判「旧」不红任何检；把它并进 `打包.py` 或开机检是改判据行为，归作者拍（待跑第 4 张那三个选项）。

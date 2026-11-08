@@ -1,0 +1,74 @@
+== 读数出口 · shell/ps1 这一层的管道转码与捕获 · 2026-10-19 13:54 ==
+这份件补的是 `报告/读数出口-捕获转码-全仓逐名清点-1019.txt` 自己写在「还欠的」③ 那一格的话：
+那一句是「本清点扫的是 .py；`.sh`/`.ps1` 里的管道转码没扫，归因到这一层为止」—— 那层没扫的，这份扫。
+
+【零、分母先数】
+  整棵 `Desktop\微内核` 现走一遍：`.sh` 4 支、`.ps1` 0 支（`node_modules/.git/__pycache__` 已剔）。
+  ⇒ 全仓没有 PowerShell 脚本文件；PS 只在 `mcphttp_up.sh` 那一处**从 bash 里调起来**（见【四】），所以「.ps1 转码」这一档记 `—`（没有这种文件，不是「扫了没问题」）。
+  本件机核引用 7 条 ｜ MISS 0 ｜ 反臂 生成前现跑：rc=7、输出含 MISS=True、跑完盘上仍无本件=True ⇒ 会红（这道机核不是恒真）
+
+【一、写死的旧主机工具链路径 —— 这一层里 #63 那一族没有全覆盖】
+  今天这台机器是 `Admin`，`Administrator` 是旧主机。现数命中的行：
+    kaudit_smoke.sh:6  GO=/c/Users/Administrator/sdk/go/bin/go.exe
+    kaudit_smoke.sh:7  PY=/c/Users/Administrator/sdk/py314/python.exe
+    mcphttp_up.sh:17  GO=/c/Users/Administrator/sdk/go/bin/go.exe
+  同文件里有没有回退（`for c in` / `*_OVERRIDE`）现数：kaudit_smoke 0 处、mcphttp_up 0 处 —— **都是 0**；
+  作为对照，`run_freeze_round.sh:18,23` 是 #63 修过后的写法（多候选 + 可覆写）。
+  ⇒ **#63 那句「起跑脚本不再写死路径」是真的，但它cover 的只有那一支**；
+    今天能不能跑起来是另一回事：这两支我**没有跑**（一支会占 8797、一支会 taskkill），所以这里只能说「路径不存在」这一格是字节事实，
+    不能说「今天跑起来会红」—— 那要跑过才知道，而跑它的代价落在别人端口上。
+
+【二、python 子进程那一侧的解码】
+  `.sh` 里出现 python 的行现数 5 处，但**真起子进程的只有 3 处**：[('kaudit_smoke.sh', 120, '"$PY" -X utf8 - "$JOURNAL" "$TAMPE'), ('run_freeze_round.sh', 49, '"$PY" -u "$PROBE" "$GO" "$PWD" "$E'), ('run_freeze_round.sh', 67, '"$PY" -u "$PROBE" "$GO" "$PWD" "$F')]
+  其余 2 处提到 python 但**不起进程**（路径候选行、空值守卫行）—— 混进分母就是虚报：[('run_freeze_round.sh', 23, 'for c in "${PY_OVERRIDE:-}" "$'), ('run_freeze_round.sh', 27, 'if [ -z "$GO" ] || [ -z "$PY" ')]
+  带 UTF-8 侧（`-X utf8` 或 `PYTHONIOENCODING`）的 1 处：[('tasks/probe/kaudit_smoke.sh', 120, '"$PY" -X utf8 - "$JOURNAL" "$TAMPERED" <')]
+  ⇒ 3 个真调用里带 UTF-8 侧的 1 个；`export PYTHONIOENCODING` 在四支脚本里现数 0 处 ⇒ **今天没脏，靠的不是脚本自己**：
+    另外 2 处（`run_freeze_round.sh` 起的那几发探针）没带 `-X utf8`、脚本内也没有 `PYTHONIOENCODING`，
+    母进程（我这台 shell）今天设了 `PYTHONIOENCODING=utf-8`，所以产物是干净的 —— 直接数归档里的替换字符：
+      封板轮-整轮-1019-131245.txt：字节 31654 ｜ U+FFFD 0
+    ⇒ 「换一台没设这个环境变量的机器跑同一支脚本」会不会脏，今天**没有测**（记 `—`，不许写成 0）。
+    这一格与第 ⑬ 条同源：**只跑正对照的闸门等于没有闸门** —— 探针脚本自己不带编码，就等于把结论押在调用方的环境变量上。
+
+【三、中文进不进控制台】
+  守这一层的行现数 1 处：[('tasks/probe/kaudit_smoke.sh', 20)]
+  `kaudit_smoke.sh` 的 `note()` 用 `tr -cd` 把非 ASCII 从控制台那一支剔掉、中文只进报告文件 —— 这一档是**有守的**，
+  守的是「别让 GBK 控制台吃中文」，与第 ⑬ 条那个「母侧解法 == 子侧编码」是同一族的两面。
+
+【四、杀进程与占端口（这一档是我今天不动这两支脚本的原因）】
+  先分态：`Stop-Process|taskkill` 命中 4 行，其中**代码行 2 行**、注释行 2 行（注释也含 `taskkill` 字样，混进分母就是虚报）。
+    [代码] tasks/probe/kaudit_smoke.sh:44  taskkill //PID "$PIDW" //F >>"$REPORT" 2>&1 || true
+    [代码] tasks/probe/mcphttp_up.sh:58  powershell -NoProfile -Command "Stop-Process -Id $PID -Force" >/dev/nu
+    [注释] tasks/probe/kaudit_smoke.sh:35  # 实测教训（10-15 09:47 那一轮）：bash 的 $! 是 MSYS 的 pid，taskkill 拿它去杀报"找不到进程"，
+    [注释] tasks/probe/mcphttp_up.sh:5  # 它一死，界面里那 10 个工具就变红；而 10-15 那天我用 bash 的 `$!` 去 taskkill，
+  端口/地址默认值：**代码行 2 处**（另有注释里提到端口的 2 处，不并进来数）：
+    tasks/probe/lie_arms.sh:6  ADDR="${1:-127.0.0.1:8798}"
+    tasks/probe/mcphttp_up.sh:19  ADDR="${2:-127.0.0.1:8797}"
+  `mcphttp_up.sh down` 那一支的次序是：`owner`（谁在这个端口上）→ `Stop-Process -Id $PID -Force`。
+  ⇒ **它不问那个 pid 是不是自己 `up` 起来的**：它自己的默认落点是 ADDR="${2:-127.0.0.1:8797}"，
+    而 8797 这台机器上是**别人的实例在听的端口**（今天不是我的），照默认跑一发 `down` = 收掉别人正在用的服务。
+    这一条按端口规矩属于**先问再做**，所以我今天没跑、只读字节。
+  kaudit_smoke.sh 里按 pid 收进程的代码行 1 处（同样只按 pid 收，不问来源）。
+  mcphttp_up.sh 里按 pid 收进程的代码行 1 处（同样只按 pid 收，不问来源）。
+
+【五、写进 报告/ 的出口（凭据从这里落盘的地方）】
+  现数 13 处：[('tasks/probe/kaudit_smoke.sh', 10), ('tasks/probe/kaudit_smoke.sh', 19), ('tasks/probe/kaudit_smoke.sh', 44), ('tasks/probe/kaudit_smoke.sh', 64), ('tasks/probe/kaudit_smoke.sh', 70), ('tasks/probe/kaudit_smoke.sh', 84), ('tasks/probe/lie_arms.sh', 7), ('tasks/probe/lie_arms.sh', 51), ('tasks/probe/lie_arms.sh', 61), ('tasks/probe/lie_arms.sh', 74), ('tasks/probe/lie_arms.sh', 89), ('tasks/probe/lie_arms.sh', 101), ('tasks/probe/lie_arms.sh', 104)]
+  `lie_arms.sh` 的读数出口带 `iconv` 洗涤 4 处（残缺尾字节洗成合法 UTF-8，并自己数出洗过几行）；
+  `kaudit_smoke.sh` 的出口是 `curl` 原文直接 `>>`（它注释里就写着「原始响应逐条留档」）⇒ 这一支没有洗涤，
+  它靠的是「中文只进文件不进控制台」那一招；两条路线不同，但都没有一道闸会因为出口少了洗涤而红。
+
+【六、结论与下一步（只提名）】
+  能机械判的：写死路径 3 处（字节事实）｜ python 调用 3 处里有 UTF-8 侧 1 处 ｜ 洗涤出口 4 处 ｜ 收进程代码行 2 处。
+  不能机械判的（记 `—`，不许写成 0）：「这两支脚本今天跑起来会不会红」—— 没跑，代价落在别人端口上。
+  候选修法（等你拍；都不动 48 键/49 格）：
+    ① 把 #63 的回退写法（`for c in 候选…` + `*_OVERRIDE`）同样搬到这两支，纯脚本、零判据；
+    ② 给 `mcphttp_up.sh` 加两句：默认落点从 8797 换成一个自己起的端口，且「pid 必须是本脚本 `up` 时记下的那个，否则拒杀」（这条动的是**收进程**这一侧，不碰服务）；
+    ③ 不动脚本，把这两处写进 README 的缺口/危险动作清单 —— 那是给下一个接手的人看的话；
+    ④（这一条不需要拍也能先做，但按『轮在跑不动树』我今天没动）给探针调用补上自己的编码侧：`-X utf8` 或脚本内 `export PYTHONIOENCODING`，别再押在调用方的环境变量上。
+
+== 自印分母 ==
+  盘上 .sh 4 支 ｜ .ps1 0 支 ｜ 机核引用 7 条 ｜ MISS 0
+  写死旧主机路径 3 处（kaudit_smoke.sh:6; kaudit_smoke.sh:7; mcphttp_up.sh:17）｜ 同文件回退写法 0 处 ｜ `run_freeze_round.sh` 回退写法 3 处（对照）
+  python：出现 5 行 / 真调用 3 行 / 只是路径文案 2 行 ｜ UTF-8 侧 1 ｜ 脚本内 export PYTHONIOENCODING 0 ｜ tr -cd 守控制台 1 ｜ iconv 洗涤 4
+  归档 U+FFFD 实测 1 份：封板轮-整轮-1019-131245.txt=0
+  收进程：命中 4 行 = 代码行 2 + 注释行 2 ｜ ADDR 默认值代码行 2 处 ｜ 端口字样命中 4 行（含注释）
+  今天跑过的脚本 0 支（只读字节）｜ 动过的源码 0 处（整轮 80 根在跑，只写 报告/）

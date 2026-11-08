@@ -1,0 +1,128 @@
+【归档说明（10-17，由我加的，不是原始读数的一部分）】
+这一份是**真端点第一发**在 TEMP 副本里跑出来的原文（SRC 树里那份同名的旧档没动）。
+原文里 `FAIL 07` 那一行带着口令的前 12 位 —— 那是 llm_probe.py 把 `KEY[:12]` 当「不许出现的字样」打进判定行造成的（新缺陷 #53）。归档前把这一段换成 `ms-‹前12位已脱敏›`，
+共替换 1 处；未脱敏的原件在 `%LOCALAPPDATA%\RealLlm1017\微内核\报告\` 那份拷贝里。
+
+>>> [llm] #1 initialize {"protocolVersion": "2024-11-05", "capabilities": {}, "clientInfo": {"name": "llm", "version": "1"}}
+<<< 15ms isError=False
+{"capabilities": {"tools": {}}, "protocolVersion": "2024-11-05", "serverInfo": {"name": "agentkernel", "version": "0.1"}}
+
+>>> [llm] #2 notifications/initialized {}
+<<< 0ms isError=False
+{}
+
+HTTP=200 收到=820 字节 发出=251 字节 首包到全部=1507ms
+端点自报模型='deepseek-ai/DeepSeek-V4.1-Flash' finish_reason='length' usage={'prompt_tokens': 48, 'completion_tokens': 64, 'total_tokens': 112}
+模型原话（0 字节）：
+>>> [llm] #3 tools/call {"name": "kernel.check_call", "arguments": {"session": "agnes", "actor": "llm_probe", "input": {"Call": 1, "Order": ["system", "user"], "Parts": [{"Kind": "system", "Parts": 1, "Bytes": 48}, {"Kind": "user", "Parts": 1, "Bytes": 42}], "ContentBytes": 90, "Tokens": {"N": 48, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "Budget": {"CallBytesCeiling": 32768, "TransportSlackPct": 12, "ContentCeiling": 28835, "Shares": {"system": 10, "user": 80}, "LeftoverPct": 10, "FixedOverhead": {"N": 300, "Basis": 3, "Source": "骨架+模型名+工具清单的粗估", "Absent": false, "Refused": false, "Why": ""}, "EffectiveCeiling": 28835, "ClampRounds": 0}, "Cuts": [], "Notice": {"Sent": false, "Trimmed": false, "Why": "这一发没有折叠、没有裁尾、没有整段丢弃，没有通知要发", "Text": ""}}, "output": {"Call": 1, "Streaming": false, "Finish": {"Reason": "length", "Said": true}, "Model": "deepseek-ai/DeepSeek-V4.1-Flash", "ModelSaid": true, "WireFormat": "", "WireFormatSaid": false, "Says": {"Bytes": 0, "Kept": 0, "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "UsageIn": {"N": 48, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "UsageOut": {"N": 64, "Basis": 2, "Source": "端点响应的 usage.completion_tokens", "Absent": false, "Refused": false, "Why": ""}, "WireBytesOut": {"N": 251, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "WireBytesIn": {"N": 820, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "Chunks": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，结构上没有分帧"}, "FirstByteMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，没有首帧这件事"}, "MaxGapMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，没有帧间"}, "ToolCalls": 0, "Malformed": 0, "MalformedStreak": 0, "Failure": {"Kind": "", "Detail": "", "Status": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发没故障，也就没有要记的状态码"}, "RetryAfterMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发没断，也就没有要等多久"}, "Downgrade": false}}}}
+<<< 1ms isError=True
+输入侧：自洽
+输出侧：kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾
+预检结论：整发会被拒 —— kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾
+
+内核先说什么：输入侧：自洽
+输出侧：kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾
+预检结论：整发会被拒 —— kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾
+>>> [llm] #4 tools/call {"name": "kernel.record_call", "arguments": {"session": "agnes", "actor": "llm_probe", "input": {"Call": 1, "Order": ["system", "user"], "Parts": [{"Kind": "system", "Parts": 1, "Bytes": 48}, {"Kind": "user", "Parts": 1, "Bytes": 42}], "ContentBytes": 90, "Tokens": {"N": 48, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "Budget": {"CallBytesCeiling": 32768, "TransportSlackPct": 12, "ContentCeiling": 28835, "Shares": {"system": 10, "user": 80}, "LeftoverPct": 10, "FixedOverhead": {"N": 300, "Basis": 3, "Source": "骨架+模型名+工具清单的粗估", "Absent": false, "Refused": false, "Why": ""}, "EffectiveCeiling": 28835, "ClampRounds": 0}, "Cuts": [], "Notice": {"Sent": false, "Trimmed": false, "Why": "这一发没有折叠、没有裁尾、没有整段丢弃，没有通知要发", "Text": ""}}, "output": {"Call": 1, "Streaming": false, "Finish": {"Reason": "length", "Said": true}, "Model": "deepseek-ai/DeepSeek-V4.1-Flash", "ModelSaid": true, "WireFormat": "", "WireFormatSaid": false, "Says": {"Bytes": 0, "Kept": 0, "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "UsageIn": {"N": 48, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "UsageOut": {"N": 64, "Basis": 2, "Source": "端点响应的 usage.completion_tokens", "Absent": false, "Refused": false, "Why": ""}, "WireBytesOut": {"N": 251, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "WireBytesIn": {"N": 820, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "Chunks": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，结构上没有分帧"}, "FirstByteMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，没有首帧这件事"}, "MaxGapMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，没有帧间"}, "ToolCalls": 0, "Malformed": 0, "MalformedStreak": 0, "Failure": {"Kind": "", "Detail": "", "Status": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发没故障，也就没有要记的状态码"}, "RetryAfterMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发没断，也就没有要等多久"}, "Downgrade": false}}}}
+<<< 0ms isError=True
+整发拒收（拒收累计 1 次）：kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾
+
+>>> [llm] #5 tools/call {"name": "kernel.celltable", "arguments": {}}
+<<< 2ms isError=False
+当前 49 格（输入侧 20 + 输出侧 29）；唯一键名 48 个：
+input    call                   ← Call
+input    parts                  ← Order
+input    part_totals            ← Parts
+input    content_bytes          ← ContentBytes
+input    tokens                 ← Tokens
+input    call_bytes_ceiling     ← Budget.CallBytesCeiling
+input    transport_slack_pct    ← Budget.TransportSlackPct
+input    content_ceiling        ← Budget.ContentCeiling
+input    effective_ceiling      ← Budget.EffectiveCeiling
+input    clamp_rounds           ← Budget.ClampRounds
+input    leftover_pct           ← Budget.LeftoverPct
+input    fixed_overhead         ← Budget.FixedOverhead
+input    shares                 ← Budget.Shares
+input    notice_sent            ← Notice.Sent
+input    notice_trimmed         ← Notice.Trimmed
+input    notice_why             ← Notice.Why
+input    notice_text            ← Notice.Text
+input    folded                 ← Cuts#folded
+input    clipped                ← Cuts#clipped
+input    dropped                ← Cuts#dropped
+output   call                   ← Call
+output   streaming              ← Streaming
+output   finish                 ← Finish.Reason
+output   finish_said            ← Finish.Said
+output   endpoint_model         ← Model
+output   endpoint_model_said    ← ModelSaid
+output   wire_format            ← WireFormat
+output   wire_format_said       ← WireFormatSaid
+output   model_says_bytes       ← Says.Bytes
+output   model_says_kept        ← Says.Kept
+output   model_says_clipped     ← Says.Clipped()
+output   model_says_sha256      ← Says.SHA256
+output   usage_in               ← UsageIn
+output   usage_out              ← UsageOut
+output   wire_bytes_out         ← WireBytesOut
+output   wire_bytes_in          ← WireBytesIn
+output   chunks                 ← Chunks
+output   first_byte_ms          ← FirstByteMs
+output   max_gap_ms             ← MaxGapMs
+output   tool_calls             ← ToolCalls
+output   malformed_actions      ← Malformed
+output   malformed_streak       ← MalformedStreak
+output   fail_kind              ← Failure.Kind
+output   fail_detail            ← Failure.Detail
+output   fail_status            ← Failure.Status
+output   retry_after_ms         ← Failure.RetryAfterMs
+output   downgrade              ← Failure.Downgrade
+output   sent                   ← Sent()
+output   cost_countable         ← CostCountable()
+
+第 2 发 HTTP=200 收到=785 发出=358 原话=
+>>> [llm] #6 tools/call {"name": "kernel.record_call", "arguments": {"session": "agnes", "actor": "llm_probe", "input": {"Call": 2, "Order": ["system", "user", "history", "user"], "Parts": [{"Kind": "system", "Parts": 1, "Bytes": 48}, {"Kind": "user", "Parts": 2, "Bytes": 78}, {"Kind": "history", "Parts": 1, "Bytes": 0}], "ContentBytes": 126, "Tokens": {"N": 59, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "Budget": {"CallBytesCeiling": 32768, "TransportSlackPct": 12, "ContentCeiling": 28835, "Shares": {"system": 10, "user": 60, "history": 20}, "LeftoverPct": 10, "FixedOverhead": {"N": 300, "Basis": 3, "Source": "骨架+模型名+工具清单的粗估", "Absent": false, "Refused": false, "Why": ""}, "EffectiveCeiling": 28835, "ClampRounds": 0}, "Cuts": [], "Notice": {"Sent": false, "Trimmed": false, "Why": "这一发没有折叠、没有裁尾、没有整段丢弃，没有通知要发", "Text": ""}}, "output": {"Call": 2, "Streaming": false, "Finish": {"Reason": "length", "Said": true}, "Model": "deepseek-ai/DeepSeek-V4.1-Flash", "ModelSaid": true, "WireFormat": "", "WireFormatSaid": false, "Says": {"Bytes": 0, "Kept": 0, "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "UsageIn": {"N": 59, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "UsageOut": {"N": 64, "Basis": 2, "Source": "端点响应的 usage.completion_tokens", "Absent": false, "Refused": false, "Why": ""}, "WireBytesOut": {"N": 358, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "WireBytesIn": {"N": 785, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "Chunks": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，结构上没有分帧"}, "FirstByteMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，没有首帧这件事"}, "MaxGapMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，没有帧间"}, "ToolCalls": 0, "Malformed": 0, "MalformedStreak": 0, "Failure": {"Kind": "", "Detail": "", "Status": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发没故障，也就没有要记的状态码"}, "RetryAfterMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发没断，也就没有要等多久"}, "Downgrade": false}}}}
+<<< 0ms isError=True
+整发拒收（拒收累计 2 次）：kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾
+
+>>> [llm] #7 tools/call {"name": "kernel.read_back", "arguments": {"session": "agnes", "call": 1, "side": "output"}}
+<<< 0ms isError=False
+session=agnes 的第 1 发 output 侧在链上一条都没有（发号从 1 起；这一发没记过）
+
+>>> [llm] #8 tools/call {"name": "kernel.tally", "arguments": {}}
+<<< 0ms isError=False
+账 0 条（一格都没记过 —— 这不是各档都是 0，是还没有账）；被拒的写入 2 次 —— 拒收也要看得见，不然「被拒」会读成「没发生过」；另有 0 次写请求根本没走到内核（外壳在门口挡下：整块没给／写侧没这个键）；0 条请求被协议层判成无效（解不开 -32700／没有 method、不是请求 -32600；走到了协议层，只是没走进内核）；0 条请求连协议层都没到（传输层的形状预检挡下，比第三笔更早一步；拒它的是门，不是分类 —— #44）
+
+tally：账 0 条（一格都没记过 —— 这不是各档都是 0，是还没有账）；被拒的写入 2 次 —— 拒收也要看得见，不然「被拒」会读成「没发生过」；另有 0 次写请求根本没走到内核（外壳在门口挡下：整块没给／写侧没这个键）；0 条请求被协议层判成无效（解不开 -32700／没有 method、不是请求 -32600；走到了协议层，只是没走进内核）；0 条请求连协议层都没到（传输层的形状预检挡下，比第三笔更早一步；拒它的是门，不是分类 —— #44）
+>>> [llm] #9 tools/call {"name": "kernel.verify", "arguments": {}}
+<<< 0ms isError=False
+— 尚无账可核（共 0 条）：这条链上什么都还没核过 —— 别把它读成通过
+
+>>> [llm] #10 tools/call {"name": "kernel.encode_journal", "arguments": {"payload": "included"}}
+<<< 0ms isError=False
+0 字节 JSONL，0 行（写盘是你的事，内核只交字节）
+
+
+账本落在临时目录：C:\Users\Admin\AppData\Local\Temp\账本-llm第一发.jsonl（0 字节，94 行）
+>>> [llm] #11 tools/call {"name": "kernel.load_journal", "arguments": {"text": "", "acknowledge": "replace"}}
+<<< 0ms isError=False
+从 0 行里读回 0 条，链上现在 0 条；原像 0 条在手
+（这就是「断开即失」的那一半被调用方自己收回去：字节在你手里，重启后同一发仍记不进去第二遍）
+
+>>> [llm] #12 tools/call {"name": "kernel.record_call", "arguments": {"session": "agnes", "actor": "llm_probe", "input": {"Call": 1, "Order": ["system", "user"], "Parts": [{"Kind": "system", "Parts": 1, "Bytes": 48}, {"Kind": "user", "Parts": 1, "Bytes": 42}], "ContentBytes": 90, "Tokens": {"N": 48, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "Budget": {"CallBytesCeiling": 32768, "TransportSlackPct": 12, "ContentCeiling": 28835, "Shares": {"system": 10, "user": 80}, "LeftoverPct": 10, "FixedOverhead": {"N": 300, "Basis": 3, "Source": "骨架+模型名+工具清单的粗估", "Absent": false, "Refused": false, "Why": ""}, "EffectiveCeiling": 28835, "ClampRounds": 0}, "Cuts": [], "Notice": {"Sent": false, "Trimmed": false, "Why": "这一发没有折叠、没有裁尾、没有整段丢弃，没有通知要发", "Text": ""}}, "output": {"Call": 1, "Streaming": false, "Finish": {"Reason": "length", "Said": true}, "Model": "deepseek-ai/DeepSeek-V4.1-Flash", "ModelSaid": true, "WireFormat": "", "WireFormatSaid": false, "Says": {"Bytes": 0, "Kept": 0, "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, "UsageIn": {"N": 48, "Basis": 2, "Source": "端点响应的 usage.prompt_tokens", "Absent": false, "Refused": false, "Why": ""}, "UsageOut": {"N": 64, "Basis": 2, "Source": "端点响应的 usage.completion_tokens", "Absent": false, "Refused": false, "Why": ""}, "WireBytesOut": {"N": 251, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "WireBytesIn": {"N": 820, "Basis": 1, "Source": "", "Absent": false, "Refused": false, "Why": ""}, "Chunks": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，结构上没有分帧"}, "FirstByteMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，没有首帧这件事"}, "MaxGapMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发不是流式的，没有帧间"}, "ToolCalls": 0, "Malformed": 0, "MalformedStreak": 0, "Failure": {"Kind": "", "Detail": "", "Status": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发没故障，也就没有要记的状态码"}, "RetryAfterMs": {"N": 0, "Basis": 0, "Source": "", "Absent": true, "Refused": false, "Why": "这一发没断，也就没有要等多久"}, "Downgrade": false}}}}
+<<< 0ms isError=True
+整发拒收（拒收累计 1 次）：kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾
+
+
+===== 判定 =====
+FAIL  01 真 LLM 那一发两侧都自洽  期望 ['输入侧：自洽', '输出侧：自洽'] 去掉 ()，实际：输入侧：自洽
+输出侧：kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾
+预检结论：整发会被拒 —— kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾
+FAIL  02 落账 49 条  期望 ['整发落账 49 条'] 去掉 ()，实际：整发拒收（拒收累计 1 次）：kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾
+FAIL  03 第二发落账，链上 98 条  期望 ['整发落账 49 条', '链上共 98 条'] 去掉 ()，实际：整发拒收（拒收累计 2 次）：kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾
+FAIL  04 读回第 1 发输出侧，usage 两格不再是缺席  期望 ['usage_in', 'relayed'] 去掉 ['usage_in            absent', 'usage_out           absent']，实际：session=agnes 的第 1 发 output 侧在链上一条都没有（发号从 1 起；这一发没记过）
+FAIL  05 合计里 relayed 这一桶第一次有真来源  期望 ['账 98 条'] 去掉 ()，实际：账 0 条（一格都没记过 —— 这不是各档都是 0，是还没有账）；被拒的写入 2 次 —— 拒收也要看得见，不然「被拒」会读成「没发生过」；另有 0 次写请求根本没走到内核（外壳在门口挡下：整块没给／写侧没这个键）；0 条请求被协议层判成无效（解不开 -32700／没有 method、不是请求 -32600；走到了协议层，只是没走进内核）；0 条请求连协议层都没到（传输层的形状预检挡下，比第三笔更早一步；拒它的是门，不是分类 —— #44）
+FAIL  06 两发之后链自洽  期望 ['✓ 链自洽（共 98 条，其中 98 条比对过原像）'] 去掉 ()，实际：— 尚无账可核（共 0 条）：这条链上什么都还没核过 —— 别把它读成通过
+FAIL  07 交出去的字节里没有 key 的影子  期望 ['agnes'] 去掉 ['ms-‹前12位已脱敏›']，实际：
+FAIL  08 读回后再记第 1 发被拒  期望 ['读回 98 条', '整发拒收', '已经记过了'] 去掉 ()，实际：从 0 行里读回 0 条，链上现在 0 条；原像 0 条在手
+（这就是「断开即失」的那一半被调用方自己收回去：字节在你手里，重启后同一发仍记不进去第二遍）整发拒收（拒收累计 1 次）：kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾

@@ -1,0 +1,4 @@
+{"id": 1, "jsonrpc": "2.0", "result": {"capabilities": {"tools": {}}, "protocolVersion": "2024-11-05", "serverInfo": {"name": "agentkernel", "version": "0.1"}}}
+{"tools": 10}
+{"celltable": "当前 49 格（输入侧 20 + 输出侧 29）；唯一键名 48 个：\ninput    call                   ← Call\ninput    parts                  ← Order\ninput    part_totals            ← Parts\ninput    content_bytes          ← ContentBytes\ninput    tokens                 ← Tokens\ninput    call_bytes_ceiling     ← Budget.CallBytesCeiling\ninput    transport_slack_pct    ← Budget.TransportSlackPct\ninput    content_
+{"check_call": {"id": 4, "jsonrpc": "2.0", "result": {"content": [{"text": "输入侧：kernel: 第几发是 0，发号从 1 起（0 会被读成「还没发」）\n输出侧：kernel: 第几发是 0，发号从 1 起（0 会被读成「还没发」）", "type": "text"}], "isError": false}}}

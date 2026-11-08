@@ -1,0 +1,16 @@
+A reader 4f97b0bc8d898069 bytes=11369 file=C:/Users/Admin/Desktop/微内核/外部现场-dsh-1027/看板插件-1027/index.js
+B reader 4f97b0bc8d898069 bytes=11369 file=C:/Users/Admin/AppData/Local/Temp/dsh-probe-1027/home/profiles/web/node_modules/dsh-plugin-journal/index.js
+A generated_at 2026-10-27T16:51:08.743Z ｜B generated_at 2026-10-27T16:50:55.317Z（这两枚不比）
+除钟以外全等  否
+  sidecar_files_listed           A=6        B=6       同
+  sidecar_files_read             A=5        B=5       同
+  sidecar_rows_total             A=113      B=113     同
+  sidecar_sessions_total         A=7        B=7       同
+  ledger_files_listed            A=4        B=4       同
+  ledger_files_read              A=3        B=3       同
+  ledger_rows_total              A=735      B=735     同
+  ledger_groups_total            A=15       B=15      同
+  ledger_gate_lines_total        A=3        B=3       同
+逐字段出入    2 处（下面逐名，最多印 8 处，另有 0 处没列）
+  root.reader_file A="C:\\Users\\Admin\\Desktop\\微内核\\外部现场-dsh-1027\\看板插件-1027\\index.js" B="C:\\Users\\Admin\\AppData\\Local\\Temp\\dsh-probe-1027\\home\\profiles\\web\\node_modules\\dsh-plugin-journal\\index.js"
+  root.config_file A="C:\\Users\\Admin\\Desktop\\微内核\\外部现场-dsh-1027\\看板插件-1027\\board-config-1027.json" B="C:/Users/Admin/Desktop/微内核/外部现场-dsh-1027/看板插件-1027/board-config-1027.json"

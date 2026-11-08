@@ -1,0 +1,19 @@
+# 只读验包：正本树（未用过）× 正本清单，rc=0，逐态见 VP 行
+读数 · 便携包逐文件验包（只读）
+包目录            C:\Users\Admin\Desktop\\u5fae\u5185\u6838\\u4ea4\u4ed8\u5bf9\u8d26-1026\\u684c\u9762\u7aef\u51fa\u5305-1028\\u5fae\u6838\u53f0-\u4fbf\u643a-1028
+清单              清单-微核台-便携-1028.json 8226 B sha256 前 16 c8ee5b4198c39d25
+package           微核台-便携-1028 ｜ builder 工具-出包-1028.py ｜ built_at 2026-10-28T02:46:23+08:00
+source_dir        C:\Users\Admin\Desktop\\u5fae\u5185\u6838\\u4ea4\u4ed8\u5bf9\u8d26-1026\\u8bbe\u8ba1-\u684c\u9762\u7aef-v2
+清单自证缺项      0
+
+一、五态分开数（不并成一个「不一致」）
+  清单条目 38 ｜盘上实数 38 ｜BAD 0 ｜MISSING 0 ｜EXTRA 0 ｜可变量变了 0（账上声明可变量 1 个） ｜运行时新生 0（账上声明允许档 2 个）
+
+二、字节与 totals（totals 只自证清单内部，不用盘上差判红）
+  账上自印 bytes 813519 ｜账上逐条相加 813519 ｜盘上重算（清单范围内） 813519 ｜账上自相矛盾 0
+  盘上与账上的字节差 = 0（这一段是可变/损坏在动，逐名已在 BAD 与 DRIFT-MUTABLE 里，不另立一态）
+  清单条目数 38 ｜账上自印 files 38 ｜排除逐名 5 条
+  manifest sha256 前 16 c8ee5b4198c39d25（本件重算，不是抄的）
+
+VP | files=38 disk=38 bad=0 missing=0 extra=0 mutable_drift=0 mutable_declared=1 mutable_undeclared=0 runtime_new=0 runtime_declared=2 runtime_shadowed=0 total_drift=0 manifest_fields_missing=0 bytes_manifest=813519 bytes_disk=813519 rc=0
+RESULT PASS

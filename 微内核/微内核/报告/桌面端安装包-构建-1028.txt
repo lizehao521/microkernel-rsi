@@ -1,0 +1,34 @@
+# 构建读数（重跑一发 2026-10-28）：工具-合并原型.py 的 stdout 原样存这里。
+# 与上一份的差别：产物 148,207 B / sha16 e671b133e38de299（上一份记的是 147,904 / 4db8f042，那趟之后界面又改过，
+#   旧读数按 读数/构建-1028-上一趟147904-17道前.txt 认，不当现数）；自检 17/17（多出两条内核态：声明==用到、每态都渲染）。
+# 同一趟现读：树内那一份与产物逐字节相同 = True ⇒ 包里就是这枚 build，不必重跑 工具-出包-1028.py。
+# 再往下：装机后 serve 到的字节 sha == 装到盘上那份 == /api/state 自报 = e671b133e38de299（见 读数/装机后启动实测-1028.txt）。
+
+PASS css braces balanced
+PASS no external stylesheet
+PASS no external script
+PASS no external url()
+PASS no closing script in js
+PASS no external anchor
+PASS single inline script
+PASS all script ids exist
+PASS all first classes styled
+PASS kernel states declared == used
+PASS kernel states all rendered
+PASS anchor id="kernelPill"
+PASS anchor id="view-dialogue"
+PASS anchor id="view-memory"
+PASS anchor id="chatForm"
+PASS anchor id="queueFoot"
+PASS node --check app.js
+SOURCE
+  base.css bytes=37309 sha256=b954cd5d3e427ada40f164ee2077eb6e5fc281a02dde4037b6ae9925d23f5a5c
+  v2.css bytes=30255 sha256=ceca3eac3ac3c2292b368a23267fce9888fb15c216c34500c5422bd28d89bf47
+  body.html bytes=18247 sha256=dd360ee52608dec05633be50ce741f4fecaee95bbefbefde869b04146a3f83c8
+  app.js bytes=62081 sha256=0a8cffc2303847f990e7f91371de06b52c6226a9c849e510d73514a43b3861f3
+OUT \u5fae\u6838\u53f0.html
+BYTES 148207
+LINES 3333
+SHA256 e671b133e38de299f8e662c0e734e2c72906a4a38712d8999f2728c2bc0db056
+CHECKS 17/17
+RESULT PASS

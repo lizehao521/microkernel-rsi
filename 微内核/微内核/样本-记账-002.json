@@ -1,0 +1,105 @@
+{
+  "call": 2,
+  "streaming": false,
+  "reason": "非流式那一发：端点裸回最终文本、没有分帧，流式三格按缺席记（absent/0），wire/usage 一律 relayed——只有 chunks 那格被故意写成 measured/0，把「这一发没有分帧」伪报成「量到了 0 帧」。",
+  "parts_budget": {
+    "call_bytes_ceiling": 32768,
+    "transport_slack_pct": 12,
+    "shares": {
+      "system": 12,
+      "skill": 20,
+      "memory": 6,
+      "history": 22,
+      "toolspec": 10,
+      "observation": 3,
+      "user": 1
+    },
+    "content_bytes": 28835,
+    "fixed_overhead": {
+      "n": 428,
+      "basis": "estimated",
+      "source": "system 头 + 工具 schema 信封按字符数估，未实测"
+    }
+  },
+  "cuts": [
+    {
+      "kind": "history",
+      "ref": "history/msg-18..msg-63",
+      "role": "assistant",
+      "squeeze": "folded",
+      "from_bytes": 6210,
+      "to_bytes": 54,
+      "sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+    },
+    {
+      "kind": "observation",
+      "ref": "observation/read-src-index.ts",
+      "role": "tool",
+      "squeeze": "clipped",
+      "from_bytes": 4300,
+      "to_bytes": 2785,
+      "sha256": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+    },
+    {
+      "kind": "toolspec",
+      "ref": "toolspec/legacy-batch-tool",
+      "role": "user",
+      "squeeze": "dropped",
+      "from_bytes": 1180,
+      "to_bytes": 0,
+      "sha256": ""
+    },
+    {
+      "kind": "skill",
+      "ref": "skill/hermes-knowledge-digest",
+      "role": "system",
+      "squeeze": "dropped",
+      "from_bytes": 2460,
+      "to_bytes": 0,
+      "sha256": ""
+    }
+  ],
+  "notice": {
+    "sent": true,
+    "trimmed": false,
+    "why": "unset 一律拒收；本发没有未填格，故 notice 原样送出、未裁剪"
+  },
+  "finish": {
+    "reason": "stop",
+    "said": true
+  },
+  "model": "some-vendor/model-x-0715",
+  "usage": {
+    "input_basis": "relayed",
+    "input_n": 8014,
+    "input_source": "端点响应自报 input_tokens（分词器在对端）"
+  },
+  "wire": {
+    "out_basis": "relayed",
+    "out_n": 321,
+    "in_basis": "relayed",
+    "in_n": 1180
+  },
+  "stream_metrics": {
+    "chunks_basis": "measured",
+    "chunks_n": 0,
+    "first_byte_basis": "absent",
+    "first_byte_n": 0,
+    "max_gap_basis": "absent",
+    "max_gap_n": 0
+  },
+  "tool_calls": 1,
+  "failure": {
+    "kind": "",
+    "status": 200,
+    "detail": ""
+  },
+  "retry_after": {
+    "basis": "absent",
+    "n": 0,
+    "source": ""
+  },
+  "defects": [
+    "5"
+  ]
+}

@@ -1,0 +1,52 @@
+# 安装器的臂：四档退出码各有牙（0 绿装 / 1 装完尺子红 / 3 三档拒绝 / 4 两档 NOT_RUN）+ 2 发正对照必须不响，
+# 再加 ASCII 纯度三支（install-weihetai.ps1、.cmd、载荷里的 启动-微核台-便携.cmd）与它自己的红对照。
+# 出包件那句「纯 ASCII 由 臂-安装器-1028.py 那一趟核」就是这一趟，读到这里才算兑现。
+正本（开跑前）：微核台-便携-1028.zip=bbe17d1fcad6c7f1 install-weihetai.ps1=fc604d6ff0056feb install-weihetai.cmd=7f82aafee5c7efd5
+   载荷 zip 条目 39 ｜树 微核台-便携-1028 ｜清单 清单-微核台-便携-1028.json ｜尺子在树里 = True
+
+一、正对照：干净载荷包装进空目录 ⇒ 必须不响（rc=0 且尺子自报 0）
+   不响的前提：目标目录是新建的 ｜装完盘上条目 47 条
+     安装器末行 [install] IS | installed=1 verify_rc=0 rc=0
+     rc 期望 0 实 0｜标记全在 ⇒ BITTEN
+二、臂 1：同目录放两份 zip（载荷不是唯一 ⇒ 别猜哪份是要装的）
+   响的前提：目录里 *.zip 计数 = 2 ｜没给 -Zip
+     安装器末行 [install] IS | installed=0 verify=NOT_RUN rc=3
+     rc 期望 3 实 3｜标记全在 ⇒ BITTEN
+三、臂 2：目标目录非空且没给 -Force ⇒ 拒，且不碰已有文件
+   响的前提：target 里已有 1 个文件 ｜跑完它仍在 = True
+     安装器末行 [install] IS | installed=0 verify=NOT_RUN rc=3
+     rc 期望 3 实 3｜标记全在 ⇒ BITTEN
+四、臂 2b（臂 2 的正对照）：同一个非空 target 给了 -Force ⇒ 该过
+   不响的前提：target 还是那个非空目录（上一发拒的就是它）
+     安装器末行 [install] IS | installed=1 verify_rc=0 rc=0
+     rc 期望 0 实 0｜标记全在 ⇒ BITTEN
+五、臂 3：树里 微核台.html 被改一字节再打包 ⇒ 装完尺子必须红（rc=1，不是 0）
+   响的前提：改的那条在 zip 里存在 = True ｜首字节从 < 改成 x
+   这一发证明「装完之后跑的那把尺子」真在逐字节对账：若它只是走过场，这里会 rc=0
+     安装器末行 [install] IS | installed=1 verify_rc=1 rc=1
+     rc 期望 1 实 1｜标记全在 ⇒ BITTEN
+六、臂 4：载荷 zip 里没有清单 json ⇒ 拒（rc=3，尺子根本没法跑）
+   响的前提：原本 json 计数 1 ⇒ 剔掉后 0
+     安装器末行 [install] IS | installed=0 verify=NOT_RUN rc=3
+     rc 期望 3 实 3｜标记全在 ⇒ BITTEN
+七、臂 5：树里没有 VERIFY-RULER 那把尺子 ⇒ installed=1 但 verify NOT_RUN（rc=4）
+   响的前提：树里 *.py 原本 11 支（剔掉尺子仍留 10 支 ⇒ 不是「没有 .py」骗过去的，是认领标记数不对）
+     安装器末行 [install] IS | installed=1 verify=NOT_RUN rc=4
+     rc 期望 4 实 4｜标记全在 ⇒ BITTEN
+八、臂 6：机器上找不到 python ⇒ 照样不许写成「验过」（rc=4）
+   响的前提：尺子在树里（上一发才剔的，这发没剔）｜PATH 只留 System32 ｜WEIHETAI_PY 已撤
+     安装器末行 [install] IS | installed=1 verify=NOT_RUN rc=4
+     rc 期望 4 实 4｜标记全在 ⇒ BITTEN
+九、ASCII 纯度：两支安装脚本 + 载荷里那支随包启动器，每字节 <128（cp936 机器上写死中文名会读成乱码）
+   随包启动器在载荷 zip 里存在 = True ｜245 B
+   不响的前提：ps1 长度 7842 B ｜cmd 长度 541 B ｜启动器 245 B
+     ps1 纯 ASCII = True ｜cmd 纯 ASCII = True ｜启动器 纯 ASCII = True
+十、ASCII 检查自己有没有牙：往 ps1 副本插一个中文字节 ⇒ 同一个函数必须报红
+   响的前提：副本比正本多 44 B ｜检到的行号 179 摘要 　# 注：这行是给检查件看的中文
+
+正本复核：微核台-便携-1028.zip bbe17d1fcad6c7f1→bbe17d1fcad6c7f1 install-weihetai.ps1 fc604d6ff0056feb→fc604d6ff0056feb install-weihetai.cmd 7f82aafee5c7efd5→7f82aafee5c7efd5
+  正本没被碰（BITTEN=刀确实只落在 TEMP 副本上）
+
+臂小结：10/10 按期望（含 2 发正对照必须不响）
+TEMP 副本目录 8 份跑完即删
+RESULT PASS

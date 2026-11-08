@@ -1,0 +1,101 @@
+==== 对照 ====
+对照 0（干净拷贝）：go test 退出码 0、PASS 99 条、FAIL 0 条；kcheck 退出码 0
+对照 T（故意弄坏一个测试文件）：go build 退出码 0（该 0）、go test 输出含 [build failed]=True、有 PASS/FAIL 行=False（该 False）
+
+
+== m13b-份额超过100也放行
+   点名该红：TestDeriveBudgetIsTheOnlyOwnerOfTheFormula
+   实际报红：TestDeriveBudgetIsTheOnlyOwnerOfTheFormula
+   没红的点名：无
+   全量共红 1 条: TestDeriveBudgetIsTheOnlyOwnerOfTheFormula
+
+== m20-预算公式不复核
+   点名该红：TestHandBuiltBudgetIsRefused
+   实际报红：TestHandBuiltBudgetIsRefused
+   没红的点名：无
+   全量共红 1 条: TestHandBuiltBudgetIsRefused
+
+== m21-回夹不必真收小
+   点名该红：TestClampMustActuallyShrink
+   实际报红：TestClampMustActuallyShrink
+   没红的点名：无
+   全量共红 1 条: TestClampMustActuallyShrink
+
+== m22-协议也允许裁
+   点名该红：TestOnlySystemIsWholeOrNothing
+   实际报红：TestOnlySystemIsWholeOrNothing
+   没红的点名：无
+   全量共红 1 条: TestOnlySystemIsWholeOrNothing
+
+== m23-token白名单变黑名单
+   点名该红：TestUsageIsRelayedNotMeasured, TestTokenTotalOnlySumsTokens
+   实际报红：TestTokenTotalOnlySumsTokens, TestUsageIsRelayedNotMeasured
+   没红的点名：无
+   全量共红 2 条: TestTokenTotalOnlySumsTokens, TestUsageIsRelayedNotMeasured
+
+== m24-没数到冒充没发出去
+   点名该红：TestSentIsThreeState
+   实际报红：TestSentIsThreeState
+   没红的点名：无
+   全量共红 1 条: TestSentIsThreeState
+
+== m25-两个字节量又共用一个键名
+   点名该红：TestPartBytesMustSumToContentBytes, TestCallNumberStartsAtOne
+   实际报红：TestCallNumberStartsAtOne, TestPartBytesMustSumToContentBytes
+   没红的点名：无
+   全量共红 28 条
+
+== m26-拼错的读者声明也收
+   点名该红：TestUnreadCellsAreCountedAgainstADenominator
+   实际报红：TestUnreadCellsAreCountedAgainstADenominator
+   没红的点名：无
+   全量共红 1 条: TestUnreadCellsAreCountedAgainstADenominator
+
+== m27-框架模块前缀不匹配
+   点名该红：TestIsolationGoesRedOnALeak, TestClassifyImportEdgeShapes
+   实际报红：TestClassifyImportEdgeShapes, TestIsolationGoesRedOnALeak
+   没红的点名：无
+   全量共红 4 条: TestClassifyImportEdgeShapes, TestIsolationGoesRedOnALeak, TestLeakInATestFileIsCaughtToo, TestSubdirectoriesAreScanned
+
+== m28-cgo算成标准库
+   点名该红：TestCgoIsNotCountedAsStdlib, TestClassifyImportEdgeShapes
+   实际报红：TestCgoIsNotCountedAsStdlib, TestClassifyImportEdgeShapes
+   没红的点名：无
+   全量共红 2 条: TestCgoIsNotCountedAsStdlib, TestClassifyImportEdgeShapes
+
+== m29-不扫子目录
+   点名该红：TestSubdirectoriesAreScanned, TestSelfIsolation
+   实际报红：TestSelfIsolation, TestSubdirectoriesAreScanned
+   没红的点名：无
+   全量共红 9 条
+
+== m18b-份额那一格不排序
+   点名该红：TestCellOrderIsStable
+   实际报红：TestCellOrderIsStable
+   没红的点名：无
+   全量共红 1 条: TestCellOrderIsStable
+
+==== 汇总 ====
+m13b-份额超过100也放行                            RED-ONLY-NAMED 1
+m20-预算公式不复核                                RED-ONLY-NAMED 1
+m21-回夹不必真收小                                RED-ONLY-NAMED 1
+m22-协议也允许裁                                 RED-ONLY-NAMED 1
+m23-token白名单变黑名单                           RED-ONLY-NAMED 2
+m24-没数到冒充没发出去                              RED-ONLY-NAMED 1
+m25-两个字节量又共用一个键名                           RED-WIDER      28
+m26-拼错的读者声明也收                              RED-ONLY-NAMED 1
+m27-框架模块前缀不匹配                              RED-WIDER      4
+m28-cgo算成标准库                               RED-ONLY-NAMED 2
+m29-不扫子目录                                  RED-WIDER      9
+m18b-份额那一格不排序                              RED-ONLY-NAMED 1
+
+—— 两类针分开数 ——
+go test 针 12 根：RED-ONLY-NAMED 9、RED-WIDER 3、VACUOUS 0、TEST-BROKE(没跑成) 0
+kcheck  针 0 根：GATE-RED 0、GATE-GREEN(空) 0、GATE-CRASH(崩) 0
+两类共用：ANCHOR-BAD 0、BUILD-BROKE 0
+
+针数 12（go test 12 + kcheck 0）；只有点名的红 9；红得更宽 3；闸门报红 0；空针/坏针 0
+
+—— 两根对照 ——
+对照 0（干净拷贝全过）：成立
+对照 T（探针认得出「测试没跑起来」）：成立

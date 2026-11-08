@@ -1,0 +1,132 @@
+MCP 两面（mcpsrv + cmd/mcphttp）的针 —— 16 根，由 tasks/probe/mcphttp_probe.py 自己印出、未编辑。
+跑于 2026-10-16 13:27:03 → 13:41:55，脚本退出码 0。
+
+这一轮为什么来：A/B 测评撞出 #40 —— IdleTimeout=120s 会杀掉挂载的 keep-alive 连接，
+而**进程还活着、端口还在听、直连 HTTP 全对**，只有客户端的工具清单空了。
+修它的时候发现：那条守着超时的测试只钉「非零」，正好放过 120 秒这个杀手。
+所以这一轮加的是**钉数值量级**的判据 + 一根把值改回坏值的针（h9）。
+
+前后两笔现场读数（传输层实验，不是本轮自印的，但同属这条洞的凭据）：
+  改前：同一根 keep-alive 连接闲置 30s → HTTP 200；闲置 130s → ConnectionAbortedError [WinError 10053]
+  改后：闲置 30s → HTTP 200；闲置 130s → HTTP 200（服务已换新字节重启，md5 ec996cd8…、pid 7476）
+  改前那条测试也红过一次：main_test.go:312: IdleTimeout=2m0s 太短…至少要 15m0s 量级
+
+h9 那一根自己印的三行：
+  == h9-闲置界又变回120秒（杀挂载连接）  [cmd\mcphttp\main.go]
+     点名该红：TestServerTimeoutsAreSet
+     实际报红：TestServerTimeoutsAreSet
+     全量共红 1 条
+
+对照 0 的 PASS：上一份 21 条 → 本轮 21 条（这一轮没加新测试，加的是同一支测试里的第三条断言 —— 一支测试里多一条判据不会多出一条 PASS，所以这两个数**应当相同**；不相同就是探针或树在骗人）。
+
+前面几份留档不作废：15 根那份（#35）、13 根那份（#33 补档）、11 根那份（10-15 第一轮，含 2 根 BUILD-BROKE）都标成各自「那一轮」。
+
+==== 以下为脚本自印原文 ====
+==== 对照 ====
+对照 0（未改动的树）：go test 退出码 0、PASS 21 条、FAIL 0 条（该 0 / >0 / 0）
+对照 T（弄坏测试文件）：退出码 1（该非 0）、认出坏了标记=True、有 PASS/FAIL 判决行=False（该 True / False）、修回一致=True
+
+
+
+== h1-写请求先吃401  [cmd\mcphttp\main.go]
+   点名该红：TestNonPostIs405RegardlessOfAuth
+   实际报红：TestNonPostIs405RegardlessOfAuth
+   全量共红 1 条
+
+== h2-405不告知只许POST  [cmd\mcphttp\main.go]
+   点名该红：TestNonPostIs405RegardlessOfAuth
+   实际报红：TestNonPostIs405RegardlessOfAuth
+   全量共红 1 条
+
+== h3-HTTP面不查口令  [cmd\mcphttp\main.go]
+   点名该红：TestTokenGate
+   实际报红：TestTokenGate
+   全量共红 1 条
+
+== h4-请求体不设上限  [cmd\mcphttp\main.go]
+   点名该红：TestOverLimitBodyRefused
+   实际报红：TestOverLimitBodyRefused
+   全量共红 1 条
+
+== h5-垃圾体塌成没回话  [cmd\mcphttp\main.go]
+   点名该红：TestGarbageBodyIs400
+   实际报红：TestGarbageBodyIs400
+   全量共红 1 条
+
+== h6-通知回空200  [cmd\mcphttp\main.go]
+   点名该红：TestNotificationIs202NoBody
+   实际报红：TestNotificationIs202NoBody
+   全量共红 1 条
+
+== h7-网段无口令也起来  [cmd\mcphttp\main.go]
+   点名该红：TestCheckListenRefusesPublicBindWithoutToken
+   实际报红：TestCheckListenRefusesPublicBindWithoutToken
+   全量共红 1 条
+
+== s8-键名分母用推出来的  [mcpsrv\mcpsrv.go]
+   点名该红：TestCelltableAgreesWithKernelAndFreeze, TestRPCOverHTTP
+   实际报红：TestCelltableAgreesWithKernelAndFreeze, TestRPCOverHTTP
+   全量共红 2 条
+
+== s9-工具数有了第二个owner  [mcpsrv\mcpsrv.go]
+   点名该红：TestToolCountIsTheSameOwnerAsTheList, TestRPCOverHTTP
+   实际报红：TestRPCOverHTTP, TestToolCountIsTheSameOwnerAsTheList
+   全量共红 2 条
+
+== s10-少一个轴也照答  [mcpsrv\mcpsrv.go]
+   点名该红：TestReadBackRefusesEmptySession
+   实际报红：TestReadBackRefusesEmptySession
+   全量共红 1 条
+
+== s11-顶掉账本不点名也放行  [mcpsrv\mcpsrv.go]
+   点名该红：TestLoadJournalNeedsAcknowledgeToReplace
+   实际报红：TestLoadJournalNeedsAcknowledgeToReplace
+   全量共红 1 条
+
+== s12-排队不成立（直接处理）  [mcpsrv\mcpsrv.go]
+   点名该红：TestQueueTimeoutIs503AndCounted
+   实际报红：TestQueueTimeoutIs503AndCounted
+   全量共红 1 条
+
+== h8-服务端超时又变回不限  [cmd\mcphttp\main.go]
+   点名该红：TestServerTimeoutsAreSet
+   实际报红：TestServerTimeoutsAreSet
+   全量共红 1 条
+
+== h9-闲置界又变回120秒（杀挂载连接）  [cmd\mcphttp\main.go]
+   点名该红：TestServerTimeoutsAreSet
+   实际报红：TestServerTimeoutsAreSet
+   全量共红 1 条
+
+== s13-表头不认（往返读不回来）  [mcpsrv\mcpsrv.go]
+   点名该红：TestEncodeJournalTextLoadsBackVerbatim
+   实际报红：TestEncodeJournalTextLoadsBackVerbatim
+   全量共红 1 条
+
+== s14-任何第一行都当表头剥掉  [mcpsrv\mcpsrv.go]
+   点名该红：TestEncodeJournalTextLoadsBackVerbatim, TestLoadJournalNeedsAcknowledgeToReplace, TestLoadJournalThenVerifyOverHTTP, TestVerifyOnEmptyChainRefusesGreen
+   实际报红：TestEncodeJournalTextLoadsBackVerbatim, TestLoadJournalNeedsAcknowledgeToReplace, TestLoadJournalThenVerifyOverHTTP, TestVerifyOnEmptyChainRefusesGreen
+   全量共红 4 条
+
+==== 汇总 ====
+h1-写请求先吃401                    RED-ONLY-NAMED   exit=1
+h2-405不告知只许POST                RED-ONLY-NAMED   exit=1
+h3-HTTP面不查口令                   RED-ONLY-NAMED   exit=1
+h4-请求体不设上限                     RED-ONLY-NAMED   exit=1
+h5-垃圾体塌成没回话                    RED-ONLY-NAMED   exit=1
+h6-通知回空200                     RED-ONLY-NAMED   exit=1
+h7-网段无口令也起来                    RED-ONLY-NAMED   exit=1
+s8-键名分母用推出来的                   RED-ONLY-NAMED   exit=1
+s9-工具数有了第二个owner               RED-ONLY-NAMED   exit=1
+s10-少一个轴也照答                    RED-ONLY-NAMED   exit=1
+s11-顶掉账本不点名也放行                 RED-ONLY-NAMED   exit=1
+s12-排队不成立（直接处理）                RED-ONLY-NAMED   exit=1
+h8-服务端超时又变回不限                  RED-ONLY-NAMED   exit=1
+h9-闲置界又变回120秒（杀挂载连接）           RED-ONLY-NAMED   exit=1
+s13-表头不认（往返读不回来）               RED-ONLY-NAMED   exit=1
+s14-任何第一行都当表头剥掉                RED-ONLY-NAMED   exit=1
+
+针数 16（表里 16，本轮实际跑 16）；分类：RED-ONLY-NAMED 16
+取材方式：只改这两个外壳文件（cmd\mcphttp\main.go、mcpsrv\mcpsrv.go），每根针后按原字节修回（累计改过 16 次）
+对照 0（干净树全过）：成立；对照 T（认得出测试没跑起来）：成立
+每条承诺都有一根针能把它抹红；无空针、无坏针、两根对照都成立、收尾树是干净的。

@@ -1,0 +1,129 @@
+已落地 · 人读表头的判定下沉到内核（A3）· 2026-10-25 04:1x
+=====================================================================
+
+一句话：`encode_journal` 交出来的那份字节，第一行是给人看的表头；今天之前**内核的装载器
+不认识它**，所以出厂件喂不回自己的装载器。这一趟把「标记 + 判定」这两个定义搬进内核，
+表头单独数一格 `HeaderLines`、且**不进** `Lines`。
+
+本文件是这趟改动的落地账（改了哪几处 / 现场两个读数 / 七根新臂 / 边界）。
+所有数都是本趟现跑的读数，可按名字与 mtime 认；没在这里印的数就不是这趟证的。
+
+
+一、改了什么（六件，全部 path:line）
+---------------------------------------------------------------------
+
+内核（判定的新 owner）
+  微内核/微内核/journal.go:193-213  新增 `const EncodeHeaderMark = "字节 JSONL，"`（:203）
+      与 `func IsEncodeHeader(line)`（:211-214）。判定刻意做窄：**不以 `{` 开头 且 含该标记**
+      才算表头 —— 「任何非 JSON 行都算表头」那一档会把真坏账放过（下面 j12/s14 就是量这个的）。
+  微内核/微内核/journal.go:248-252  `Journal` 新增 `HeaderLines int`。
+  微内核/微内核/journal.go:313-317  `ReadJournal` 在探测计数行**之前**、`j.Lines++` **之前**
+      跳过被认出的表头行，并 `j.HeaderLines++`（:316）。等式 `Lines == Parsed + GateLines`
+      一字未动 —— 表头不在这个分母里，所以它不参与「读坏了几行」的判断。
+  微内核/微内核/journal.go:266-268  `String()` 只在 `HeaderLines > 0` 时追加
+      「、另有 N 行人读表头（不是账，不进 Lines）」；没有表头时这句一个字都不出现。
+
+外壳（不再自己认第二遍）
+  微内核/微内核/mcpsrv/mcpsrv.go:551      表头那串改用 `kernel.EncodeHeaderMark`（产它的仍是外壳）。
+  微内核/微内核/mcpsrv/mcpsrv.go:573-576  `load_journal` **不再先剥表头**，直接把整段喂给
+      `kernel.LoadLedger([]byte(a.Text))`。
+  微内核/微内核/mcpsrv/mcpsrv.go:624-627  回话里把内核数出来的 `j.HeaderLines` 如实念给调用方。
+  微内核/微内核/mcpsrv/mcpsrv.go:634-643  删掉原来的 `const encodeHeaderMark` + `splitEncodeHeader`
+      ——「认它的是内核，不是外壳先剥了一遍」（一个定义只有一个 owner）。
+
+针（三支，全在改内核的那一族里）
+  微内核/微内核/journal_test.go:447  判定表 5 格：真表头 true；链行 / `"这不是账本 ，2940 行"` /
+      空白 / `{"note":"字节 JSONL，"}` 全 false。表头用 `EncodeHeaderMark` 拼，不抄字面量。
+  微内核/微内核/journal_test.go:479  正面「表头 + 3 条」⇒ err=nil、HeaderLines=1、Lines=Parsed=3、
+      BadLines=0、链自洽可判、Verify 绿；反面把标记换成 `"这不是账本 ，"` ⇒ err≠nil、HeaderLines=0、
+      BadLines 点名「第 1 行」、Lines=4/Parsed=3；第三态「只有表头的一本」⇒ err=nil 且同时说
+      「读回 0 条」和「人读表头」。
+  微内核/微内核/journal_test.go:546  那句表头话**只在有表头时**出现，且印出来的数与 `HeaderLines` 对账。
+
+尺子（两处登记，臂都必须是叶子）
+  微内核/微内核/tasks/probe/kprobe.py:312/328/337/340  → j11 / j12 / j13 / j14（四根，都改 journal.go）
+  微内核/微内核/tasks/probe/mcphttp_probe.py:46/133/142/146 → JRNL 常量 + s13 / s14 / s14b（三根）
+
+本趟没动内核冻结表：48 键 / 49 格 / §8 十五条一个字都没改；`HeaderLines` 是 `Journal` 这个
+解码统计里的一个字段，不是第 50 格、也不是新计数桶。
+
+
+二、现场凭证：出厂件第一次按出厂 API 往返（甲 = 改前，乙 = 改后）
+---------------------------------------------------------------------
+被读的那份字节全程只读、未改动：
+  构建-1017/客服靶场/导出/账本-全量-1018.jsonl
+  1,483,939 字节 ｜ sha256 fb1fa5ef7a9347769eede05d48b06a3e712861cc1e979076cdf18f922543d220
+  非空行 2941 ｜ 第一行原样："1483862 字节 JSONL，2940 行（写盘是你的事，内核只交字节）"
+
+两件 exe 各印自己的哈希（同源取字节、只有内核包不同 ⇒ 差的就是这趟的改动）：
+  甲 改前（还原版：TEMP/ak-1025/还原版树 = 现树 66 个 .go/.mod，journal.go 从 TEMP-备份 换回备份那份）
+      rt-before.exe 4,382,720 B ｜ sha256 30f2f03ffb6c5c83122d86cfa3f11a8f84b8acdffc1bfcf94e07c2367a84bcaa
+  乙 改后（现树）
+      rt-after.exe  4,395,520 B ｜ sha256 08df025ae6f5e6f2994b9f40ae284d2dde9f22096dc57a1b6c9a076f6f89fe4e
+  取字节件：微内核/微内核/tasks/probe/roundtrip/main.go（只读，rc≠0 只在 err≠nil 或 Verify 红时）
+
+甲（改前，rc=1）—— 这一发就是评审指出的那条：
+  kernel.LoadLedger err：kernel: 2941 行里 1 行解不开 —— 这不是空账本，是读坏了：
+      [第 1 行解不开：invalid character '字' after top-level value]
+  Lines=2941 Parsed=2940 BadLines=1 WithPayload=2940 NoPayload=0（这一版还没有 HeaderLines 这一格）
+  Journal.String()：读回 2940 条、全部带原像、✗ 有 1 行解不开；计数栏：没有这一行 ⇒ 不可知（不是 0）
+  ⇒ 罪名是「读坏了」，不是「空账本」；但一份**完好**的出厂账就是这么被判的。
+
+乙（改后，rc=0）—— 同一份字节：
+  内核认不认第一行是人读表头（kernel.IsEncodeHeader）：true
+  kernel.LoadLedger err：<nil>
+  Lines=2940 Parsed=2940 HeaderLines=1 BadLines=0 WithPayload=2940 NoPayload=0 GateLines=0 HasGate=false
+  分母对账：Lines+HeaderLines = 2941 ｜ 取字节件自己数的非空行 = 2941 ｜ 相等 = true
+  Journal.String()：读回 2940 条、全部带原像、另有 1 行人读表头（不是账，不进 Lines）；计数栏：不可知（不是 0）
+  ChainReport：✓ 链自洽（共 2940 条，其中 2940 条比对过原像）｜ Decidable=true
+  Ledger.Verify() 绿 —— 只说「手里没有不符」；「核不了」那一半由上面 Decidable=true 说，不由这句代答。
+
+两份原始读数：Temp/ak-1025/rt-甲改前.txt 、 Temp/ak-1025/rt-乙改后.txt（按 mtime 认）。
+
+
+三、七根臂：分类与逐名
+---------------------------------------------------------------------
+内核族（kprobe 筛过针的一轮，只跑 j11-j14 这 4 根；表里共 84 根）
+  读数：Temp/ak-1025/臂-j11到j14-带交付件-1025.txt
+  对照 0（干净拷贝全过）：go test rc=0、PASS 292 / FAIL 0；kcheck rc=0。对照 T：成立。
+  j11-表头不认（出厂字节喂不回装载器）   RED-WIDER   全量红 13（点名 3 全红 + 宽出 10）
+  j12-任何非JSON行都算表头（真坏账被放过） RED-WIDER   全量红 4（点名 3 全红 + 宽出 TestSameRulerAsShippedKernel）
+  j13-表头也计进Lines（一句假篡改嫌疑）   RED-ONLY-NAMED 1
+  j14-表头那句在没有表头时也说           RED-ONLY-NAMED 1
+  宽出的每一根都逐名核过（不是把名单改窄凑绿）：
+      Temp/ak-1025/j11-宽出的名单.txt（13 条逐名）、Temp/ak-1025/j11-逐名核对.txt（7/7 全在
+      「把 encode_journal 的字节再喂回 load」这一族里，各自印了它引用哪几个工具键）；
+      j12 宽出那一条 `TestSameRulerAsShippedKernel` 是把交付件 exe 与源码并排比的针 ——
+      判定搬进内核后两侧不再逐字相同，它**该**红；名单里已写上它。
+  ⇒ 这一轮筛过针，`len(results) != len(NEEDLES)` ⇒ 件自己 rc=1（mcphttp_probe.py:410 同一律），
+    那是「不许当整轮结论」，不是针不咬。整轮重跑在 B3（本趟后面），现数只有「84 根」这个自印分母可信。
+
+外壳族（mcphttp 筛过针的一轮，只跑 s13/s14/s14b 这 3 根；表里共 27 根）
+  读数：报告/臂检-表头下沉内核-s13s14s14b-1025-0410.txt（04:08 这份为准）
+        报告/臂检-表头下沉内核-s13s14s14b-1025.txt（04:02 那份是同一轮的**首次**跑；它的
+        「取材方式」那句写「只改 3 个源文件」，而这一轮实际只改了 journal.go 一个 —— 那句数的是
+        整张表涉及的文件，对被筛掉的轮子说了谎。已在 mcphttp_probe.py:334-337,355-357,399-402
+        改成「本轮真改了 N 个 + 整张表涉及 M 个（筛过时 M 不作数）」，04:08 这份是改后重跑。）
+  对照 0（未改动的树全过）：rc=0、PASS 41 / FAIL 0。对照 T：成立。锚不唯一 0 根。
+  s13-表头不认（往返读不回来）        RED-ONLY-NAMED 5 —— 点名 5 支全红，无一漏
+  s14-任何非JSON行都当表头（放过坏账）  RED-ONLY-NAMED 1
+  s14b-第一行永远当表头跳（吃第一条真账） RED-ONLY-NAMED 6 —— 罪名逐名核过：
+        Temp/ak-1025/s14b-全量那两段的罪名.txt 印的是「账本链不符：第 1 条 seq=2 不连续
+        （中间有被抽走的记录）」⇒ 这根针真的把第一条**真账**吃掉了，判据咬的是最硬那一档。
+  ⇒ s14 与 s14b 是**两个不同坏法**，各自点名各自数。原来 s14 继承的 4 支名单在这一轮里有 3 支不再红
+    —— 因为旧变异是「永远丢第一行」、新变异是「任何非 JSON 行都当表头」，打的不是同一个坏法。
+    修法是把两种坏法各开一根针（s14 管放过坏账、s14b 管吃真账），不是把名单改窄。
+
+
+四、边界（这趟证明了什么、没证明什么）
+---------------------------------------------------------------------
+证明了：出厂那 2941 行的字节，现在**不改一个字节**就能被内核装载器读回 2940 条且链自洽（乙）；
+        改之前同一份字节是 rc=1、被判「读坏了」（甲）。两发用同一份字节、各印自己的 exe 哈希。
+        表头判定只有一个 owner（内核）；外壳那句「认它的是内核」是回话里印出来的，不是注释里说的。
+        三态没塌：HeaderLines=0 时那句表头话不出现（j14 量这个）；「只有表头的一本」说 0 条不说「读坏了」。
+没证明：交付件 `构建-1017/agentkernel/bin/mcpkernel.exe` 仍是 10-19 那一份、**不含本趟改动** ——
+        重出它要跑 `构建-1017/打包.py`（会重生成 zip 与便携树、哈希变），属交付动作，本趟按规矩没跑。
+        所以 j12 那根 `TestSameRulerAsShippedKernel` 在**下一次重新打包之前**，拿现 exe 比现源码会是红的；
+        这条已经写进 j12 的名单里，不会伪装成绿。
+        上面两轮都是筛过的（4/84、3/27），只够回答「这几根针咬不咬」；整轮数在 B3 落地。
+        E6/真人/真端点那几格仍是 NOT_RUN，不折算成 0。

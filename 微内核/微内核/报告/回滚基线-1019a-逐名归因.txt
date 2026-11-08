@@ -1,0 +1,46 @@
+回滚基线 1019a 的逐名归因（10-19 中午，现扫现算）
+
+[A] am 那份登记的路径：分母 87 条
+    盘上已经找不到的：0 条 []
+    字节变了的：18 条（逐名）：
+      README.md
+      cells.go
+      cmd/kaudit/main.go
+      cmd/kcheck/main.go
+      cmd/mcphttp/main.go
+      cmd/mcpkernel/main.go
+      contract.md
+      input.go
+      journal.go
+      kernel.go
+      mcpsrv/mcpsrv.go
+      mcpsrv/mcpsrv_test.go
+      output.go
+      record.go
+      record_test.go
+      tasks/audit/celltable_audit.py
+      tasks/probe/kprobe.py
+      产品定位.md
+
+[B] 现扫全集（.go/.py/.sh/.mod/.sum/.ps1/.cmd/.bat，剔 报告/.hermess-snapshots/PS解/杂件-挪出-1018晚/.qoder/node_modules/__pycache__/vendor/便携包 这些目录）：93 件
+    比 am 多出来的 9 件：
+      cmd/kwire/main.go
+      cmd/kwire/report.go
+      cmd/mcphttp/guard_test.go
+      freetext_test.go
+      gate_test.go
+      mcpsrv/gate_shell_test.go
+      mcpsrv/inject_test.go
+      mcpsrv/review_fix_shell_test.go
+      review_fix_kernel_test.go
+    am 里有、现扫没数到的 3 件：['README.md', 'contract.md', '产品定位.md']
+    原因不是文件丢了：现扫只按上面那些扩展名，而 am 把三份 .md 也当回滚对象（文档同样要能恢复）。所以新基线用并集，不把现扫单独当全集。
+    归因口径：变了的那些要能说出是哪一轮改的；归不到的我写「未闭合」。
+
+[C] 新基线要盖的集合 = am 路径 ∪ 现扫全集：96 条路径
+    其中盘上找不到、因此不写进新基线的：0 条 []
+
+[D] 新基线交给 sha256sum -c 复核（本人现跑，cwd = 仓库根，因为清单里的路径是相对仓库根的）
+    第一跳我把 cwd 写成了 报告/ ，96 条全部报 No such file or directory、退出码 1；那是工具跑错目录，不是基线对不上，所以这一跳的数不作数。
+    分母行数=96 ｜ grep ': OK$' = 96 ｜ grep ': FAILED' = 0 ｜ 工具退出码=0
+    两个口径并排，末列判定法不用来数失败；stderr 原样贴：

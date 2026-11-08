@@ -1,0 +1,115 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>几何六档尺 v2</title>
+<body>
+<script>
+// 同一把尺子量两页：?page=web/trace.html（改前） / ?page=web2/trace.html（改后）。
+// 只量 iframe 内文档；iframe 的 px 宽度就是被测页的真实 CSS 视口。
+// 两态：closed = 页面原样（每发的侧表在默认关闭的 <details> 里，浏览器不给它们排版）；
+//       open   = 把全部 <details> 展开后再量（侧表这时才进排版，才谈得上它们溢不溢出）。
+// 撑宽者只数「在流里」的元素：祖先里有 details:not([open]) 的不算 —— 关着的 details
+// 子元素仍能报出 getBoundingClientRect，但它们不参与祖先的 scrollWidth（10-25 实测）。
+const P = new URLSearchParams(location.search);
+const SRC = P.get('page') || 'web2/trace.html';
+const WIDTHS = [1440, 1100, 900, 700, 528, 390, 320];
+const out = { src: SRC, widths: WIDTHS, rows: [], defs: {
+  overflow_px: 'max(documentElement.scrollWidth, body.scrollWidth) - documentElement.clientWidth',
+  inFlowCulprit: 'right>clientW+1 且在流里的元素里 right 最大的一个（tag.cls@right）',
+  mainTableW: '「一发解剖」那张主表的 rect 宽度',
+  mainWrapScroll_px: '主表所在 .tw 壳的 scrollWidth-clientWidth（改前页没有壳 ⇒ null）',
+  twScrollable_open: '打开全部 details 后，能横向滚（scrollWidth-clientWidth>1）的 .tw 壳个数',
+  arm: '390 宽、details 全开、把在流里最宽那张表 style.minWidth 改成 2000px 后重量；只证尺子有牙'
+}};
+const tick = (ms) => new Promise(r => setTimeout(r, ms));
+
+function inClosedDetails(el) {
+  let p = el.parentElement;
+  while (p) { if (p.tagName === 'DETAILS' && !p.open) return true; p = p.parentElement; }
+  return false;
+}
+
+function measure(d, w, state) {
+  const de = d.documentElement;
+  const docScrollW = Math.max(de.scrollWidth, d.body ? d.body.scrollWidth : 0);
+  const clientW = de.clientWidth;
+  const els = [...d.querySelectorAll('body *')].filter(e => !inClosedDetails(e));
+  let culprit = null, maxRight = clientW + 1;
+  for (const e of els) {
+    const r = e.getBoundingClientRect();
+    if (r.width > 0 && r.right > maxRight) {
+      maxRight = r.right;
+      const cls = (e.className && typeof e.className === 'string') ? '.' + e.className.split(' ')[0] : '';
+      culprit = e.tagName + cls + '@' + Math.round(r.right);
+    }
+  }
+  const tables = [...d.querySelectorAll('table')];
+  const mainT = d.querySelector('h2 + .tw > table') || d.querySelector('h2 + table');
+  const mainWrap = mainT ? mainT.closest('.tw') : null;
+  const tws = [...d.querySelectorAll('.tw')].filter(x => !inClosedDetails(x));
+  const twScroll = tws.map(x => Math.max(0, x.scrollWidth - x.clientWidth));
+  return {
+    w, state, docScrollW, clientW, overflow_px: Math.max(0, docScrollW - clientW),
+    inFlowCulprit: culprit,
+    tableCount: tables.length,
+    mainTableW: mainT ? Math.round(mainT.getBoundingClientRect().width) : null,
+    mainWrapScroll_px: mainWrap ? Math.max(0, mainWrap.scrollWidth - mainWrap.clientWidth) : null,
+    twInFlow: tws.length,
+    twScrollable_open: state === 'open' ? twScroll.filter(v => v > 1).length : null,
+    maxTwScroll_open_px: state === 'open' && twScroll.length ? Math.max(...twScroll) : null,
+    minTdFontPx: (() => { let m = null; d.querySelectorAll('td,th').forEach(c => { const fs = parseFloat(getComputedStyle(c).fontSize); if (m === null || fs < m) m = fs; }); return m; })(),
+    viewportMeta: !!d.querySelector('meta[name=viewport]')
+  };
+}
+
+async function loadFrame(w) {
+  const f = document.createElement('iframe');
+  f.style.cssText = 'width:' + w + 'px;height:900px;border:0;display:block';
+  f.src = SRC;
+  await new Promise(res => { f.onload = res; document.body.appendChild(f); });
+  await tick(30);
+  return f;
+}
+
+(async () => {
+  try {
+    for (const w of WIDTHS) {
+      const f = await loadFrame(w);
+      const d = f.contentDocument;
+      const closed = measure(d, w, 'closed');
+      const ds = [...d.querySelectorAll('details')];
+      ds.forEach(x => x.open = true);
+      await tick(40);
+      const open = measure(d, w, 'open');
+      ds.forEach(x => x.open = false);
+      await tick(10);
+      out.rows.push({ w, closed, open, details: ds.length });
+      f.remove();
+    }
+    // 臂：390、details 全开、在流里最宽那张表 minWidth=2000px
+    const f = await loadFrame(390);
+    const d = f.contentDocument;
+    [...d.querySelectorAll('details')].forEach(x => x.open = true);
+    await tick(40);
+    const before = measure(d, 390, 'open');
+    const tables = [...d.querySelectorAll('table')].filter(t => !inClosedDetails(t))
+      .sort((a, b) => b.getBoundingClientRect().width - a.getBoundingClientRect().width);
+    if (tables[0]) tables[0].style.minWidth = '2000px';
+    await tick(40);
+    const after = measure(d, 390, 'open');
+    out.arm = {
+      width: 390, detailsOpen: true,
+      before_overflow_px: before.overflow_px, armOverflow_px: after.overflow_px,
+      before_mainWrapScroll_px: before.mainWrapScroll_px, armMainWrapScroll_px: after.mainWrapScroll_px,
+      before_maxTwScroll_px: before.maxTwScroll_open_px, armMaxTwScroll_px: after.maxTwScroll_open_px,
+      note: 'arm must move something > 0 else the ruler is vacuous'
+    };
+    f.remove();
+    window.__result = out;
+    document.title = 'DONE ' + out.rows.length;
+  } catch (e) {
+    window.__err = String(e && e.stack || e);
+    document.title = 'ERR';
+  }
+})();
+</script>
+</body>

@@ -1,0 +1,56 @@
+外壳针（cmd/kaudit 只读审计外壳）整轮原始读数，由 tasks/probe/kaudit_probe.py 自己印出、未编辑。
+跑于 2026-10-15 09:41 前后；报告文件 C:/Users/Administrator/AppData/Local/Temp/kaudit-probe-1015-09b.txt；脚本退出码 0。
+
+==== 对照 ====
+对照 0（未改动的树）：go test 退出码 0、PASS 9 条、FAIL 0 条（该 0 / 9 / 0）
+对照 T（弄坏测试文件）：退出码 1（该非 0）、认出坏了标记=True、有 PASS/FAIL 判决行=False（该 True / False）、修回一致=True
+
+
+== a1-healthz不看口令
+   点名该红：TestAuthRequiredAndSilent
+   实际报红：TestAuthRequiredAndSilent
+   全量共红 1 条
+
+== a2-写请求先吃401
+   点名该红：TestReadOnly
+   实际报红：TestReadOnly
+   全量共红 1 条
+
+== a3-405不告知只许GET
+   点名该红：TestReadOnly
+   实际报红：TestReadOnly
+   全量共红 1 条
+
+== l4-没口令也许绑全网
+   点名该红：TestListenGuardRefusesPublicBindWithoutToken
+   实际报红：TestListenGuardRefusesPublicBindWithoutToken
+   全量共红 1 条
+
+== s5-人读表头当成账
+   点名该红：TestHeaderLineIsSkippedNotCountedBad
+   实际报红：TestHeaderLineIsSkippedNotCountedBad
+   全量共红 1 条
+
+== t6-核不了压成绿
+   点名该红：TestNoPreimageIsNotGreen
+   实际报红：TestNoPreimageIsNotGreen
+   全量共红 1 条
+
+== r7-少一个轴也照答
+   点名该红：TestReadBackNeedsThreeAxes
+   实际报红：TestReadBackNeedsThreeAxes
+   全量共红 1 条
+
+==== 汇总 ====
+a1-healthz不看口令                     RED-ONLY-NAMED 1
+a2-写请求先吃401                        RED-ONLY-NAMED 1
+a3-405不告知只许GET                     RED-ONLY-NAMED 1
+l4-没口令也许绑全网                        RED-ONLY-NAMED 1
+s5-人读表头当成账                         RED-ONLY-NAMED 1
+t6-核不了压成绿                          RED-ONLY-NAMED 1
+r7-少一个轴也照答                         RED-ONLY-NAMED 1
+
+针数 7（表里 7，本轮实际跑 7）；分类：RED-ONLY-NAMED 7
+取材方式：只改 cmd/kaudit/main.go 一个文件，每根针后按原字节修回（累计修回 7 次）
+对照 0（干净树全过）：成立；对照 T（认得出测试没跑起来）：成立
+每条口头承诺都有一根针能把它抹红；无空针、无坏针、两根对照都成立。

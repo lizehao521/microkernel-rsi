@@ -1,0 +1,4 @@
+落账 isError：N=7 → False ｜ N=9 → False（都收下 = 这条判据今天拦不住这一格）
+encode_journal isError：N=7 → True ｜ N=9 → True
+导出行数：N=7 那本含 fail_status 的行 0 条 ｜ N=9 那本 0 条
+导出里没找到 fail_status 那一行 —— 上面这些数不许读成结论（这一条判据今天没核到）。

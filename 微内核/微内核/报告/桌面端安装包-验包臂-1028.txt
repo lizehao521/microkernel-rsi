@@ -1,0 +1,40 @@
+# 验包尺子的臂：1 发正对照 + 9 刀，全在 TEMP 副本上动；正本清单与被验 html 跑完复核未动。
+# 这一趟（最终包，README 与规范都进树之后）现跑，结果见末尾 PA / RESULT 行。
+读数 · 验包尺子的臂（刀都落在 TEMP 副本：C:\Users\Admin\AppData\Local\Temp\weihetai-pkg-arm-9wtfh2q9）
+正本清单：38 条 ｜可变量声明 1 ｜运行时目录声明 2 ｜正本清单 sha16 c8ee5b4198c39d25
+零、正对照（原样，五态全 0 且 rc=0）
+  control                  期望 全 0 ｜实 全 0 rc=0 ｜ BITTEN
+一、臂 1：把 微核台.html 里一个字改掉（盘上真改）
+   响的前提：那份文件重读确实变了 = True ｜改前 148207 B sha16 e671b133e38de299 → 改后 148207 B sha16 d3a6deeedd67c928
+  arm1 改一字节                期望 bad=1 ｜实 bad=1 rc=1 ｜ BITTEN（点名 BAD：微核台.html）
+二、臂 2：删掉 记忆/记忆.json（盘上真删）—— 它是声明过的可变量，删了仍要红
+   响的前提：删之前它在 = True ｜删之后它在 = False ｜它在正本可变量声明里 = True
+  arm2 删可变量                期望 missing=1 ｜实 missing=1 rc=1 ｜ BITTEN（点名 MISSING：记忆/记忆.json）
+三、臂 3：往 证据/ 里多塞一份没进清单的文件（盘上真塞）
+   响的前提：多出来的那份在 = True ｜11 B
+  arm3 多塞一个文件              期望 extra=1 ｜实 extra=1 rc=1 ｜ BITTEN（点名 EXTRA：证据/_臂多塞一个.json）
+四、臂 4：只把清单里 启动-微核台-便携.cmd 那一枚 sha 改掉（树不动，改清单副本）
+   响的前提：清单副本那一枚被换 = True ｜树里那份仍等于正本账上 = True（c755d151ff214e45 vs c755d151ff214e45 ⇒ 比的是重算值不是账上自洽）
+  arm4 只改清单 sha            期望 bad=1 ｜实 bad=1 rc=1 ｜ BITTEN（点名 BAD：启动-微核台-便携.cmd）
+五、臂 5：改 记忆/记忆.json 的内容（可变量：变了不判红，但要逐名印出来）
+   响的前提：那份重读变了 = True ｜422 B sha16 a1e76748c971efe3 → 433 B sha16 31f1d6b75b6367c6 ｜账上声明它是可变量 = True
+  arm5 可变量变了               期望 mutable_drift=1 ｜实 mutable_drift=1 rc=0 ｜ BITTEN（点名 DRIFT-MUTABLE：记忆/记忆.json）
+六、臂 6：往 读数/ 里生成一份运行时新文件（声明过的运行时目录：不判 EXTRA）
+   响的前提：那份在 = True ｜33 B ｜账上把 读数/ 声明为运行时目录 = True
+  arm6 运行时新生               期望 runtime_new=1 ｜实 runtime_new=1 rc=0 ｜ BITTEN（点名 RUNTIME：读数/服务地址.txt）
+七、臂 7：把清单里的运行时前缀改成 记忆/（允许档罩住已入账文件 ⇒ 尺子自己要红）
+   响的前提：清单范围内落在 记忆/ 的有 1 条（树一个字节没动，红只该来自「口子吞掉了比对」这一条）
+  arm7 允许档罩住入账件            期望 runtime_shadowed=1 ｜实 runtime_shadowed=1 rc=1 ｜ BITTEN（点名 BAD-RUNTIME-SHADOWED：记忆/记忆.json）
+八、臂 8：清单里声明一个不存在的可变量（绕过比对的口子要自己红）
+   响的前提：这个路径在盘上确实不存在 = True ｜清单 mutable 只剩它一条
+  arm8 可变量没入账              期望 mutable_undeclared=1 ｜实 mutable_undeclared=1 rc=1 ｜ BITTEN（点名 BAD-MUT-UNDECLARED：记忆/_臂虚构一个.json）
+九、臂 9：把清单 totals.bytes 改 1（账上自相矛盾要红；这一条也证 totals 不用盘上差判）
+   响的前提：树一个字节没动（盘上重算与账上逐条之和仍相等）｜只有 totals 那一行被抬了 1
+  arm9 totals 撒谎           期望 total_drift=1 ｜实 total_drift=1 rc=1 ｜ BITTEN（点名 TOTAL：账上自相矛盾）
+
+正本复核：清单 sha16 开跑前 c8ee5b4198c39d25 → 跑完 c8ee5b4198c39d25 ｜被验树 微核台.html 开跑前 e671b133e38de299 → 跑完 e671b133e38de299
+  正本没被碰（臂只在 TEMP 副本上动刀）
+
+臂小结：10/10 发按期望（1 发正对照 + 9 刀）＋ 正本自证 1/1
+PA | arms=10/10 intact=1 rc=0
+RESULT PASS

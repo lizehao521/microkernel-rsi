@@ -1,0 +1,99 @@
+==== kaudit 冒烟 2026-10-15T09:46:38+08:00 ====
+LAN_IP=192.168.3.142  JOURNAL=报告/样例-agent.jsonl
+本报告里每个 HTTP 码和响应体都是 curl 自己印的原文；中文只进文件不进控制台。
+
+build ok
+
+-- A. 绑回环、不给口令：GET 都该 200，POST 该 405，少给一个轴该 400 --
+---- server log (pid=1542 listen=127.0.0.1:8788) ----
+2026/10/15 09:47:02 kaudit 只读服务：127.0.0.1:8788（账本 报告/样例-agent.jsonl，294 条，链：green）
+
+>> GET http://127.0.0.1:8788/healthz  token=<none>
+{"entries":294,"ok":true,"state":"green"}
+
+[HTTP 200] [42B]
+>> GET http://127.0.0.1:8788/v1/verify  token=<none>
+{"checked":294,"entries":294,"no_preimage":[],"state":"green","text":"✓ 链自洽（共 294 条，其中 294 条比对过原像）"}
+
+[HTTP 200] [135B]
+>> GET http://127.0.0.1:8788/v1/tally  token=<none>
+{"by_basis":{"absent":30,"estimated":12,"measured":222,"model_says":6,"relayed":24},"journal":{"bad_lines":null,"header_skipped":false,"lines":294,"no_payload":0,"parsed":294,"with_payload":294},"rejected_writes":0,"text":"账 294 条（absent=30 estimated=12 measured=222 model_says=6 relayed=24）","total":294}
+
+[HTTP 200] [314B]
+>> GET http://127.0.0.1:8788/v1/celltable  token=<none>
+{"sides":[{"field":"Call","key":"call","side":"input"},{"field":"Budget.CallBytesCeiling","key":"call_bytes_ceiling","side":"input"},{"field":"Budget.ClampRounds","key":"clamp_rounds","side":"input"},{"field":"Cuts#clipped","key":"clipped","side":"input"},{"field":"ContentBytes","key":"content_bytes","side":"input"},{"field":"Budget.ContentCeiling","key":"content_ceiling","side":"input"},{"field":"Cuts#dropped","key":"dropped","side":"input"},{"field":"Budget.EffectiveCeiling","key":"effective_ceiling","side":"input"},{"field":"Budget.FixedOverhead","key":"fixed_overhead","side":"input"},{"field":"Cuts#folded","key":"folded","side":"input"},{"field":"Budget.LeftoverPct","key":"leftover_pct","side":"input"},{"field":"Notice.Sent","key":"notice_sent","side":"input"},{"field":"Notice.Text","key":"notice_text","side":"input"},{"field":"Notice.Trimmed","key":"notice_trimmed","side":"input"},{"field":"Notice.Why","key":"notice_why","side":"input"},{"field":"Parts","key":"part_totals","side":"input"},{"field":"Order","key":"parts","side":"input"},{"field":"Budget.Shares","key":"shares","side":"input"},{"field":"Tokens","key":"tokens","side":"input"},{"field":"Budget.TransportSlackPct","key":"transport_slack_pct","side":"input"},{"field":"Call","key":"call","side":"output"},{"field":"Chunks","key":"chunks","side":"output"},{"field":"CostCountable()","key":"cost_countable","side":"output"},{"field":"Failure.Downgrade","key":"downgrade","side":"output"},{"field":"Model","key":"endpoint_model","side":"output"},{"field":"ModelSaid","key":"endpoint_model_said","side":"output"},{"field":"Failure.Detail","key":"fail_detail","side":"output"},{"field":"Failure.Kind","key":"fail_kind","side":"output"},{"field":"Failure.Status","key":"fail_status","side":"output"},{"field":"Finish.Reason","key":"finish","side":"output"},{"field":"Finish.Said","key":"finish_said","side":"output"},{"field":"FirstByteMs","key":"first_byte_ms","side":"output"},{"field":"Malformed","key":"malformed_actions","side":"output"},{"field":"MalformedStreak","key":"malformed_streak","side":"output"},{"field":"MaxGapMs","key":"max_gap_ms","side":"output"},{"field":"Says.Bytes","key":"model_says_bytes","side":"output"},{"field":"Says.Clipped()","key":"model_says_clipped","side":"output"},{"field":"Says.Kept","key":"model_says_kept","side":"output"},{"field":"Says.SHA256","key":"model_says_sha256","side":"output"},{"field":"Failure.RetryAfterMs","key":"retry_after_ms","side":"output"},{"field":"Sent()","key":"sent","side":"output"},{"field":"Streaming","key":"streaming","side":"output"},{"field":"ToolCalls","key":"tool_calls","side":"output"},{"field":"UsageIn","key":"usage_in","side":"output"},{"field":"UsageOut","key":"usage_out","side":"output"},{"field":"WireBytesIn","key":"wire_bytes_in","side":"output"},{"field":"WireBytesOut","key":"wire_bytes_out","side":"output"},{"field":"WireFormat","key":"wire_format","side":"output"},{"field":"WireFormatSaid","key":"wire_format_said","side":"output"}]}
+
+[HTTP 200] [3002B]
+>> GET http://127.0.0.1:8788/v1/turns  token=<none>
+{"turns":[{"call":1,"cells_by_side":{"model_input":20,"model_output":29},"session":"agent"},{"call":2,"cells_by_side":{"model_input":20,"model_output":29},"session":"agent"},{"call":3,"cells_by_side":{"model_input":20,"model_output":29},"session":"agent"},{"call":4,"cells_by_side":{"model_input":20,"model_output":29},"session":"agent"},{"call":5,"cells_by_side":{"model_input":20,"model_output":29},"session":"agent"},{"call":6,"cells_by_side":{"model_input":20,"model_output":29},"session":"agent"}]}
+
+[HTTP 200] [504B]
+>> GET http://127.0.0.1:8788/v1/read_back?session=agent&call=1&side=output  token=<none>
+{"absent":["chunks","fail_status","first_byte_ms","max_gap_ms","retry_after_ms"],"call":1,"cells":[{"basis":"measured","claim":"1","key":"call","payload_sha":"6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b","source":""},{"basis":"absent","claim":"—（没量到，不是 0）：这一发不是流式的，结构上没有分帧","key":"chunks","payload_sha":"7b754a6d853abfad034312a3947dc29eb1b66b543582eb4028d0e39d62690e4e","source":""},{"basis":"measured","claim":"是","key":"cost_countable","payload_sha":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","source":""},{"basis":"measured","claim":"否","key":"downgrade","payload_sha":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","source":""},{"basis":"model_says","claim":"fake-model","key":"endpoint_model","payload_sha":"582eb9070e1f4555202125ac82783628a4baffa1e8844fa88973f05f4f4457fd","source":""},{"basis":"measured","claim":"是","key":"endpoint_model_said","payload_sha":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","source":""},{"basis":"measured","claim":"（这一格是空的）","key":"fail_detail","payload_sha":"12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126","source":""},{"basis":"measured","claim":"（这一格是空的）","key":"fail_kind","payload_sha":"12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126","source":""},{"basis":"absent","claim":"—（没量到，不是 0）：这一发没故障，也就没有要记的状态码","key":"fail_status","payload_sha":"a7788b1a234ffefa6a35e68e26a12ca6592b6e490846a58e23f8a00580db8bfa","source":""},{"basis":"relayed","claim":"tool_calls","key":"finish","payload_sha":"afa9a5b7f2f60ef7d67b4495f2edb5204aae87965dd3f2680ab1cf2994524088","source":"endpoint-response"},{"basis":"measured","claim":"是","key":"finish_said","payload_sha":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","source":""},{"basis":"absent","claim":"—（没量到，不是 0）：这一发不是流式的，没有首帧这件事","key":"first_byte_ms","payload_sha":"e791dbf0e03af51cfa8fdc19415f5bd6f5d3325409845d52585a5fd80a44ccd7","source":""},{"basis":"measured","claim":"0","key":"malformed_actions","payload_sha":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","source":""},{"basis":"measured","claim":"0","key":"malformed_streak","payload_sha":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","source":""},{"basis":"absent","claim":"—（没量到，不是 0）：这一发不是流式的，没有帧间","key":"max_gap_ms","payload_sha":"fe2b939c17c57e67d58bb1620a65aadbda4f60216930da17ff0a45eed12f597d","source":""},{"basis":"measured","claim":"0","key":"model_says_bytes","payload_sha":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","source":""},{"basis":"measured","claim":"否","key":"model_says_clipped","payload_sha":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","source":""},{"basis":"measured","claim":"0","key":"model_says_kept","payload_sha":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","source":""},{"basis":"measured","claim":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","key":"model_says_sha256","payload_sha":"b4b16dad390bac4c7ce42014c594fa668910b49ec1b7771a17891c187d71e0ab","source":""},{"basis":"absent","claim":"—（没量到，不是 0）：这一发没断，也就没有要等多久","key":"retry_after_ms","payload_sha":"325fc478e81889b4e89be7e515cc8efbc925403707077a5993775b796a573e43","source":""},{"basis":"measured","claim":"发出去了","key":"sent","payload_sha":"221f8a8d04ca37dcebca110b96852ec20bc5af8a3e2b38a222d994f43049a6d9","source":""},{"basis":"measured","claim":"否","key":"streaming","payload_sha":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","source":""},{"basis":"measured","claim":"1","key":"tool_calls","payload_sha":"6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b","source":""},{"basis":"relayed","claim":"262（转述自 端点响应的 usage.prompt_tokens）","key":"usage_in","payload_sha":"b2e8e916230262a92ff001b732ccbb86a8d52f89d795b5aba4a6500654f2ca95","source":"端点响应的 usage.prompt_tokens"},{"basis":"relayed","claim":"7（转述自 端点响应的 usage.completion_tokens）","key":"usage_out","payload_sha":"04cf7e3145f93b4cc2f3d0b18e10d1cb2e94ce50a5c31bbe289f0644c52daa51","source":"端点响应的 usage.completion_tokens"},{"basis":"measured","claim":"394","key":"wire_bytes_in","payload_sha":"0854bf77b66083acc16cbae6b39f325917f99eded872f7968003cccbd41a2791","source":""},{"basis":"measured","claim":"710","key":"wire_bytes_out","payload_sha":"1327187bceafca58af6599998d5c556a0529fd7c1eba13dda8a1eea6612668c5","source":""},{"basis":"relayed","claim":"（这一格是空的）","key":"wire_format","payload_sha":"12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126","source":"endpoint-response"},{"basis":"measured","claim":"否","key":"wire_format_said","payload_sha":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","source":""}],"session":"agent","side":"model_output"}
+
+[HTTP 200] [5166B]
+>> GET http://127.0.0.1:8788/v1/read_back?call=1&side=output  token=<none>
+{"error":"session 不能空：空的读侧入口会把所有 session 的同一发并成一份"}
+
+[HTTP 400] [96B]
+>> POST http://127.0.0.1:8788/v1/verify token=<none>
+{"error":"这个服务只读：没有任何写入口（record/check 请走本机 stdio 外壳 kernel.record_call）"}
+
+[HTTP 405] [118B]
+����: û���ҵ����� "1542"��
+stopped pid=1542
+
+-- B. 绑网段地址 192.168.3.142、给口令：这就是别的电脑连过来读账的形状 --
+---- server log (pid=1563 listen=192.168.3.142:8789) ----
+2026/10/15 09:47:12 kaudit 只读服务：192.168.3.142:8789（账本 报告/样例-agent.jsonl，294 条，链：green）
+
+server pid=1563 listening on 192.168.3.142:8789
+>> GET http://192.168.3.142:8789/v1/verify  token=<none>
+{"error":"没给 Bearer token（或不对）—— 账本内容一个字都不给"}
+
+[HTTP 401] [84B]
+>> GET http://192.168.3.142:8789/v1/verify  token=smoke-token-please-change
+{"checked":294,"entries":294,"no_preimage":[],"state":"green","text":"✓ 链自洽（共 294 条，其中 294 条比对过原像）"}
+
+[HTTP 200] [135B]
+>> GET http://192.168.3.142:8789/v1/read_back?session=agent&call=1&side=output  token=smoke-token-please-change
+{"absent":["chunks","fail_status","first_byte_ms","max_gap_ms","retry_after_ms"],"call":1,"cells":[{"basis":"measured","claim":"1","key":"call","payload_sha":"6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b","source":""},{"basis":"absent","claim":"—（没量到，不是 0）：这一发不是流式的，结构上没有分帧","key":"chunks","payload_sha":"7b754a6d853abfad034312a3947dc29eb1b66b543582eb4028d0e39d62690e4e","source":""},{"basis":"measured","claim":"是","key":"cost_countable","payload_sha":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","source":""},{"basis":"measured","claim":"否","key":"downgrade","payload_sha":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","source":""},{"basis":"model_says","claim":"fake-model","key":"endpoint_model","payload_sha":"582eb9070e1f4555202125ac82783628a4baffa1e8844fa88973f05f4f4457fd","source":""},{"basis":"measured","claim":"是","key":"endpoint_model_said","payload_sha":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","source":""},{"basis":"measured","claim":"（这一格是空的）","key":"fail_detail","payload_sha":"12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126","source":""},{"basis":"measured","claim":"（这一格是空的）","key":"fail_kind","payload_sha":"12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126","source":""},{"basis":"absent","claim":"—（没量到，不是 0）：这一发没故障，也就没有要记的状态码","key":"fail_status","payload_sha":"a7788b1a234ffefa6a35e68e26a12ca6592b6e490846a58e23f8a00580db8bfa","source":""},{"basis":"relayed","claim":"tool_calls","key":"finish","payload_sha":"afa9a5b7f2f60ef7d67b4495f2edb5204aae87965dd3f2680ab1cf2994524088","source":"endpoint-response"},{"basis":"measured","claim":"是","key":"finish_said","payload_sha":"b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b","source":""},{"basis":"absent","claim":"—（没量到，不是 0）：这一发不是流式的，没有首帧这件事","key":"first_byte_ms","payload_sha":"e791dbf0e03af51cfa8fdc19415f5bd6f5d3325409845d52585a5fd80a44ccd7","source":""},{"basis":"measured","claim":"0","key":"malformed_actions","payload_sha":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","source":""},{"basis":"measured","claim":"0","key":"malformed_streak","payload_sha":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","source":""},{"basis":"absent","claim":"—（没量到，不是 0）：这一发不是流式的，没有帧间","key":"max_gap_ms","payload_sha":"fe2b939c17c57e67d58bb1620a65aadbda4f60216930da17ff0a45eed12f597d","source":""},{"basis":"measured","claim":"0","key":"model_says_bytes","payload_sha":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","source":""},{"basis":"measured","claim":"否","key":"model_says_clipped","payload_sha":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","source":""},{"basis":"measured","claim":"0","key":"model_says_kept","payload_sha":"5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9","source":""},{"basis":"measured","claim":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","key":"model_says_sha256","payload_sha":"b4b16dad390bac4c7ce42014c594fa668910b49ec1b7771a17891c187d71e0ab","source":""},{"basis":"absent","claim":"—（没量到，不是 0）：这一发没断，也就没有要等多久","key":"retry_after_ms","payload_sha":"325fc478e81889b4e89be7e515cc8efbc925403707077a5993775b796a573e43","source":""},{"basis":"measured","claim":"发出去了","key":"sent","payload_sha":"221f8a8d04ca37dcebca110b96852ec20bc5af8a3e2b38a222d994f43049a6d9","source":""},{"basis":"measured","claim":"否","key":"streaming","payload_sha":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","source":""},{"basis":"measured","claim":"1","key":"tool_calls","payload_sha":"6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b","source":""},{"basis":"relayed","claim":"262（转述自 端点响应的 usage.prompt_tokens）","key":"usage_in","payload_sha":"b2e8e916230262a92ff001b732ccbb86a8d52f89d795b5aba4a6500654f2ca95","source":"端点响应的 usage.prompt_tokens"},{"basis":"relayed","claim":"7（转述自 端点响应的 usage.completion_tokens）","key":"usage_out","payload_sha":"04cf7e3145f93b4cc2f3d0b18e10d1cb2e94ce50a5c31bbe289f0644c52daa51","source":"端点响应的 usage.completion_tokens"},{"basis":"measured","claim":"394","key":"wire_bytes_in","payload_sha":"0854bf77b66083acc16cbae6b39f325917f99eded872f7968003cccbd41a2791","source":""},{"basis":"measured","claim":"710","key":"wire_bytes_out","payload_sha":"1327187bceafca58af6599998d5c556a0529fd7c1eba13dda8a1eea6612668c5","source":""},{"basis":"relayed","claim":"（这一格是空的）","key":"wire_format","payload_sha":"12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126","source":"endpoint-response"},{"basis":"measured","claim":"否","key":"wire_format_said","payload_sha":"fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa","source":""}],"session":"agent","side":"model_output"}
+
+[HTTP 200] [5166B]
+>> POST http://192.168.3.142:8789/v1/read_back token=<none>
+{"error":"这个服务只读：没有任何写入口（record/check 请走本机 stdio 外壳 kernel.record_call）"}
+
+[HTTP 405] [118B]
+>> POST http://192.168.3.142:8789/v1/read_back token=smoke-token-please-change
+{"error":"这个服务只读：没有任何写入口（record/check 请走本机 stdio 外壳 kernel.record_call）"}
+
+[HTTP 405] [118B]
+����: û���ҵ����� "1563"��
+stopped pid=1563
+
+-- C. 绑网段地址、不给口令：该拒绝启动，而不是先起来再等人发现 --
+exit=1 (该非 0)
+2026/10/15 09:47:19 kaudit: 要监听 192.168.3.142:8790（非本机回环）必须先给 KAUDIT_TOKEN —— 没有口令的只读审计口=任何人可下载全部往来原话
+
+-- D. 账本被改过一个字（往某条 claim 前塞了'篡改'两个字）：该拒绝启动 --
+
+exit=1 (该非 0)
+2026/10/15 09:47:22 kaudit: 这份账本不肯被载入（链不符或字节不对）：kernel: 读回来的账本链不符，拒绝载入：第 1 条整格指纹重算不符（某格被改）want=faaa72402ee5 got=10cb66312dc6
+
+-- E. 指向一份不存在的账：该拒绝启动 --
+exit=1 (该非 0)
+2026/10/15 09:47:25 kaudit: 读不到账本：open no-such-file.jsonl: The system cannot find the file specified.
+
+-- F. 供一份没有原像的账（链自洽、第三方重算不出原话）：读数必须是第三种答案 --
+
+---- server log (pid=1610 listen=127.0.0.1:8793) ----
+2026/10/15 09:47:47 kaudit 只读服务：127.0.0.1:8793（账本 C:\Users\Administrator\AppData\Local/kaudit-omitted.jsonl，294 条，链：undecidable）
+
+>> GET http://127.0.0.1:8793/v1/verify  token=<none>
+{"checked":0,"entries":294,"no_preimage":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294],"state":"undecidable","text":"— 字段级自洽（共 294 条，其中 0 条比对过原像）；核不了：294 条没有原像（第 1、2、3、4、5、6、7、8、…（共 294 条））—— 那些条的 PayloadH 重算不出原值"}
+
+[HTTP 200] [1353B]
+����: û���ҵ����� "1610"��
+stopped pid=1610
+
+报告全文：报告/kaudit-实测-1015-094635.txt

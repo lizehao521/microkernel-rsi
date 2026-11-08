@@ -1,0 +1,32 @@
+==== 对照 ====
+对照 0（未改动的树）：go test 退出码 0、PASS 41 条、FAIL 0 条（该 0 / >0 / 0）
+对照 T（弄坏测试文件）：退出码 1（该非 0）、认出坏了标记=True、有 PASS/FAIL 判决行=False（该 True / False）、修回一致=True
+
+!! 这一轮**筛过针**（只跑 3 根，表里共 27 根）—— 它不能当整轮结论用
+
+
+== s13-表头不认（往返读不回来）  [journal.go]
+   点名该红：TestEncodeJournalTextLoadsBackVerbatim, TestAppendOnlyRefusesLoadButKeepsEncode, TestEntryCapRefusesAndCountsSeparately, TestGateCountsSurviveEncodeAndLoad, TestNewGateDoesNotLieAboutCountersWhenFileCarriesThem
+   实际报红：TestAppendOnlyRefusesLoadButKeepsEncode, TestEncodeJournalTextLoadsBackVerbatim, TestEntryCapRefusesAndCountsSeparately, TestGateCountsSurviveEncodeAndLoad, TestNewGateDoesNotLieAboutCountersWhenFileCarriesThem
+   全量共红 5 条
+
+== s14-任何非JSON行都当表头（真坏账被放过）  [journal.go]
+   点名该红：TestEncodeJournalTextLoadsBackVerbatim
+   实际报红：TestEncodeJournalTextLoadsBackVerbatim
+   全量共红 1 条
+
+== s14b-第一行永远当表头跳（第一条真账被吃）  [journal.go]
+   点名该红：TestEncodeJournalTextLoadsBackVerbatim, TestLoadJournalNeedsAcknowledgeToReplace, TestLoadJournalThenVerifyOverHTTP, TestVerifyOnEmptyChainRefusesGreen, TestCutsAbsentVersusEmptyAreTwoSentencesOnTheWire, TestPreCheckPredictsDedupGate
+   实际报红：TestCutsAbsentVersusEmptyAreTwoSentencesOnTheWire, TestEncodeJournalTextLoadsBackVerbatim, TestLoadJournalNeedsAcknowledgeToReplace, TestLoadJournalThenVerifyOverHTTP, TestPreCheckPredictsDedupGate, TestVerifyOnEmptyChainRefusesGreen
+   全量共红 6 条
+
+==== 汇总 ====
+s13-表头不认（往返读不回来）               RED-ONLY-NAMED   exit=1
+s14-任何非JSON行都当表头（真坏账被放过）       RED-ONLY-NAMED   exit=1
+s14b-第一行永远当表头跳（第一条真账被吃）        RED-ONLY-NAMED   exit=1
+
+针数 27（表里 27，本轮实际跑 3）；分类：RED-ONLY-NAMED 3
+锚不唯一的针 0 根（无 —— 每根针的锚在各自文件里都只命中 1 处）（replace 只动第一处）
+取材方式：本轮真改了 1 个源文件（journal.go），每根针后按原字节修回（累计改过 3 次）；整张表涉及 3 个文件（筛过针时这个数不作数，只说明表里都有哪些文件）
+对照 0（干净树全过）：成立；对照 T（认得出测试没跑起来）：成立
+!! 有坏针、红得比点名宽、对照不成立或树没修干净 —— 这一轮不绿，退出码 1

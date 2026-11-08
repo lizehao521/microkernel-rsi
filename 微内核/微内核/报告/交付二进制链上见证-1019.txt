@@ -1,0 +1,62 @@
+交付二进制链上见证 - 2026-10-19（fix-p1 见证端）
+生成时刻：2026-10-19 12:08（本地）；执行人只做「起拷贝、打探针」，未编译、未改写交付位任何文件。
+交付位：C:\Users\Admin\Desktop\微内核\构建-1017\agentkernel\bin
+所有冒烟只对我 TEMP 里的逐字节拷贝跑：C:\Users\Admin\AppData\Local\Temp\witness-1019\
+
+【基线快照 11:42:32 拷贝 = 落地前的旧件】
+kaudit.exe    10091008  baa45efd28282d4c...  mtime 2026-10-18 23:35:33
+kcheck.exe     6528000  9303c742ae35dc06...  mtime 2026-10-18 23:35:33
+kresearch.exe 11999232  85b67d266a2d6cec...  mtime 2026-10-18 23:35:34
+mcphttp.exe   13124608  a0d2934f12cb7e62...  mtime 2026-10-18 23:35:35
+mcpkernel.exe  6087680  850ec230b5ae34e4...  mtime 2026-10-18 23:35:35
+（拷贝时交付位 sha 与原件逐一相等，故基线成立；同目录另有旧垃圾 mcpkernel.exe~ 820055ddf4baaffd...，未删未改。）
+
+【最终快照 12:05:30 重新从交付位拷 = 落地后的新件】
+kaudit.exe    10092032  3a9c863dfdc58c36...  mtime 2026-10-19 11:46:48
+kcheck.exe     6529024  1858e0892d2462b0...  mtime 2026-10-19 11:46:49
+kresearch.exe 11999744  9dca0d37f39ee676...  mtime 2026-10-19 11:46:50
+mcphttp.exe   13125632  f60617409932b57c...  mtime 2026-10-19 12:04:33
+mcpkernel.exe  6090240  468c6e322e59c899...  mtime 2026-10-19 12:04:32
+（11:47 时 mcpkernel/mcphttp 仍是旧件——队友自印的 build-1019\交付bin-重编后-1019.txt 记它们 BLOCKED（被在跑的 mcphttp.exe 镜像占用）；12:04 才落地。落地瞬间同目录多出第二份垃圾 mcphttp.exe~ 13124608（旧件的备份），亦未删未改。）
+
+臂一 · stdio 新旧对开（探针 stdio_start_probe.py）
+旧件 pre-copy-1018（850ec230...，探针读数 11:42:53）自印原句：
+  two arms give the SAME three cut cells = True  (True means this exe still uses the old口径)
+  两臂都是：clipped/dropped/folded  measured  0 段（裁剪表是空的）
+新件 post-copy-1019（468c6e32...，读数 12:05:47）自印原句：
+  two arms give the SAME three cut cells = False  (True means this exe still uses the old口径)
+  删 Cuts 臂：clipped/dropped/folded  absent    （没交这一档的名单，不是空表）
+  交空表臂：  clipped/dropped/folded  measured  0 段（裁剪表是空的）
+中间臂 post-rebuild-1019（TEMP 编译产物 468c6e32...，11:55）同样 = False，与落地件同 sha，互为印证。
+两臂 process exit code 均 0；RESULT 均 STARTS-AND-ANSWERS。
+
+臂二 · tools/list 全表 + initialize
+旧件、新件、TEMP 编译件三臂自印同一行：
+  tools/list count=10 -> kernel.celltable,kernel.check_call,kernel.declare_reader,kernel.encode_journal,kernel.load_journal,kernel.read_back,kernel.readers_report,kernel.record_call,kernel.tally,kernel.verify
+  initialize ok=True serverInfo={"name": "agentkernel", "version": "0.1"} protocolVersion=2024-11-05
+逐名 10 项：celltable / check_call / declare_reader / encode_journal / load_journal / read_back / readers_report / record_call / tally / verify（均为 kernel. 前缀）。
+kernel.celltable 第一行两版同为「当前 49 格（输入侧 20 + 输出侧 29）；唯一键名 48 个」——口径改了、格数没动。
+
+臂三 · kcheck.exe 自跑（工作目录 微内核\微内核\微内核，PATH 绝对注入 C:\Users\Admin\sdk\go\bin）
+旧件（9303c742...，11:43）：退出码 0，自印分母行「✓ 全部通过（项数由上面自己数，不抄在这里）」，我自行数得 ✓ 41 项 / ✗ 0 项，stdout 128 行，stderr 0 字节。
+新件（1858e089...，11:51）：退出码 0，同一句自印原语，✓ 41 / ✗ 0，128 行，stderr 0 字节。
+两版 stdout 的差异恰在口径处——格位表那三行：旧「clipped/dropped/folded ← Cuts#... ｜ measured」→ 新「｜ absent」；另 journal 字节数 22490→22550 与整格指纹 want/got 随内容变动。
+判读：kcheck 项数分母 41/41 全绿未变，但全绿不等于口径没变——三行 from measured to absent 正是修进去的那一刀。
+
+臂四 · HTTP 面（我自己起、只用回环、跑完自己关）
+端口账：起前 netstat 确认 18810/18811/18812/18813 无人 LISTENING；全程未碰 8797/8799/8801/8804，未用 mcphttp_up.sh。
+旧件 pre-copy-1018 @18812（a0d2934f...）自印：two arms give the SAME three cut cells = True / RESULT: HTTP-STARTS-AND-ANSWERS
+新件 post-copy-1019 @18813（f6061740...）自印：two arms give the SAME three cut cells = False / RESULT: HTTP-STARTS-AND-ANSWERS
+（TEMP 编译件 @18811 同 = False。）两臂 read_back 分句同上（absent vs measured 0 段）。
+被 terminate 的 spawned process exit code = 1（我发终止所致，非程序自身崩）；post-check 端口重新空闲、pid 不再存活。18810-18819 收尾全部无 LISTENING，仅剩我自己的 TIME_WAIT 套接字。
+
+补 · 另两支只证「镜像能加载」
+kaudit.exe --help：退出码 0，打印 -journal / -listen（默认 127.0.0.1:8788，非本机必须 KAUDIT_TOKEN）用法；未起服务。
+kresearch.exe --help：退出码 1、0 字节且不吃 --help，直接跑起并向外连接（我起的那 pid 8240 已由我自己 taskkill 关闭）。这两支本轮没有能力面读数。
+
+这份见证不证明什么：
+1 不证明整轮 80 根针跑过，也不证明 kcheck 的 41 项覆盖了 #66 之外该覆盖的东西；
+2 不证明 agentkernel-2026-10-18-win-x64.zip 的内容已同步——zip 仍是 10-18 23:47 那份，我没解它也没改它；
+3 不证明交付目录干净：里面还留着 mcpkernel.exe~ 与 mcphttp.exe~ 两份旧垃圾，见证端按边界只报不动；
+4 不证明 8797/8799/8801 上作者真账服务用的是新件——它们仍是 10-18 的旧镜像在跑（这正是 mcpkernel/mcphttp 一度 BLOCKED 的原因），要换新得由作者关旧服务后重起；
+5 不证明 HTTP 面的鉴权、上限、append-only 等防护在新件上仍然有效，也不覆盖 kaudit/kresearch 的能力面；本见证只到「能起来、答得上、且用的是 10-19 那套 absent/空表两臂分句口径」。

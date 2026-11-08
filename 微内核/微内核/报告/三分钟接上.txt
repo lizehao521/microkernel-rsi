@@ -1,0 +1,12 @@
+1) 要格位表（别照文档抄，照它填）：当前 49 格（输入侧 20 + 输出侧 29）；唯一键名 48 个：
+2) 先问内核这一份数它认不认（不落账）：输入侧：自洽
+3) 落账：整发落账 49 条（输入侧 20 格 + 输出侧 29 格），链上共 49 条
+4) 同一发再记一遍（去重门）：整发拒收（拒收累计 1 次）：kernel: model_input 第 1 发（session=hello）已经记过了 —— 同一发只许记一次，记两遍会让按键名扫账本的分析层把字节与 token 加两遍
+5) 读回来第 1 发输出侧：session=hello 的第 1 发 output 侧共 29 格，其中缺席 [chunks fail_status first_byte_ms max_gap_ms retry_after_ms]：
+     fail_status            absent    —（没量到，不是 0）：这一发没故障，也就没有要记的状态码
+     model_says_sha256      measured  73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a804
+     wire_format            relayed   chat.completion
+     wire_format_said       measured  是
+6) 重算整条链：✓ 链自洽（共 49 条，其中 49 条比对过原像）
+7) 按出处分桶：账 49 条（absent=5 estimated=2 measured=37 model_says=1 relayed=4）；被拒的写入 1 次 —— 拒收也要看得见，不然「被拒」会读成「没发生过」；另有 0 次写请求根本没走到内核（外壳在门口挡下，因为整块没给）；0 条请求连协议层都没过（解不开的那类／没有 method、不是请求的那类，与上面两笔一样要看得见）
+8) 谁读过哪些格（这一栏内核自己核不到）：输入侧：键名表 20 格，其中 20 格没有任何声明者读：call call_bytes_ceiling clamp_rounds clipped content_bytes content_ceiling droppe

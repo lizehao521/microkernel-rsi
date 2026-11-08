@@ -1,0 +1,760 @@
+接口对账尺读数（cmd/kwire）—— 逐写点：删掉这一处，实跑撞到哪一道
+
+写点 66 个｜单位成员 39 条｜删一处仍能落账的 10 个｜空针 143 条｜单次删除 378 回
+
+一、门口整块必填清单（实读 mcpsrv，不是文档抄的）
+  input: Notice
+  output: Failure、Finish
+
+二、逐写点实跑（同名写点在三份夹具里各跑一次）
+  [正常发] input Budget => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 单发上限是 0 —— 这一份预算不是 DeriveBudget 造出来的
+  [正常发] input Budget.CallBytesCeiling => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 单发上限是 0 —— 这一份预算不是 DeriveBudget 造出来的
+  [正常发] input Budget.ClampRounds => 落账不变
+  [正常发] input Budget.ContentCeiling => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 内容额度记的是 0，而按公式（上限 24000 扣 25% 余量）该是 18000 —— 这条公式有了第二个 owner
+  [正常发] input Budget.EffectiveCeiling => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 生效额度是 0 字节 —— 什么都装不下
+  [正常发] input Budget.FixedOverhead => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 固定开销 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] input Budget.FixedOverhead.Absent => 落账不变
+  [正常发] input Budget.FixedOverhead.Basis => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 固定开销 有数 1200 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] input Budget.FixedOverhead.N => 落账不变
+  [正常发] input Budget.FixedOverhead.Refused => 落账不变
+  [正常发] input Budget.FixedOverhead.Source => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 固定开销 说是 estimated 的，却没说来源（转述谁 / 估的是什么）
+  [正常发] input Budget.FixedOverhead.Why => 落账不变
+  [正常发] input Budget.LeftoverPct => 落账不变
+  [正常发] input Budget.Shares => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 剩余额度记的是 0%，而份额相加是 0（该剩 100）—— 两个数各算了一遍
+  [正常发] input Budget.TransportSlackPct => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 内容额度记的是 18000，而按公式（上限 24000 扣 0% 余量）该是 24000 —— 这条公式有了第二个 owner
+  [正常发] input Call => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 0 发整发拒收（输出侧也不写）：kernel: 第几发是 0，发号从 1 起（0 会被读成「还没发」）
+  [正常发] input ContentBytes => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 各类段相加是 2560 字节，而内容总字节记的是 0 —— 两个数各算了一遍，至少一个是错的
+  [正常发] input Cuts => 落账但记缺席
+      落成缺席的格: input Cuts#clipped、input Cuts#dropped、input Cuts#folded
+  [正常发] input Cuts[].FromBytes => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/step1:read_file:a.md） 原文 0 字节 —— 0 字节的段无从折起
+  [正常发] input Cuts[].Kind => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（/step1:read_file:a.md） 被折成了桩，但  这一类不许折
+  [正常发] input Cuts[].Ref => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/） 没有 ref —— 事后谁也说不清被挤掉的是哪一段
+  [正常发] input Cuts[].RefCall => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录挤掉了一段历史，却没说它来自第几发（RefCall=0）
+  [正常发] input Cuts[].Role => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/step1:read_file:a.md） 的说话人是 ""，不在四种取值里 —— 被裁的段丢了说话人，事后就分不清裁掉的是模型自述还是人的指令
+  [正常发] input Cuts[].SHA256 => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/step1:read_file:a.md） 的原文指纹是 0 位，不是 64 位十六进制 —— 拿它核不回原文
+  [正常发] input Cuts[].Squeeze => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/step1:read_file:a.md） 没被挤，就不该出现在裁剪表里
+  [正常发] input Cuts[].ToBytes => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/step1:read_file:a.md） 折过之后是 0 字节 —— 桩要么整段发，要么记成整段没进
+  [正常发] input Notice => 门口拒
+      改署实测的格: 参数被拒：input 里没有 Notice 这一整块 —— 外壳不替你补一份零值的账（「没说」在账上该是缺席，不是「我们量到它没有」
+  [正常发] input Notice.Sent => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 通知报的是「没发出去」，同时又报「被裁了半句」—— 没发出去的东西裁不了
+  [正常发] input Notice.Text => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 通知报的是「发出去了」，却没有正文
+  [正常发] input Notice.Trimmed => 静默落账
+      改署实测的格: input Notice.Trimmed
+  [正常发] input Notice.Why => 静默落账
+      改署实测的格: input Notice.Why
+  [正常发] input Order => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 发送顺序表是空的 —— 顺序就是花钱顺序，丢了它就看不出可复用前缀稳不稳
+  [正常发] input Parts => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 段表是空的 —— 一发请求至少有一段（协议或题面），空表会被读成「这一发什么都没装」
+  [正常发] input Parts[].Bytes => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: 各类段相加是 0 字节，而内容总字节记的是 2560 —— 两个数各算了一遍，至少一个是错的
+  [正常发] input Parts[].Kind => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel:  发了 1 段，但预算里没有它的份额
+  [正常发] input Parts[].Parts => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: system 那一行报了 0 段 —— 0 段就不该占一行
+  [正常发] input Tokens => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: token 数 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] input Tokens.Absent => 落账不变
+  [正常发] input Tokens.Basis => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: token 数 有数 640 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] input Tokens.N => 落账不变
+  [正常发] input Tokens.Refused => 落账不变
+  [正常发] input Tokens.Source => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 2 发整发拒收（输出侧也不写）：kernel: token 数 说是 estimated 的，却没说来源（转述谁 / 估的是什么）
+  [正常发] input Tokens.Why => 落账不变
+  [正常发] output Call => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 0 发整发拒收（输入侧也不写）：kernel: 第几发是 0，发号从 1 起（0 会被读成「还没发」）
+  [正常发] output Chunks => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 分帧数 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] output Chunks.Absent => 落账不变
+  [正常发] output Chunks.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 分帧数 有数 37 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] output Chunks.N => 静默落账
+      改署实测的格: output Chunks
+  [正常发] output Chunks.Refused => 落账不变
+  [正常发] output Chunks.Source => 落账不变
+  [正常发] output Chunks.Why => 落账不变
+  [正常发] output Failure => 门口拒
+      改署实测的格: 参数被拒：output 里没有 Failure 这一整块 —— 外壳不替你补一份零值的账（「没说」在账上该是缺席，不是「我们量到它没有」
+  [正常发] output Failure.Detail => 落账不变
+  [正常发] output Failure.Downgrade => 落账不变
+  [正常发] output Failure.Kind => 落账不变
+  [正常发] output Failure.RetryAfterMs => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 对端要我们等多久 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] output Failure.RetryAfterMs.Absent => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 对端要我们等多久 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] output Failure.RetryAfterMs.Basis => 落账不变
+  [正常发] output Failure.RetryAfterMs.N => 落账不变
+  [正常发] output Failure.RetryAfterMs.Refused => 落账不变
+  [正常发] output Failure.RetryAfterMs.Source => 落账不变
+  [正常发] output Failure.RetryAfterMs.Why => 落账不变
+  [正常发] output Failure.Status => 落账拒
+      改署实测的格: kernel: model_output 第 2 发的 fail_status 那一格进不了账：有值 0 却没说谁算的
+  [正常发] output Failure.Status.Absent => 落账拒
+      改署实测的格: kernel: model_output 第 2 发的 fail_status 那一格进不了账：有值 0 却没说谁算的
+  [正常发] output Failure.Status.Basis => 落账不变
+  [正常发] output Failure.Status.N => 落账不变
+  [正常发] output Failure.Status.Refused => 落账不变
+  [正常发] output Failure.Status.Source => 落账不变
+  [正常发] output Failure.Status.Why => 落账不变
+  [正常发] output Finish => 门口拒
+      改署实测的格: 参数被拒：output 里没有 Finish 这一整块 —— 外壳不替你补一份零值的账（「没说」在账上该是缺席，不是「我们量到它没有」
+  [正常发] output Finish.Reason => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 收尾原因那一格自相矛盾（said=true reason=""）—— 端点没说与端点说了个空串是两件事
+  [正常发] output Finish.Said => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 收尾原因那一格自相矛盾（said=false reason="stop"）—— 端点没说与端点说了个空串是两件事
+  [正常发] output FirstByteMs => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 首帧等待 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] output FirstByteMs.Absent => 落账不变
+  [正常发] output FirstByteMs.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 首帧等待 有数 921 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] output FirstByteMs.N => 静默落账
+      改署实测的格: output FirstByteMs
+  [正常发] output FirstByteMs.Refused => 落账不变
+  [正常发] output FirstByteMs.Source => 落账不变
+  [正常发] output FirstByteMs.Why => 落账不变
+  [正常发] output Malformed => 落账不变
+  [正常发] output MalformedStreak => 落账不变
+  [正常发] output MaxGapMs => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 最大帧间等待 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] output MaxGapMs.Absent => 落账不变
+  [正常发] output MaxGapMs.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 最大帧间等待 有数 1200 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] output MaxGapMs.N => 静默落账
+      改署实测的格: output MaxGapMs
+  [正常发] output MaxGapMs.Refused => 落账不变
+  [正常发] output MaxGapMs.Source => 落账不变
+  [正常发] output MaxGapMs.Why => 落账不变
+  [正常发] output Model => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 模型 id 那一格自相矛盾（said=true model=""）—— 端点没报与端点报了个空串是两件事
+  [正常发] output ModelSaid => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 模型 id 那一格自相矛盾（said=false model="agnes-1"）—— 端点没报与端点报了个空串是两件事
+  [正常发] output Says => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 原话指纹是 0 位，不是 64 位十六进制 —— 拿它核不回原文
+  [正常发] output Says.Bytes => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 留下了 900 字节，而原话只有 0 字节 —— 裁不会把话裁长
+  [正常发] output Says.Kept => 静默落账
+      改署实测的格: output Says.Clipped()、output Says.Kept
+  [正常发] output Says.SHA256 => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 原话指纹是 0 位，不是 64 位十六进制 —— 拿它核不回原文
+  [正常发] output Streaming => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 这一发不是流式的，分帧数 却报了 37 —— 非流式没有这一格，写数就是编数
+  [正常发] output ToolCalls => 静默落账
+      改署实测的格: output ToolCalls
+  [正常发] output UsageIn => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 入 token 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] output UsageIn.Absent => 落账不变
+  [正常发] output UsageIn.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 入 token 有数 1587 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] output UsageIn.N => 落账不变
+  [正常发] output UsageIn.Refused => 落账不变
+  [正常发] output UsageIn.Source => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 入 token 说是 relayed 的，却没说来源（转述谁 / 估的是什么）
+  [正常发] output UsageIn.Why => 落账不变
+  [正常发] output UsageOut => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 出 token 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] output UsageOut.Absent => 落账不变
+  [正常发] output UsageOut.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 出 token 有数 244 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] output UsageOut.N => 落账不变
+  [正常发] output UsageOut.Refused => 落账不变
+  [正常发] output UsageOut.Source => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 出 token 说是 relayed 的，却没说来源（转述谁 / 估的是什么）
+  [正常发] output UsageOut.Why => 落账不变
+  [正常发] output WireBytesIn => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 通道上收到的字节 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] output WireBytesIn.Absent => 落账不变
+  [正常发] output WireBytesIn.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 通道上收到的字节 有数 4096 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] output WireBytesIn.N => 静默落账
+      改署实测的格: output WireBytesIn
+  [正常发] output WireBytesIn.Refused => 落账不变
+  [正常发] output WireBytesIn.Source => 落账不变
+  [正常发] output WireBytesIn.Why => 落账不变
+  [正常发] output WireBytesOut => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 过网线的请求体字节 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] output WireBytesOut.Absent => 落账不变
+  [正常发] output WireBytesOut.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 过网线的请求体字节 有数 11570 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [正常发] output WireBytesOut.N => 静默落账
+      改署实测的格: output CostCountable()、output Sent()、output WireBytesOut
+  [正常发] output WireBytesOut.Refused => 落账不变
+  [正常发] output WireBytesOut.Source => 落账不变
+  [正常发] output WireBytesOut.Why => 落账不变
+  [正常发] output WireFormat => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 往来格式那一格自相矛盾（said=true format=""）—— 对端没报与报了个空串是两件事
+  [正常发] output WireFormatSaid => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 2 发整发拒收（输入侧也不写）：kernel: 往来格式那一格自相矛盾（said=false format="chat.completion.chunk"）—— 对端没报与报了个空串是两件事
+  [故障发] input Budget => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 单发上限是 0 —— 这一份预算不是 DeriveBudget 造出来的
+  [故障发] input Budget.CallBytesCeiling => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 单发上限是 0 —— 这一份预算不是 DeriveBudget 造出来的
+  [故障发] input Budget.ClampRounds => 落账不变
+  [故障发] input Budget.ContentCeiling => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 内容额度记的是 0，而按公式（上限 24000 扣 25% 余量）该是 18000 —— 这条公式有了第二个 owner
+  [故障发] input Budget.EffectiveCeiling => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 生效额度是 0 字节 —— 什么都装不下
+  [故障发] input Budget.FixedOverhead => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 固定开销 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] input Budget.FixedOverhead.Absent => 落账不变
+  [故障发] input Budget.FixedOverhead.Basis => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 固定开销 有数 1200 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] input Budget.FixedOverhead.N => 落账不变
+  [故障发] input Budget.FixedOverhead.Refused => 落账不变
+  [故障发] input Budget.FixedOverhead.Source => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 固定开销 说是 estimated 的，却没说来源（转述谁 / 估的是什么）
+  [故障发] input Budget.FixedOverhead.Why => 落账不变
+  [故障发] input Budget.LeftoverPct => 落账不变
+  [故障发] input Budget.Shares => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 剩余额度记的是 0%，而份额相加是 0（该剩 100）—— 两个数各算了一遍
+  [故障发] input Budget.TransportSlackPct => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 内容额度记的是 18000，而按公式（上限 24000 扣 0% 余量）该是 24000 —— 这条公式有了第二个 owner
+  [故障发] input Call => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 0 发整发拒收（输出侧也不写）：kernel: 第几发是 0，发号从 1 起（0 会被读成「还没发」）
+  [故障发] input ContentBytes => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 各类段相加是 2560 字节，而内容总字节记的是 0 —— 两个数各算了一遍，至少一个是错的
+  [故障发] input Cuts => 落账但记缺席
+      落成缺席的格: input Cuts#clipped、input Cuts#dropped、input Cuts#folded
+  [故障发] input Cuts[].FromBytes => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/step1:read_file:a.md） 原文 0 字节 —— 0 字节的段无从折起
+  [故障发] input Cuts[].Kind => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（/step1:read_file:a.md） 被折成了桩，但  这一类不许折
+  [故障发] input Cuts[].Ref => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/） 没有 ref —— 事后谁也说不清被挤掉的是哪一段
+  [故障发] input Cuts[].RefCall => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录挤掉了一段历史，却没说它来自第几发（RefCall=0）
+  [故障发] input Cuts[].Role => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/step1:read_file:a.md） 的说话人是 ""，不在四种取值里 —— 被裁的段丢了说话人，事后就分不清裁掉的是模型自述还是人的指令
+  [故障发] input Cuts[].SHA256 => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/step1:read_file:a.md） 的原文指纹是 0 位，不是 64 位十六进制 —— 拿它核不回原文
+  [故障发] input Cuts[].Squeeze => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/step1:read_file:a.md） 没被挤，就不该出现在裁剪表里
+  [故障发] input Cuts[].ToBytes => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/step1:read_file:a.md） 折过之后是 0 字节 —— 桩要么整段发，要么记成整段没进
+  [故障发] input Notice => 门口拒
+      改署实测的格: 参数被拒：input 里没有 Notice 这一整块 —— 外壳不替你补一份零值的账（「没说」在账上该是缺席，不是「我们量到它没有」
+  [故障发] input Notice.Sent => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 通知报的是「没发出去」，同时又报「被裁了半句」—— 没发出去的东西裁不了
+  [故障发] input Notice.Text => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 通知报的是「发出去了」，却没有正文
+  [故障发] input Notice.Trimmed => 静默落账
+      改署实测的格: input Notice.Trimmed
+  [故障发] input Notice.Why => 静默落账
+      改署实测的格: input Notice.Why
+  [故障发] input Order => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 发送顺序表是空的 —— 顺序就是花钱顺序，丢了它就看不出可复用前缀稳不稳
+  [故障发] input Parts => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 段表是空的 —— 一发请求至少有一段（协议或题面），空表会被读成「这一发什么都没装」
+  [故障发] input Parts[].Bytes => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: 各类段相加是 0 字节，而内容总字节记的是 2560 —— 两个数各算了一遍，至少一个是错的
+  [故障发] input Parts[].Kind => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel:  发了 1 段，但预算里没有它的份额
+  [故障发] input Parts[].Parts => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: system 那一行报了 0 段 —— 0 段就不该占一行
+  [故障发] input Tokens => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: token 数 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] input Tokens.Absent => 落账不变
+  [故障发] input Tokens.Basis => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: token 数 有数 640 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] input Tokens.N => 落账不变
+  [故障发] input Tokens.Refused => 落账不变
+  [故障发] input Tokens.Source => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 3 发整发拒收（输出侧也不写）：kernel: token 数 说是 estimated 的，却没说来源（转述谁 / 估的是什么）
+  [故障发] input Tokens.Why => 落账不变
+  [故障发] output Call => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 0 发整发拒收（输入侧也不写）：kernel: 第几发是 0，发号从 1 起（0 会被读成「还没发」）
+  [故障发] output Chunks => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 分帧数 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] output Chunks.Absent => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 分帧数 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] output Chunks.Basis => 落账不变
+  [故障发] output Chunks.N => 落账不变
+  [故障发] output Chunks.Refused => 落账不变
+  [故障发] output Chunks.Source => 落账不变
+  [故障发] output Chunks.Why => 落账不变
+  [故障发] output Failure => 门口拒
+      改署实测的格: 参数被拒：output 里没有 Failure 这一整块 —— 外壳不替你补一份零值的账（「没说」在账上该是缺席，不是「我们量到它没有」
+  [故障发] output Failure.Detail => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 报了故障 http 却没说是什么 —— 这一格报红时得说得出下一个人该去哪儿查
+  [故障发] output Failure.Downgrade => 落账不变
+  [故障发] output Failure.Kind => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 说是没故障，却带着说法 "429 Too Many Requests" / 状态 429
+  [故障发] output Failure.RetryAfterMs => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 对端要我们等多久 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] output Failure.RetryAfterMs.Absent => 落账不变
+  [故障发] output Failure.RetryAfterMs.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 对端要我们等多久 有数 30 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] output Failure.RetryAfterMs.N => 落账不变
+  [故障发] output Failure.RetryAfterMs.Refused => 落账不变
+  [故障发] output Failure.RetryAfterMs.Source => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 对端要我们等多久 说是 relayed 的，却没说来源（转述谁 / 估的是什么）
+  [故障发] output Failure.RetryAfterMs.Why => 落账不变
+  [故障发] output Failure.Status => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: http 这一类是按对端响应分的，却没有状态码 —— 读的人分不清它收到响应没有
+  [故障发] output Failure.Status.Absent => 落账不变
+  [故障发] output Failure.Status.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: http 这一类是按对端响应分的，却没有状态码 —— 读的人分不清它收到响应没有
+  [故障发] output Failure.Status.N => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 状态码 0 不在 HTTP 的 100..599 里 —— 真量到的数不会长这样
+  [故障发] output Failure.Status.Refused => 落账不变
+  [故障发] output Failure.Status.Source => 落账不变
+  [故障发] output Failure.Status.Why => 落账不变
+  [故障发] output Finish => 门口拒
+      改署实测的格: 参数被拒：output 里没有 Finish 这一整块 —— 外壳不替你补一份零值的账（「没说」在账上该是缺席，不是「我们量到它没有」
+  [故障发] output Finish.Reason => 落账不变
+  [故障发] output Finish.Said => 落账不变
+  [故障发] output FirstByteMs => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 首帧等待 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] output FirstByteMs.Absent => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 首帧等待 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] output FirstByteMs.Basis => 落账不变
+  [故障发] output FirstByteMs.N => 落账不变
+  [故障发] output FirstByteMs.Refused => 落账不变
+  [故障发] output FirstByteMs.Source => 落账不变
+  [故障发] output FirstByteMs.Why => 落账不变
+  [故障发] output Malformed => 落账不变
+  [故障发] output MalformedStreak => 落账不变
+  [故障发] output MaxGapMs => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 最大帧间等待 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] output MaxGapMs.Absent => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 最大帧间等待 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] output MaxGapMs.Basis => 落账不变
+  [故障发] output MaxGapMs.N => 落账不变
+  [故障发] output MaxGapMs.Refused => 落账不变
+  [故障发] output MaxGapMs.Source => 落账不变
+  [故障发] output MaxGapMs.Why => 落账不变
+  [故障发] output Model => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 模型 id 那一格自相矛盾（said=true model=""）—— 端点没报与端点报了个空串是两件事
+  [故障发] output ModelSaid => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 模型 id 那一格自相矛盾（said=false model="agnes-1"）—— 端点没报与端点报了个空串是两件事
+  [故障发] output Says => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 原话指纹是 0 位，不是 64 位十六进制 —— 拿它核不回原文
+  [故障发] output Says.Bytes => 落账不变
+  [故障发] output Says.Kept => 落账不变
+  [故障发] output Says.SHA256 => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 原话指纹是 0 位，不是 64 位十六进制 —— 拿它核不回原文
+  [故障发] output Streaming => 落账不变
+  [故障发] output ToolCalls => 落账不变
+  [故障发] output UsageIn => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 入 token 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] output UsageIn.Absent => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 入 token 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] output UsageIn.Basis => 落账不变
+  [故障发] output UsageIn.N => 落账不变
+  [故障发] output UsageIn.Refused => 落账不变
+  [故障发] output UsageIn.Source => 落账不变
+  [故障发] output UsageIn.Why => 落账不变
+  [故障发] output UsageOut => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 出 token 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] output UsageOut.Absent => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 出 token 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] output UsageOut.Basis => 落账不变
+  [故障发] output UsageOut.N => 落账不变
+  [故障发] output UsageOut.Refused => 落账不变
+  [故障发] output UsageOut.Source => 落账不变
+  [故障发] output UsageOut.Why => 落账不变
+  [故障发] output WireBytesIn => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 通道上收到的字节 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] output WireBytesIn.Absent => 落账不变
+  [故障发] output WireBytesIn.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 通道上收到的字节 有数 180 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] output WireBytesIn.N => 静默落账
+      改署实测的格: output WireBytesIn
+  [故障发] output WireBytesIn.Refused => 落账不变
+  [故障发] output WireBytesIn.Source => 落账不变
+  [故障发] output WireBytesIn.Why => 落账不变
+  [故障发] output WireBytesOut => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 过网线的请求体字节 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] output WireBytesOut.Absent => 落账不变
+  [故障发] output WireBytesOut.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 3 发整发拒收（输入侧也不写）：kernel: 过网线的请求体字节 有数 9800 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [故障发] output WireBytesOut.N => 静默落账
+      改署实测的格: output Sent()、output WireBytesOut
+  [故障发] output WireBytesOut.Refused => 落账不变
+  [故障发] output WireBytesOut.Source => 落账不变
+  [故障发] output WireBytesOut.Why => 落账不变
+  [故障发] output WireFormat => 落账不变
+  [故障发] output WireFormatSaid => 落账不变
+  [参数被拒发] input Budget => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 单发上限是 0 —— 这一份预算不是 DeriveBudget 造出来的
+  [参数被拒发] input Budget.CallBytesCeiling => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 单发上限是 0 —— 这一份预算不是 DeriveBudget 造出来的
+  [参数被拒发] input Budget.ClampRounds => 落账不变
+  [参数被拒发] input Budget.ContentCeiling => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 内容额度记的是 0，而按公式（上限 24000 扣 25% 余量）该是 18000 —— 这条公式有了第二个 owner
+  [参数被拒发] input Budget.EffectiveCeiling => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 生效额度是 0 字节 —— 什么都装不下
+  [参数被拒发] input Budget.FixedOverhead => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 固定开销 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] input Budget.FixedOverhead.Absent => 落账不变
+  [参数被拒发] input Budget.FixedOverhead.Basis => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 固定开销 有数 1200 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] input Budget.FixedOverhead.N => 落账不变
+  [参数被拒发] input Budget.FixedOverhead.Refused => 落账不变
+  [参数被拒发] input Budget.FixedOverhead.Source => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 固定开销 说是 estimated 的，却没说来源（转述谁 / 估的是什么）
+  [参数被拒发] input Budget.FixedOverhead.Why => 落账不变
+  [参数被拒发] input Budget.LeftoverPct => 落账不变
+  [参数被拒发] input Budget.Shares => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 剩余额度记的是 0%，而份额相加是 0（该剩 100）—— 两个数各算了一遍
+  [参数被拒发] input Budget.TransportSlackPct => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 内容额度记的是 18000，而按公式（上限 24000 扣 0% 余量）该是 24000 —— 这条公式有了第二个 owner
+  [参数被拒发] input Call => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 0 发整发拒收（输出侧也不写）：kernel: 第几发是 0，发号从 1 起（0 会被读成「还没发」）
+  [参数被拒发] input ContentBytes => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 各类段相加是 2560 字节，而内容总字节记的是 0 —— 两个数各算了一遍，至少一个是错的
+  [参数被拒发] input Cuts => 落账但记缺席
+      落成缺席的格: input Cuts#clipped、input Cuts#dropped、input Cuts#folded
+  [参数被拒发] input Cuts[].FromBytes => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/step1:read_file:a.md） 原文 0 字节 —— 0 字节的段无从折起
+  [参数被拒发] input Cuts[].Kind => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（/step1:read_file:a.md） 被折成了桩，但  这一类不许折
+  [参数被拒发] input Cuts[].Ref => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/） 没有 ref —— 事后谁也说不清被挤掉的是哪一段
+  [参数被拒发] input Cuts[].RefCall => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录挤掉了一段历史，却没说它来自第几发（RefCall=0）
+  [参数被拒发] input Cuts[].Role => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/step1:read_file:a.md） 的说话人是 ""，不在四种取值里 —— 被裁的段丢了说话人，事后就分不清裁掉的是模型自述还是人的指令
+  [参数被拒发] input Cuts[].SHA256 => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/step1:read_file:a.md） 的原文指纹是 0 位，不是 64 位十六进制 —— 拿它核不回原文
+  [参数被拒发] input Cuts[].Squeeze => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/step1:read_file:a.md） 没被挤，就不该出现在裁剪表里
+  [参数被拒发] input Cuts[].ToBytes => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 第 1 条裁剪记录（history/step1:read_file:a.md） 折过之后是 0 字节 —— 桩要么整段发，要么记成整段没进
+  [参数被拒发] input Notice => 门口拒
+      改署实测的格: 参数被拒：input 里没有 Notice 这一整块 —— 外壳不替你补一份零值的账（「没说」在账上该是缺席，不是「我们量到它没有」
+  [参数被拒发] input Notice.Sent => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 通知报的是「没发出去」，同时又报「被裁了半句」—— 没发出去的东西裁不了
+  [参数被拒发] input Notice.Text => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 通知报的是「发出去了」，却没有正文
+  [参数被拒发] input Notice.Trimmed => 静默落账
+      改署实测的格: input Notice.Trimmed
+  [参数被拒发] input Notice.Why => 静默落账
+      改署实测的格: input Notice.Why
+  [参数被拒发] input Order => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 发送顺序表是空的 —— 顺序就是花钱顺序，丢了它就看不出可复用前缀稳不稳
+  [参数被拒发] input Parts => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 段表是空的 —— 一发请求至少有一段（协议或题面），空表会被读成「这一发什么都没装」
+  [参数被拒发] input Parts[].Bytes => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: 各类段相加是 0 字节，而内容总字节记的是 2560 —— 两个数各算了一遍，至少一个是错的
+  [参数被拒发] input Parts[].Kind => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel:  发了 1 段，但预算里没有它的份额
+  [参数被拒发] input Parts[].Parts => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: system 那一行报了 0 段 —— 0 段就不该占一行
+  [参数被拒发] input Tokens => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: token 数 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] input Tokens.Absent => 落账不变
+  [参数被拒发] input Tokens.Basis => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: token 数 有数 640 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] input Tokens.N => 落账不变
+  [参数被拒发] input Tokens.Refused => 落账不变
+  [参数被拒发] input Tokens.Source => 落账拒
+      改署实测的格: kernel: 输入侧账不自洽，第 4 发整发拒收（输出侧也不写）：kernel: token 数 说是 estimated 的，却没说来源（转述谁 / 估的是什么）
+  [参数被拒发] input Tokens.Why => 落账不变
+  [参数被拒发] output Call => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 0 发整发拒收（输入侧也不写）：kernel: 第几发是 0，发号从 1 起（0 会被读成「还没发」）
+  [参数被拒发] output Chunks => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 分帧数 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] output Chunks.Absent => 落账不变
+  [参数被拒发] output Chunks.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 分帧数 有数 37 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] output Chunks.N => 静默落账
+      改署实测的格: output Chunks
+  [参数被拒发] output Chunks.Refused => 落账不变
+  [参数被拒发] output Chunks.Source => 落账不变
+  [参数被拒发] output Chunks.Why => 落账不变
+  [参数被拒发] output Failure => 门口拒
+      改署实测的格: 参数被拒：output 里没有 Failure 这一整块 —— 外壳不替你补一份零值的账（「没说」在账上该是缺席，不是「我们量到它没有」
+  [参数被拒发] output Failure.Detail => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 报了故障 config 却没说是什么 —— 这一格报红时得说得出下一个人该去哪儿查
+  [参数被拒发] output Failure.Downgrade => 静默落账
+      改署实测的格: output Failure.Downgrade
+  [参数被拒发] output Failure.Kind => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 说是没故障，却带着说法 "对端不接受 stream=true" / 状态 400
+  [参数被拒发] output Failure.RetryAfterMs => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 对端要我们等多久 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] output Failure.RetryAfterMs.Absent => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 对端要我们等多久 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] output Failure.RetryAfterMs.Basis => 落账不变
+  [参数被拒发] output Failure.RetryAfterMs.N => 落账不变
+  [参数被拒发] output Failure.RetryAfterMs.Refused => 落账不变
+  [参数被拒发] output Failure.RetryAfterMs.Source => 落账不变
+  [参数被拒发] output Failure.RetryAfterMs.Why => 落账不变
+  [参数被拒发] output Failure.Status => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: config 这一类是按对端响应分的，却没有状态码 —— 读的人分不清它收到响应没有
+  [参数被拒发] output Failure.Status.Absent => 落账不变
+  [参数被拒发] output Failure.Status.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: config 这一类是按对端响应分的，却没有状态码 —— 读的人分不清它收到响应没有
+  [参数被拒发] output Failure.Status.N => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 状态码 0 不在 HTTP 的 100..599 里 —— 真量到的数不会长这样
+  [参数被拒发] output Failure.Status.Refused => 落账不变
+  [参数被拒发] output Failure.Status.Source => 落账不变
+  [参数被拒发] output Failure.Status.Why => 落账不变
+  [参数被拒发] output Finish => 门口拒
+      改署实测的格: 参数被拒：output 里没有 Finish 这一整块 —— 外壳不替你补一份零值的账（「没说」在账上该是缺席，不是「我们量到它没有」
+  [参数被拒发] output Finish.Reason => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 收尾原因那一格自相矛盾（said=true reason=""）—— 端点没说与端点说了个空串是两件事
+  [参数被拒发] output Finish.Said => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 收尾原因那一格自相矛盾（said=false reason="stop"）—— 端点没说与端点说了个空串是两件事
+  [参数被拒发] output FirstByteMs => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 首帧等待 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] output FirstByteMs.Absent => 落账不变
+  [参数被拒发] output FirstByteMs.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 首帧等待 有数 921 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] output FirstByteMs.N => 静默落账
+      改署实测的格: output FirstByteMs
+  [参数被拒发] output FirstByteMs.Refused => 落账不变
+  [参数被拒发] output FirstByteMs.Source => 落账不变
+  [参数被拒发] output FirstByteMs.Why => 落账不变
+  [参数被拒发] output Malformed => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 这一发没有执行不了的提议，链上却记着连歪 2 发
+  [参数被拒发] output MalformedStreak => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 这一发有 2 个提议执行不了，链上的连续计数却是 0
+  [参数被拒发] output MaxGapMs => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 最大帧间等待 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] output MaxGapMs.Absent => 落账不变
+  [参数被拒发] output MaxGapMs.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 最大帧间等待 有数 1200 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] output MaxGapMs.N => 静默落账
+      改署实测的格: output MaxGapMs
+  [参数被拒发] output MaxGapMs.Refused => 落账不变
+  [参数被拒发] output MaxGapMs.Source => 落账不变
+  [参数被拒发] output MaxGapMs.Why => 落账不变
+  [参数被拒发] output Model => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 模型 id 那一格自相矛盾（said=true model=""）—— 端点没报与端点报了个空串是两件事
+  [参数被拒发] output ModelSaid => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 模型 id 那一格自相矛盾（said=false model="agnes-1"）—— 端点没报与端点报了个空串是两件事
+  [参数被拒发] output Says => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 原话指纹是 0 位，不是 64 位十六进制 —— 拿它核不回原文
+  [参数被拒发] output Says.Bytes => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 留下了 300 字节，而原话只有 0 字节 —— 裁不会把话裁长
+  [参数被拒发] output Says.Kept => 静默落账
+      改署实测的格: output Says.Kept
+  [参数被拒发] output Says.SHA256 => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 原话指纹是 0 位，不是 64 位十六进制 —— 拿它核不回原文
+  [参数被拒发] output Streaming => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 这一发本来就不是流式的，却建议「换成非流式再发一次」
+  [参数被拒发] output ToolCalls => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 执行不了的提议 2 个，比提议总数 0 还多 —— 两个数不是从同一个集合数出来的
+  [参数被拒发] output UsageIn => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 入 token 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] output UsageIn.Absent => 落账不变
+  [参数被拒发] output UsageIn.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 入 token 有数 1587 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] output UsageIn.N => 落账不变
+  [参数被拒发] output UsageIn.Refused => 落账不变
+  [参数被拒发] output UsageIn.Source => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 入 token 说是 relayed 的，却没说来源（转述谁 / 估的是什么）
+  [参数被拒发] output UsageIn.Why => 落账不变
+  [参数被拒发] output UsageOut => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 出 token 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] output UsageOut.Absent => 落账不变
+  [参数被拒发] output UsageOut.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 出 token 有数 244 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] output UsageOut.N => 落账不变
+  [参数被拒发] output UsageOut.Refused => 落账不变
+  [参数被拒发] output UsageOut.Source => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 出 token 说是 relayed 的，却没说来源（转述谁 / 估的是什么）
+  [参数被拒发] output UsageOut.Why => 落账不变
+  [参数被拒发] output WireBytesIn => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 通道上收到的字节 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] output WireBytesIn.Absent => 落账不变
+  [参数被拒发] output WireBytesIn.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 通道上收到的字节 有数 4096 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] output WireBytesIn.N => 静默落账
+      改署实测的格: output WireBytesIn
+  [参数被拒发] output WireBytesIn.Refused => 落账不变
+  [参数被拒发] output WireBytesIn.Source => 落账不变
+  [参数被拒发] output WireBytesIn.Why => 落账不变
+  [参数被拒发] output WireBytesOut => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 过网线的请求体字节 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] output WireBytesOut.Absent => 落账不变
+  [参数被拒发] output WireBytesOut.Basis => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 过网线的请求体字节 有数 11570 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+  [参数被拒发] output WireBytesOut.N => 静默落账
+      改署实测的格: output Sent()、output WireBytesOut
+  [参数被拒发] output WireBytesOut.Refused => 落账不变
+  [参数被拒发] output WireBytesOut.Source => 落账不变
+  [参数被拒发] output WireBytesOut.Why => 落账不变
+  [参数被拒发] output WireFormat => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 往来格式那一格自相矛盾（said=true format=""）—— 对端没报与报了个空串是两件事
+  [参数被拒发] output WireFormatSaid => 落账拒
+      改署实测的格: kernel: 输出侧账不自洽，第 4 发整发拒收（输入侧也不写）：kernel: 往来格式那一格自相矛盾（said=false format="chat.completion.chunk"）—— 对端没报与报了个空串是两件事
+
+三、少写仍能落账、且被署成实测的写点（缺席冒充那一族；#66 那一处 10-19 已修，见下面标签是「落成缺席」的那些行）
+  input Notice.Trimmed -> input Notice.Trimmed（正常发=静默落账 故障发=静默落账 参数被拒发=静默落账）
+  input Notice.Why -> input Notice.Why（正常发=静默落账 故障发=静默落账 参数被拒发=静默落账）
+  output Chunks.N -> output Chunks（正常发=静默落账 故障发=落账不变 参数被拒发=静默落账）
+  output Failure.Downgrade -> output Failure.Downgrade（正常发=落账不变 故障发=落账不变 参数被拒发=静默落账）
+  output FirstByteMs.N -> output FirstByteMs（正常发=静默落账 故障发=落账不变 参数被拒发=静默落账）
+  output MaxGapMs.N -> output MaxGapMs（正常发=静默落账 故障发=落账不变 参数被拒发=静默落账）
+  output Says.Kept -> output Says.Clipped()、output Says.Kept（正常发=静默落账 故障发=落账不变 参数被拒发=静默落账）
+  output ToolCalls -> output ToolCalls（正常发=静默落账 故障发=落账不变 参数被拒发=落账拒）
+  output WireBytesIn.N -> output WireBytesIn（正常发=静默落账 故障发=静默落账 参数被拒发=静默落账）
+  output WireBytesOut.N -> output CostCountable()、output Sent()、output WireBytesOut（正常发=静默落账 故障发=静默落账 参数被拒发=静默落账）
+
+四、空针（三份夹具里这一格本来就是空的，这一条对照测不出事）
+  正常发 input Budget.ClampRounds
+  正常发 input Budget.FixedOverhead.Absent
+  正常发 input Budget.FixedOverhead.Refused
+  正常发 input Budget.FixedOverhead.Why
+  正常发 input Budget.LeftoverPct
+  正常发 input Tokens.Absent
+  正常发 input Tokens.Refused
+  正常发 input Tokens.Why
+  正常发 output Chunks.Absent
+  正常发 output Chunks.Refused
+  正常发 output Chunks.Source
+  正常发 output Chunks.Why
+  正常发 output Failure.Detail
+  正常发 output Failure.Downgrade
+  正常发 output Failure.Kind
+  正常发 output Failure.RetryAfterMs.Basis
+  正常发 output Failure.RetryAfterMs.N
+  正常发 output Failure.RetryAfterMs.Refused
+  正常发 output Failure.RetryAfterMs.Source
+  正常发 output Failure.Status.Basis
+  正常发 output Failure.Status.N
+  正常发 output Failure.Status.Refused
+  正常发 output Failure.Status.Source
+  正常发 output FirstByteMs.Absent
+  正常发 output FirstByteMs.Refused
+  正常发 output FirstByteMs.Source
+  正常发 output FirstByteMs.Why
+  正常发 output Malformed
+  正常发 output MalformedStreak
+  正常发 output MaxGapMs.Absent
+  正常发 output MaxGapMs.Refused
+  正常发 output MaxGapMs.Source
+  正常发 output MaxGapMs.Why
+  正常发 output UsageIn.Absent
+  正常发 output UsageIn.Refused
+  正常发 output UsageIn.Why
+  正常发 output UsageOut.Absent
+  正常发 output UsageOut.Refused
+  正常发 output UsageOut.Why
+  正常发 output WireBytesIn.Absent
+  正常发 output WireBytesIn.Refused
+  正常发 output WireBytesIn.Source
+  正常发 output WireBytesIn.Why
+  正常发 output WireBytesOut.Absent
+  正常发 output WireBytesOut.Refused
+  正常发 output WireBytesOut.Source
+  正常发 output WireBytesOut.Why
+  故障发 input Budget.ClampRounds
+  故障发 input Budget.FixedOverhead.Absent
+  故障发 input Budget.FixedOverhead.Refused
+  故障发 input Budget.FixedOverhead.Why
+  故障发 input Budget.LeftoverPct
+  故障发 input Tokens.Absent
+  故障发 input Tokens.Refused
+  故障发 input Tokens.Why
+  故障发 output Chunks.Basis
+  故障发 output Chunks.N
+  故障发 output Chunks.Refused
+  故障发 output Chunks.Source
+  故障发 output Failure.Downgrade
+  故障发 output Failure.RetryAfterMs.Absent
+  故障发 output Failure.RetryAfterMs.Refused
+  故障发 output Failure.RetryAfterMs.Why
+  故障发 output Failure.Status.Absent
+  故障发 output Failure.Status.Refused
+  故障发 output Failure.Status.Source
+  故障发 output Failure.Status.Why
+  故障发 output Finish.Reason
+  故障发 output Finish.Said
+  故障发 output FirstByteMs.Basis
+  故障发 output FirstByteMs.N
+  故障发 output FirstByteMs.Refused
+  故障发 output FirstByteMs.Source
+  故障发 output Malformed
+  故障发 output MalformedStreak
+  故障发 output MaxGapMs.Basis
+  故障发 output MaxGapMs.N
+  故障发 output MaxGapMs.Refused
+  故障发 output MaxGapMs.Source
+  故障发 output Says.Bytes
+  故障发 output Says.Kept
+  故障发 output Streaming
+  故障发 output ToolCalls
+  故障发 output UsageIn.Basis
+  故障发 output UsageIn.N
+  故障发 output UsageIn.Refused
+  故障发 output UsageIn.Source
+  故障发 output UsageOut.Basis
+  故障发 output UsageOut.N
+  故障发 output UsageOut.Refused
+  故障发 output UsageOut.Source
+  故障发 output WireBytesIn.Absent
+  故障发 output WireBytesIn.Refused
+  故障发 output WireBytesIn.Source
+  故障发 output WireBytesIn.Why
+  故障发 output WireBytesOut.Absent
+  故障发 output WireBytesOut.Refused
+  故障发 output WireBytesOut.Source
+  故障发 output WireBytesOut.Why
+  故障发 output WireFormat
+  故障发 output WireFormatSaid
+  参数被拒发 input Budget.ClampRounds
+  参数被拒发 input Budget.FixedOverhead.Absent
+  参数被拒发 input Budget.FixedOverhead.Refused
+  参数被拒发 input Budget.FixedOverhead.Why
+  参数被拒发 input Budget.LeftoverPct
+  参数被拒发 input Tokens.Absent
+  参数被拒发 input Tokens.Refused
+  参数被拒发 input Tokens.Why
+  参数被拒发 output Chunks.Absent
+  参数被拒发 output Chunks.Refused
+  参数被拒发 output Chunks.Source
+  参数被拒发 output Chunks.Why
+  参数被拒发 output Failure.RetryAfterMs.Basis
+  参数被拒发 output Failure.RetryAfterMs.N
+  参数被拒发 output Failure.RetryAfterMs.Refused
+  参数被拒发 output Failure.RetryAfterMs.Source
+  参数被拒发 output Failure.Status.Absent
+  参数被拒发 output Failure.Status.Refused
+  参数被拒发 output Failure.Status.Source
+  参数被拒发 output Failure.Status.Why
+  参数被拒发 output FirstByteMs.Absent
+  参数被拒发 output FirstByteMs.Refused
+  参数被拒发 output FirstByteMs.Source
+  参数被拒发 output FirstByteMs.Why
+  参数被拒发 output MaxGapMs.Absent
+  参数被拒发 output MaxGapMs.Refused
+  参数被拒发 output MaxGapMs.Source
+  参数被拒发 output MaxGapMs.Why
+  参数被拒发 output UsageIn.Absent
+  参数被拒发 output UsageIn.Refused
+  参数被拒发 output UsageIn.Why
+  参数被拒发 output UsageOut.Absent
+  参数被拒发 output UsageOut.Refused
+  参数被拒发 output UsageOut.Why
+  参数被拒发 output WireBytesIn.Absent
+  参数被拒发 output WireBytesIn.Refused
+  参数被拒发 output WireBytesIn.Source
+  参数被拒发 output WireBytesIn.Why
+  参数被拒发 output WireBytesOut.Absent
+  参数被拒发 output WireBytesOut.Refused
+  参数被拒发 output WireBytesOut.Source
+  参数被拒发 output WireBytesOut.Why

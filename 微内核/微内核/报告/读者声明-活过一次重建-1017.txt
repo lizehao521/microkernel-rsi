@@ -1,0 +1,25 @@
+== 读者声明能不能活过一次重建 · 2026-10-17 11:38:08 ｜ 字节 sha256=daad549714f7fd5e ｜ 账本=样例-真流量流式-1017.jsonl ==
+
+声明 output 侧的 cost_countable   → isError=False ｜ ✓ probe--reader 声明读 output 侧的 cost_countable（这一格从此不再是死格）
+声明 output 侧的 chunks           → isError=False ｜ ✓ probe--reader 声明读 output 侧的 chunks（这一格从此不再是死格）
+声明 input 侧的 tokens           → isError=False ｜ ✓ probe--reader 声明读 input 侧的 tokens（这一格从此不再是死格）
+
+── 重建之前 readers_report ──
+   输入侧：键名表 20 格，其中 19 格没有任何声明者读：call call_bytes_ceiling clamp_rounds clipped content_bytes content_ceiling dropped effective_ceiling fixed_overhead folded leftover_pct notic
+   输出侧：键名表 29 格，其中 27 格没有任何声明者读：call downgrade endpoint_model endpoint_model_said fail_detail fail_kind fail_status finish finish_said first_byte_ms malformed_actions malfor
+   （这一栏内核自己核不到，只能由调用方声明；没人声明时它不是红，是待填）
+
+── kernel.load_journal（工具自己说这相当于进程重启一次）──
+   isError=False ｜ 从 98 行里读回 98 条，链上现在 98 条；原像 98 条在手 / （这就是「断开即失」的那一半被调用方自己收回去：字节在你手里，重启后同一发仍记不进去第二遍）
+   链还是那条链吗：isError=False ｜ ✓ 链自洽（共 98 条，其中 98 条比对过原像）
+── 重建之后 readers_report ──
+   输入侧：键名表 20 格，其中 19 格没有任何声明者读：call call_bytes_ceiling clamp_rounds clipped content_bytes content_ceiling dropped effective_ceiling fixed_overhead folded leftover_pct notic
+   输出侧：键名表 29 格，其中 27 格没有任何声明者读：call downgrade endpoint_model endpoint_model_said fail_detail fail_kind fail_status finish finish_said first_byte_ms malformed_actions malfor
+   （这一栏内核自己核不到，只能由调用方声明；没人声明时它不是红，是待填）
+
+== 自印分母 ==
+声明成功 3 条（探针试了 3 格）；这三格名出现在 report 里的次数：重建前=0 ｜ 重建后=0
+读法：如果重建后这三格名从 report 里消失（或回到「没人声明」那一栏），
+      那 `mcpsrv.go:417`（04:57 逐行核过：这句在 **418**，读数不变）那句「这一格**从此**不再是死格」就只在**这个进程活着期间**成立 —— 是散文，不是承诺。
+它不证明：不证明声明没用（当场核键名、拒拼错、拒重复，这些今天都有效，见上面第一栏）；
+          也不证明账坏了 —— 链那一步单独核（上面的 verify 行）。

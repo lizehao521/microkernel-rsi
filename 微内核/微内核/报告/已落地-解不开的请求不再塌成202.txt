@@ -1,0 +1,210 @@
+#41 已落地：解不开的请求不再"塌成没回话"，也不再伪装成一次成功的传输（10-16 傍晚）
+
+撞出来的过程在下面的《更正》与《s20 那根针顺带照出我写的一条假证据》两节（先在中段，凭据在文末）。这条洞的原文形状（活服务上，改之前）：
+
+    解不开的请求：HTTP 202  正文 ''            ← Content-Length 0
+    真通知：      HTTP 202  正文长度 0        ← 一模一样
+
+## 根因是一处塌缩，不是两处疏漏
+
+`mcpsrv.Handle` 里原来是一条 `if err != nil || r.Method == "" { return nil }` ——
+**两件不同的事共用同一个 `nil`**：
+
+- 「这是一条通知」：处理了，按定义没有回话 → 传输层该回 202；
+  ← **这句说反了**（`r.Method == ""` 那一支不是通知），见下一节《更正》，原句按纪律留着不删。
+- 「这条请求我解不开」：根本没进门 → 传输层该回一个 HTTP 错误码 + 一条理由。
+
+HTTP 面只能照 `nil` 发 202，于是**调用方收到的是"发成功了且不必等回话"**，
+而这一面在别的坏法上其实是老实的（整条请求体连 `method` 都没有 → 400 带理由）——
+分叉只补了一条，剩下的那条正好落在最常见的形状上（外层像 JSON-RPC、`arguments` 里断了）。
+B 臂那个子代理报的「803 字节的尝试空回话、没计进 6 次拒收」就是这个形状，当时我只当是它记错了。
+
+## 更正（同日晚，21 针那轮 VACUOUS 逼出来的）
+
+上面那条「『这是一条通知』：处理了，按定义没有回话 → 传输层该回 202」是**我写错的**，就地收回。
+原句不删、口径不缩小 —— 挂着更正，让后来的人看得见**这条是被发现错的，不是没被审过的**。
+
+**哪句错了**：我把 `HandleOutcome` 里 `if r.Method == ""` 那一支当成了「通知」，
+并用它做论据说「两件不同的事共用同一个 `nil`」里第一件是天经地义的 202 ——
+整份文档的正当性有一半压在那句上面，所以塌缩那处论证也是错的。
+
+**正确的是什么**：
+- JSON-RPC 的**通知是「有 method、没有 id」**。代码里那条路走的是 `route()` 的
+  `case "notifications/initialized", "ping"`（`route()` 回 nil ⇒ `out == nil → OutcomeNone`）；
+- **没有 method 的消息根本不是请求**，它不配拿一个安静的 202。它和「解不开」是同一族：
+  挡在门口、给一条点名的理由、计入「连协议层都没过」那一笔（JSON-RPC 预定义码 `-32600`，
+  与解不开的 `-32700` 分开数、分开说）；
+- 也就是说：#41 要消灭的那一族（**静默吞掉一条坏消息**）在这份文档写完之后再犯了一次，
+  而这一次的入口就是我拿来当反例的那一行。
+
+**它是怎么被发现的**：不是我重读了代码，是 21 根那轮探针报的 `VACUOUS`。原文（脚本自印、未编辑）：
+
+```
+针数 21（表里 21，本轮实际跑 21）；分类：RED-ONLY-NAMED 18、RED-WIDER 1、VACUOUS 2
+s12-排队不成立（直接处理）                VACUOUS          exit=0
+   点名该红：TestQueueTimeoutIs503AndCounted
+   实际报红：无
+s18-真通知也被当错误回                    VACUOUS          exit=0
+   实际报红：无
+h6-通知回空200                            RED-WIDER        exit=1
+   多出点名的：TestBrokenArgumentsMustNotCollapseIntoNotification
+!! 有坏针、对照不成立或树没修干净 —— 这一轮不绿，退出码 1
+```
+
+- **`s18` 咬空 = 我这行注释里的谎被照出来了。** 那根针钉的是 `if r.Method == ""` 那一支里的
+  两行（本文「锚点被我自己的重构挪走过一次」一节写的正是这次挪位）。而通知测试走的是
+  `route()` 返回 nil 那一支，**那一支永远不被通知测试触达** —— 改它，没有任何测试会红，
+  于是 `实际报红：无`。那一节里「逐根数过命中 1 次」只证明了**锚点唯一**，
+  证明不了**那行会被测试跑到**：这是这次给「命中数」这一课补的下一课。**探针没错，它照出来的是我。**
+- **`s12` 咬空是另一件事：我造的死人代码。** 重构之后 `TrySerialize` **零调用者**
+  （HTTP 面只用 `TrySerializeKind`），针还钉在这个死封装上，改它同样没人报红。
+  上面「改了什么」那一节写「`Handle()` 与 `TrySerialize()` 都成了薄封装」因此只对了一半：
+  封装留着却没有调用者，等于给下一根针留了一个可以咬空的地方。
+- **`h6` 不是新 bug，是点名单不全**（老规矩：名单要写全）。新加的
+  `TestBrokenArgumentsMustNotCollapseIntoNotification` 确实会被 `h6` 打断，那是正当的宽。
+
+这一节**只更正文档的说法**。分类改口、删掉死封装、`s12`/`s18` 重钉、新增那根盯「没有 method」的针，
+都是同一批改动，跑完才有资格写读数 —— 见文末。
+
+## 改了什么
+
+`mcpsrv/mcpsrv.go`（最终形状，22 根那轮验的就是这一版）：
+- 新增 `Outcome`（`OutcomeNone` 通知 / `OutcomeReply` 有回话 / `OutcomeBad` 这条没进门）+
+  `HandleOutcome()`；`Handle()` 成了它的薄封装，**处理逻辑仍只有一份**
+  （另开一份排队/分发迟早漂成两套 —— 那正是 #20 那一族的成因）。
+  曾并存的 `TrySerialize()`（无分类版排队封装）重构后**零调用者**，已删 —— 留着唯一的效果是给探针
+  留一处可以咬空的地方，`s12` 上一轮就是这么 VACUOUS 的。排队只认 `TrySerializeKind` 这一份。
+- 解不开时回 `parseErrorReply(…, -32700), OutcomeBad`（带 `id`，点名"这条请求本身解不开、几条字节"），
+  **不回显请求体**：一条坏体可以有几 MB，把它抄回日志是替别人做拒绝服务。
+- 没有 method 时回 `parseErrorReply(…, -32600), OutcomeBad`（JSON-RPC 的「无效请求」），
+  与「解不开」的 `-32700` **分开码、分开数、分开说**；`parseErrorReply` 因此把错误码做成参数，
+  理由句各写各的，两种坏法不许挤进同一句话。
+- 新增计数器 `badRequests`，`kernel.tally` 的回话因此变成**三个数分开**（末笔现在覆盖两种坏法）：
+      …；被拒的写入 N 次 —— 拒收也要看得见…；另有 M 次写请求根本没走到内核（外壳在门口挡下，因为整块没给）；
+      K 条请求连协议层都没过（解不开的那类／没有 method、不是请求的那类，与上面两笔一样要看得见）
+  谁拒的分不开，就等于没说。
+
+`cmd/mcphttp/main.go`：走 `TrySerializeKind`，按 `Outcome` 定状态码，`OutcomeBad` → **HTTP 400** 带着那条 JSON-RPC 错误。
+
+## 中间我自己走错一步，记下来
+
+第一版我只把 `nil` 拆开、回 `200 + error` 正文，自觉已经"有理由了"。查了规范才知不合：
+transports 一节写的是收下这条输入失败 ⇒ **MUST return an HTTP error status code（例如 400）**；
+200 在客户端眼里是"传输成功"，只读状态码那一层就会把一次拒绝当成一次通过 ——
+**和 `check_call` 那个 `isError=False` 是同一个毛病，我自己刚批评完又犯了一遍。**
+于是先把测试改严（多一条「该 400」的断言），让它对着自己上一版红一次：
+```
+--- FAIL: TestBrokenArgumentsMustNotCollapseIntoNotification
+    main_test.go:370: 解不开的请求该 400（规范：cannot accept the input ⇒ MUST return an HTTP error code），实际 200
+```
+再改代码。测试的三面也都判了：解不开 → 400 + 点名"解不开"；**真通知仍然必须 202 空体**
+（只判前一支的话，把判据写成"永远 400"也照样绿）；`tally` 里那一笔必须看得见。
+
+## 这根针被自己的重构挪走过**两次**（锚点写法因此改了）
+
+- 第一次：`s18` 原来钉 `if r.Method == "" {` 里那两行，拆出 `HandleOutcome`/`route` 后那两行不再长这样 → 上一轮 `VACUOUS`。
+- 第二次（这一轮）：按「通知的真分类处」重钉成两行锚 `if out == nil {\n\t\treturn nil, OutcomeNone`，
+  结果分类那一支收尾时往这两行**中间插了两行中文注释**，两行锚当场断成命中 0 —— 会读成 `ANCHOR-BAD`。
+  节点之间看不见这个：写锚的节点数的是它自己那份中间态（18:29），改代码的节点最后写盘是 18:28 之后，
+  **只有按最终字节逐根复数才看得见**（本轮只读复核：两行锚 0 次、`return nil, OutcomeNone` 全文件 1 次）。
+- 所以钉法收敛成一条规矩：**钉那一行会执行的字节，别连钉它上面的 `if` 和注释**。
+  现在 `s18` 锚单行 `return nil, OutcomeNone`，注入 `return parseErrorReply(r.ID, "x", -32600), OutcomeBad`；
+  参数的个数也跟着 `parseErrorReply` 的最终签名写 —— 写错一个参数这根会读成 `BUILD-BROKE`，
+  那正好把"针咬不住"伪装成"代码坏了"。
+
+## s20 那根针顺带照出我写的一条假证据
+
+`s20`（钉 `if r.Method == "" {`）第一轮印的是：
+
+```
+== s20-没有method又被当通知  [mcpsrv\mcpsrv.go]
+   点名该红：TestRequestWithoutMethodIsInvalidNotNotification, TestBrokenArgumentsMustNotCollapseIntoNotification
+   实际报红：TestRequestWithoutMethodIsInvalidNotNotification
+   多出点名的：无 ｜ 没红的点名：TestBrokenArgumentsMustNotCollapseIntoNotification
+```
+
+「没红的点名」追下去不是名单写错，是我那条 HTTP 断言**证明不了它声称的事**：
+它发的是 `{"jsonrpc":"2.0","id":5}`，体里连 `"method"` 这个键名字符串都没有，
+于是被传输层的 `mcpsrvLooksLikeRPC` 先挡成 400（`cmd/mcphttp/main.go` 那道门），
+`HandleOutcome` 里我改的分类那一支**根本没被执行** —— 测试绿着，证据却是门给的。
+
+改法是把两种坏法拆开发：`{"id":5}` 归门（断言 400 + 点名），`{"method":""}`（有键、空串 ⇒ 过了门）
+才归分类（断言 400 + 正文带 `-32600`）。拆完第二轮 `s20` 就两支都红了：
+
+```
+== s20-没有method又被当通知  [mcpsrv\mcpsrv.go]
+   点名该红：TestRequestWithoutMethodIsInvalidNotNotification, TestBrokenArgumentsMustNotCollapseIntoNotification
+   实际报红：TestBrokenArgumentsMustNotCollapseIntoNotification, TestRequestWithoutMethodIsInvalidNotNotification
+   全量共红 2 条
+```
+
+**这条教训值得单独立一句**：断言要认得"是哪一行代码拒的"，还要认得"我这条路真跑到那一支了吗"。
+
+## 探针自己的「绿」的定义也要能红（同轮抓到）
+
+第一轮 22 根里 2 根宽红，脚本末尾却印「无空针、无坏针、两根对照都成立」并**退出 0** ——
+因为 `bad` 那个集合里没有 `RED-WIDER`。项目自己的口径一直是"红得比点名宽＝这一轮读数不可引用"
+（s14 那次就是靠补全名单重跑才转绿的），可这条口径只写在文档里，没写进判绿的那行代码。
+已改：`RED-WIDER` 并进 `bad`，绿话改成「无空针、无坏针、无宽红」，非绿那句也补上"红得比点名宽"。
+**只动了 `mcphttp_probe.py`**；`kprobe.py`（内核 78 根那张表）与判据表一个字没碰。
+
+## 四根针与这一轮的数（凭据）
+
+`#41` 一族现在配**四根**针，各钉一头，少任何一根就有一种坏法没人能反向破坏它：
+- `s17-解不开的请求又塌成nil`（协议层塌回去 → 坏请求又变哑）
+- `s18-真通知也被当错误回`（把通知也当错误 → 客户端再也发不了通知）
+- `s19-没进门的请求状态码又回200`（分类算对了、HTTP 没跟上）
+- `s20-没有method又被当通知`（这一轮新加的：把无效请求又当成通知）
+
+21 根那一轮的读数（`RED-ONLY-NAMED 18、RED-WIDER 1、VACUOUS 2`，脚本退出码 1）留在上面《更正》一节的
+原文里 —— 它是不绿的一轮，也正是这份文档那句谎的发现者；表随后 21 → 22。
+
+**22 根第一轮**（存档 `报告/外壳针-MCP面-22根-1016.txt` 里那份原文）：
+`针数 22（表里 22，本轮实际跑 22）；分类：RED-ONLY-NAMED 20、RED-WIDER 2` —— 那两根宽红就是上面两节的由来。
+
+**22 根第二轮（改完之后重跑，凭据在这一轮）**，脚本 20:26:46 落盘、退出码 0，原文：
+
+```
+针数 22（表里 22，本轮实际跑 22）；分类：RED-ONLY-NAMED 22
+对照 0（未改动的树）：go test 退出码 0、PASS 25 条、FAIL 0 条（该 0 / >0 / 0）
+对照 T（弄坏测试文件）：退出码 1（该非 0）、认出坏了标记=True、有 PASS/FAIL 判决行=False（该 True / False）、修回一致=True
+每条承诺都有一根针能把它抹红，且只抹红点名的那些；无空针、无坏针、无宽红，两根对照都成立、收尾树是干净的。
+```
+
+同一批还当场跑了这些，读数都是原文：
+
+- `go test -p 1 -count=1 ./...` → `ok agentkernel 7.714s`、`ok agentkernel/cmd/kaudit 0.680s`、
+  `ok agentkernel/cmd/mcphttp 1.926s`、`ok agentkernel/mcpsrv 0.694s`，退出 0；`go run ./cmd/kcheck` 退出 0。
+- 换新字节重启挂载（`go build -o ../.bin/mcphttp.exe` 落盘 20:28:29；`mcphttp_up.sh down` 印
+  `DOWN（收掉了 pid=3716；残留监听数=0）`，`up` 印 `UP addr=127.0.0.1:8797 pid=6640`），直连四种形状：
+      解不开的体（arguments 断掉）    → HTTP 400，正文含 `-32700` 与「这条请求本身解不开（129 字节…）」
+      连 "method" 键都没有 {"id":5}  → HTTP 400，正文 `体不是一条 JSON-RPC 请求（要有 method）`（**门给的**）
+      method 是空串 {"method":""}    → HTTP 400，正文含 `-32600` 与「这条消息没有 method…」
+      真通知（有 method 无 id）       → HTTP 202，正文 0 字节
+  反面必须一起判，否则"永远 400"也能骗过前三条。
+- stdio 面单独核了一次（`node1` 收尾时提醒的缺口）：同一道分类在 stdio 上回**一行**带 `-32600` 的错误，
+  通知那一行**不回**（脚本印 `回进行数: 1`）—— 两面都不许静默，这一条现在有读数了。
+- `kernel.tally` 三种数仍分开：`被拒的写入 0 次 …；另有 0 次写请求根本没走到内核…；2 条请求连协议层都没过`
+  —— 那个 2 恰好等于直连里真走到分类/解不开那两支的发数（门挡下的 `{"id":5}` 不在任何数里，见最后一条缺口）。
+- 回归基线：`tasks/mcp/drive.py` → `MCP DRIVE status=OK checks=27 red=0`；
+  `hello_kernel.py` 八步照常（它走的是 stdio 子进程，所以它那份 tally 的「连协议层都没过」是 0，
+  与上面那个 2 **不是同一个进程** —— 分开写清，不然两个数会被读成一个）。
+  `报告/三分钟接上.txt` 重生成后与旧档 diff：**差异只有 1 行，且只有 tally 那半句新增**
+  （旧 `…（外壳在门口挡下，因为整块没给）` → 新 `…；0 条请求连协议层都没过（解不开的那类／没有 method、不是请求的那类…）`），
+  其余逐字未变。
+
+**轮后动过树干的一处，写在明处**：22 根那轮跑完之后跑了 `gofmt -w mcpsrv/mcpsrv.go mcpsrv/mcpsrv_test.go`
+（`gofmt -l .` 现在为空 —— 那些是注释缩进与结构体字段对齐，两轮之前就漂着的，本轮没引入也没顺手改代码逻辑）。
+格式化之后重验过：`flagged: 0`（22 根锚点对新字节仍各命中 1）与 `ok agentkernel/mcpsrv 0.493s`、
+`ok agentkernel/cmd/mcphttp 2.016s`、`ok agentkernel 7.498s`、`ok agentkernel/cmd/kaudit 0.488s`。
+所以**上面那份 22 根存档扎的是格式化之前的字节** —— 存档本身对它跑的那些字节仍然成立，
+但下一次整轮是在新字节上跑，别把这两件事混成一句"树就是那份存档验的树"。
+
+## 这一轮留下的缺口（不谎称做完）
+
+- **门挡下的垃圾体不进任何数**：`{"id":5}` 那发被 `mcpsrvLooksLikeRPC` 拒了、回了 400 和理由，
+  但既不在 `doorRefused`（那数的是"整块没给"的写请求）也不在 `badRequests`（那要走到 `HandleOutcome` 才加）。
+  同一族的原则是"被拒也要看得见"，所以这是第四个桶，现在**没人数** —— 已上看板，未修。
+- 字段级类型错（`Call:"第一发"` 静默读成 0）仍归 **#20**，下一步单独做。
+- 标量键"没给 vs 给零值"仍归 #42 留下的那半。
+

@@ -1,0 +1,81 @@
+== 决策件 · 等表态第 10 条 #64（Better Harness 的报告件要 git 工作树，与本仓库「不用 git」正面撞）—— 只需圈 ①/②/③/④ · 2026-10-17 12:01 UTC ==
+
+这条撞在 10-17 19:36 那轮「构建打包」里：交付件本身已经出到可独立核验（见 `报告/构建打包-交付-1017.txt`），
+但你点名的 Better Harness 出不了它那份报告件（`report.canvas.tsx`），根因不是我没跑，是它要的输入这一棵树给不出。
+**这一条改的不是内核** ⇒ 与「判据表 48 键/49 格不动」「§8 十五条停止新增」两条约束无关，不需要三件配齐；
+要拍的是**外围工具链的口径**：这一家在这仓库上算不算"用过"、以什么形态算。
+
+────────────────────────────────────────────
+〇 · 本件引用的读数，各件自己印的那一行（先数分母再下结论）
+
+`checkup --phase plan` 自印 `Actions: 0` ｜ 正反实验：钉窗口两发 digest 相同 1 个值、不钉窗口两发不同 2 个值 ｜ 会话源 7 条 exists=false ｜ eligibleSessions 0 ｜ 必填道 3 条里 unavailable 1 条
+—— 上面这些数全部抄自 `构建-1017/日志/` 里那几件工具输出（同一目录里 `09/11/20/21` 四件），不是我这会儿口述的。
+
+────────────────────────────────────────────
+一 · 读数（原句照抄，都在归档里，不是我此刻的口述）
+
+1) 报告道停住那一发：`构建-1017/日志/09-BH-bundle.json`（`harness evidence-bundle --depth normal --language zh`，退出码 1）
+   `status = "failed"`
+   `requiredLanes = ["sessionEvidence","projectHarness","agentCustomize"] ｜ incompleteLanes = ["projectHarness"] ｜ unavailableLanes = ["projectHarness"]`
+   该道自印：`"error": {"code": "PROJECT_HARNESS_UNAVAILABLE", "message": "project-harness evidence is unavailable"}`
+
+2) 根因（按它 SKILL.md 允许的「只为具名不可用 owner 单点诊断」跑出来的原文）：`构建-1017/日志/12-BH-git根因.txt`
+   `project-profile failed: Error: git rev-parse --show-toplevel failed: fatal: not a git repository (or any of the parent directories): .git`
+   命令是 `harness core-change-watch project-profile`，退出码 1。**我没有执行 `git init`** —— 那会推翻 [[agentkernel-no-git-rollback]] 那套快照点回滚。
+
+3) 第二处挡路的不是 git，是会话侧证据在这台机器上是空的：`构建-1017/日志/11-BH-checkup.json` 与 `10-BH-analyze.json`
+   `coverage.sources` 七条全部 `"exists": false`；`eligibleSessions 0 / minimumSessions 5 / runtimeAvailable false / cleanupEligible false`
+   `cleanup.reason = "runtime-evidence-unavailable"`；analyze 自印 `analyzed 0 of 0 eligible sessions`、`Source roots: 0 of 5 enabled roots exist; 7 roots were discovered`、confidence Low。
+   ⇒ 就算把 git 那一条打通，`harness source` 那条要从归一化会话造 `report.source.json` 的道仍然没有输入。
+     单说"因为不是 git 仓库"只解释了半个。
+
+4) **它不需要 git 也能出的件，已经出了两件**（这条决定了本条该怎么拍——不是"BH 没用上"，是"BH 的哪一件要用上"）：
+   - `harness checkup --phase scan` 退出 0：`findings 条数 0`、`summary.statusCounts={}`；
+   - `harness checkup --phase plan` 退出 0，出的是它自己渲染的只读计划件：`Actions: 0`、
+     `No configuration was changed. Apply requires this digest and explicit action ids.`（我没跑 apply 那一相）
+     原件 `构建-1017/日志/20-BH-checkup-plan.md`。
+   - 那句 "digest" 我还正反各两发量过：不钉窗口两发 `b72e765b…` / `6340d0e2…`（不同）；
+     钉 `--since/--until` 两发都是 `108f52c3…`（相同）⇒ **digest 含观察窗口戳**，要事后核它必须钉窗口重跑。
+     读数 `构建-1017/日志/21-BH-plan-determinism.txt`。
+
+5) 它报的 `configured 0` 容易被读成"这仓库什么都没配"，先钉住口径：那一句是按**项目作用域**数资产
+   （本仓库里没有 `.qoder` 级的 Rules/Skills/MCP 配置），不是本机没装插件 —— 本机用户级装了十几家，这一轮实测就是靠它们跑的。
+
+────────────────────────────────────────────
+二 · 四个选项，各自的代价与"什么会变成绿/红"
+
+① **就这样收：BH 的交付 = scan + plan 两件，canvas 报告件不出。**
+   代价：对外看像"这一家只跑了个只读扫描"；BH 自己那套 readiness 维度分数与报告面（优先级动作、修复提示）缺失。
+   会得到什么：`报告/构建打包-交付-1017.txt` 里已写清"报告件缺、为什么缺、缺的是哪一种"，看板这条 #64 挂着不闭。
+   不会得到什么：任何"读代码看不出、只有报告面能给出"的结论 —— 这一轮本来也没指望它。
+
+② **授权 quick 深度**（它契约规定 quick 只能由明确点名触发，所以这条得你点头）：
+   跑 `harness evidence-bundle --depth quick`（7 天窗 / 3 件资产），`projectHarness` 会**在报告里明标 unavailable**，
+   然后我按它的 Step 2–4 走三道独立证据道（会话那道会是 0 输入）→ `harness render --validate` 出 `report.canvas.tsx`。
+   会得到：一份真报告件 + findings.json。
+   代价与要说破的：报告只覆盖 3 道里的 2 道、窗口只有 7 天、置信度被它自己降为低；
+   那份件**不能**读成"BH 认证过这个仓库"，只能读成"BH 在缺一道输入的情况下给的低置信度读数"。
+
+③ **允许建「替身树」跑一次（明标替身、不算验收）**：
+   在 TEMP 里把 `.go`/`go.mod` 拷一份成一次性 git 工作树（一个 commit 即可），拿它当 `--workspace` 喂 BH ⇒ `projectHarness` 那道真能跑。
+   代价：报告描述的是**那份拷贝的伪历史**（一个 commit，没有真实变更轨迹），所以它对本仓库的"变更置信/核心改动_watch"一类结论全是造的；
+   必须像 E 段那三个替身一样，在件上写死「替身、不是本仓库的历史、不算 BH 对本仓库的结论」。
+   你的仓库本身仍然不 `git init`，回滚仍走快照点。
+
+④ **把本仓库变成 git 工作树**（正面推翻"不用 git"那条）：
+   这是唯一能让 BH 各道都"名正言顺"的修法，也是我不替你做的：它动的是回滚路径本身
+   （现路径 = `.hermess-snapshots` 快照点 + Desktop 那份 `微内核.zip` 兜底），要重定一套"谁负责恢复、恢复点在哪"的规矩。
+   列在这儿是因为不列就会显得只有我卡着 —— 实际是两条规矩在撞，不是工具坏了。
+
+────────────────────────────────────────────
+三 · 我不替你拍的这句
+
+`#64` 拍的是"BH 这一家在本仓库算不算用过、以哪种件算"。
+今天已经确定的是：**构建与打包不依赖它**（zip 里 33 件、包内清单两棵树各 31/32 件全对上、Info-ZIP 独立核过、解出来还能自跑闸门），
+所以这条不闭也不会让交付件变虚；它只影响"报告面"那一种件的存在与否。
+
+四 · 怎么算拍完了（验收形式）
+- 圈 ①：看板这条从 `❓` 改 `✅`，正文写"报告件不出，scan+plan 为 BH 交付"，`chain_status.py` 的等表态现数与题头仍相等；
+- 圈 ②：我跑 `--depth quick` 并落 `report.canvas.tsx`，件上必须明标 `projectHarness` unavailable 与低置信度；
+- 圈 ③：我跑替身树，件上必须写"替身、非本仓库历史、不算验收"；两份读数（真树停住的那发 + 替身树那一发）并排留档；
+- 圈 ④：先改回滚规矩那条记忆与 README，再谈 BH —— 顺序反了就会出现"有 git 但没人知道怎么恢复"。

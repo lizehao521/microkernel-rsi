@@ -1,0 +1,59 @@
+== 读数出口 · 「捕获—转码」全仓逐名清点（10-19 午后，脚本现扫现数，不是手抄）==
+   扫法：仓库全 .py（剔 .bin、.hermess-snapshots、.qoder、PS解、__pycache__、node_modules、vendor、便携包、报告、杂件-挪出-1018晚、构建-1017 这些目录），匹配 `subprocess.(run|check_output|Popen|call|getoutput)(`，
+   每条向下并看 4 行取 `encoding=`/`text=True`/`DEVNULL` 三个形状位 ｜ 现扫时间 13:08:26
+
+[分母] 调用点合计 38 处 ｜ 四态：26 ＋ 5 ＋ 3 ＋ 4 = 38 ｜ 四态齐全不塌 = True
+   态一 子进程 stdout 直接进 DEVNULL（母进程不解字节 → 不可能转码错）：26 处
+   态二 text=True 且 encoding= 显式给死：5 处
+   态三 text=True 但**不吃 encoding 参数**（母、子都跟着系统 locale 走 → cp936 往返，今天不脏，但换机就变）：3 处
+   态四 字节模式（拿 bytes，后面自己 decode）：4 处
+
+[逐名] 态二 · 显式 encoding：5 处
+   tasks/audit/celltable_audit.py:91                    子进程=go          p = subprocess.run([GO, "run", "./cmd/kcheck"], cwd=SRC, env=env,
+   tasks/probe/chain_status.py:44                       子进程=?           return subprocess.run(cmd, cwd=cwd or ROOT, capture_output=True, text=True,
+   tasks/probe/kaudit_probe.py:87                       子进程=go          p = subprocess.run([GO] + args, cwd=ROOT, capture_output=True, text=True,
+   tasks/probe/kprobe.py:441                            子进程=go          return subprocess.run([GO] + args, cwd=cwd, env=env, capture_output=True,
+   tasks/probe/mcphttp_probe.py:245                     子进程=go          p = subprocess.run([GO] + args, cwd=ROOT, capture_output=True, text=True,
+
+[逐名] 态三 · 吃 locale：3 处
+   tasks/mcp/artifact_probe.py:104                      子进程=python      r = subprocess.run([PY, "-c", CODE], capture_output=True, text=True, timeout=60)
+   tasks/probe/attracta_probe.py:163                    子进程=python      r = subprocess.run([sys.executable, "-c", CODE], capture_output=True, text=True, timeout=60)
+   tasks/probe/kprobe.py:364                            子进程=powershell  q = subprocess.run(["powershell", "-NoProfile", "-Command",
+
+[逐名] 态四 · 字节模式：4 处
+   tasks/mcp/client.py:45                               子进程=仓库 exe      self.proc = subprocess.Popen([self.exe], stdin=subprocess.PIPE,
+   tasks/mcp/client.py:59                               子进程=go          r = subprocess.run([os.path.join(GOBIN, "go.exe"), "build", "-o", self.exe, "./cmd/mcpkernel"],
+   tasks/mcp/pin_check.py:19                            子进程=仓库 exe     p = subprocess.Popen([EXE], stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=0, cwd=ROOT)
+   tasks/probe/acceptance_probe.py:63                   子进程=仓库 exe      p = subprocess.run([exe], input=payload + b"\n", capture_output=True, timeout=60)
+
+[归因] 逐名判定（说得出为什么脏/为什么不脏，说不出就写「未核」）：
+   · 机检 `tasks/probe/chain_status.py:44` —— **本轮已修**：母进程按 utf-8 解，而子进程是 **本机 python**，
+     它在 GBK 控制台把中文编成 cp936 字节 ⇒ 两侧不一致，归档那一行全变 U+FFFD（10-19 12:4x 撞见的那张卡）。
+     修法落地：`run()` 里给子进程 `PYTHONIOENCODING=utf-8` ＋ encoding 显式给死，并加「脏字符计数」这一位；
+     现读 `报告/融合链-逐段状态机检-v47-1019.txt` 第 22 行是修之前那份（`?` 脸），修之后那一行印 `脏字符 0 个`。
+   · `tasks/audit/celltable_audit.py:91`、`tasks/probe/kaudit_probe.py:87`、`tasks/probe/kprobe.py:441`、
+     `tasks/probe/mcphttp_probe.py:245` —— 子进程是 **Go**：Go 往 stdout 写的是源文件里的 UTF-8 字节，
+     与终端 cp 无关，母进程按 utf-8 解 = 同侧，**不脏**。这一条不是推的，是现测的，
+     读数在 `报告/Go子进程字节两解-1019.txt`（下面三行是从那份件里**回读**的，不是我另打一遍数）：
+       stdout 字节数 = 13498 ｜ 其中 >0x7F 的字节 = 7830 ｜ stderr 字节 = 0
+       同一串字节按 utf-8 解 → U+FFFD 0 个 ｜ 含 U+2713(`✓`) = True ｜ 含 U+2717(`✗`) = False
+       同一串字节按 cp936 解 → U+FFFD 643 个 ｜ 含 U+2713 = False ｜ 含 U+2717 = False
+     也就是说这四处的解码方向选对了；选错的那一侧（把 Go 当 locale 解）今天没出现在仓库里。
+   · `tasks/probe/attracta_probe.py:163`、`tasks/mcp/artifact_probe.py:104` —— text=True 不给 encoding，
+     母、子都是本机 python、都按 locale(cp936) 走 → 往返自洽，**今天不脏**；风险在题面：两处的 `CODE` 现读分别是
+     `print(sum([i for i in range(100) if ...]))` 与 `print(0.1 + 0.2 == 0.3)`，**只吐 ASCII** ⇒ 一旦有人把题面改成中文，
+     这两处会立刻变成 chain_status 那次的形状（子进程 GBK、母进程 locale 一致还能过，但只要有一侧被 PYTHONIOENCODING 改了就不一致）。
+     本轮没动它们（不在「机检」那半的修法范围内），留这一行名字在这里，别靠记性。
+   · `tasks/probe/kprobe.py:364` —— powershell 读空闲内存，读数是一条浮点，ASCII；无险。
+   · 态四那几处（`tasks/mcp/client.py:45/59`、`pin_check.py:19`、`acceptance_probe.py:63` 等）拿 bytes 自己 decode：
+     其中 `acceptance_probe.py:63` 收的是 Go 二进制 stdout、后面按 utf-8 解 = 同侧；Popen 起服务的那几处根本不读它的 stdout。
+   · **未核**：态一/态四里「谁将来会往 stdout 打中文」我没法机械判定，上面只点名了**今天会脏的那一处**（已修）
+     与**形状最像的两处**（attracta/artifact，题面 ASCII 所以暂不脏）；其余按「母侧解法 == 子侧编码」这一条已逐名对上。
+
+[红对照] 这条清点不是只数文件名的：`chain_status.py` 的自核二把同一 `run()` 路径喂了两种字节 ——
+   正对照 UTF-8 → 逐字收回来 = True ｜ 负对照 GBK → 判出脏 = True（15 个 U+FFFD）。
+   负对照若红不起来，上面所有「不脏」的结论都不许说（它证明这层闸门不是空的）。
+
+[还欠的] ①态三那两处若改题面要补 `encoding=`；②`_shared` 之外还有没有**非 python 非 Go** 的子进程（本轮扫出来只有 powershell 一支）；
+   ③本清点扫的是 .py；`.sh`/`.ps1` 里的管道转码（`| iconv`、`Get-Content -Encoding`）没扫，**归因到这一层为止，不推到全仓所有转码**——
+   那句「全仓所有读数出口都核过了」我不能说。

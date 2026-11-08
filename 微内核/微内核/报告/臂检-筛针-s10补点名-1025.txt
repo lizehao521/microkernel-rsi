@@ -1,0 +1,35 @@
+起跑前内存闸：连读 5 次 = 7105 7081 7066 7084 7093 MB，中位 7084 MB（阈值 900 MB）—— 放行
+接上交付件那枚尺子：C:\Users\Admin\Desktop\微内核\构建-1017\agentkernel\bin\mcpkernel.exe（对照 0 里 TestSameRulerAsShippedKernel 才有对手）
+
+==== 对照 ====
+对照 0（干净拷贝）：go test 退出码 0、PASS 303 条、FAIL 0 条；kcheck 退出码 0
+对照 T（故意弄坏一个测试文件）：go build 退出码 0（该 0）、go test 输出含 [build failed]=True、有 PASS/FAIL 行=False（该 False）
+
+!! 这一轮**筛过针**（只跑名字里含 s10- 的），其余 100 根没跑（表里共 101 根）—— 它不能当整轮结论用，只够回答「筛出来的这几根针咬不咬得住」
+
+共享树起手检查：修回 0 个文件（该是 0 —— 不是 0 说明这棵树不是刚拷的）
+
+
+== s10-渲染栏没切掉（下游把渲染读成原话）
+   点名该红：TestStripCellColsReturnsThePreA2LineVerbatim, TestHostClaimDropsTheRenderedCols, TestRenderedColsMaskOnlyLetsTheRenderedColumnsGo, TestResumeRebuildsHistoryOnlyWhenFingerprintsMatch, TestSameRulerAsShippedKernel
+   实际报红：TestHostClaimDropsTheRenderedCols, TestRenderedColsMaskOnlyLetsTheRenderedColumnsGo, TestResumeRebuildsHistoryOnlyWhenFingerprintsMatch, TestSameRulerAsShippedKernel, TestStripCellColsReturnsThePreA2LineVerbatim
+   没红的点名：无
+   全量共红 5 条: TestHostClaimDropsTheRenderedCols, TestRenderedColsMaskOnlyLetsTheRenderedColumnsGo, TestResumeRebuildsHistoryOnlyWhenFingerprintsMatch, TestSameRulerAsShippedKernel, TestStripCellColsReturnsThePreA2LineVerbatim
+
+共享树收尾：修回 1 个文件（该是 1 —— 就是最后一根针改的那一个；多于 1 说明有针改了名单之外的文件）
+
+==== 汇总 ====
+s10-渲染栏没切掉（下游把渲染读成原话）                      RED-ONLY-NAMED 5
+
+—— 两类针分开数 ——
+go test 针 1 根：RED-ONLY-NAMED 1、RED-WIDER 0、VACUOUS 0、TEST-BROKE(没跑成) 0、TEST-HANG(超时) 0
+kcheck  针 0 根：GATE-RED 0、GATE-GREEN(空) 0、GATE-CRASH(崩) 0
+两类共用：ANCHOR-BAD 0、BUILD-BROKE 0
+取材方式：一棵共享树，每根针前修干净（累计按 SRC 逐字节修回 1 个文件次）
+
+针数 1（go test 1 + kcheck 0）；只有点名的红 1；红得更宽 0；闸门报红 0；空针/坏针 0
+!! 筛过的轮子：跳过 100 根（表里共 101 根）—— 上面那个「针数」不是整轮的分母
+
+—— 两根对照 ——
+对照 0（干净拷贝全过）：成立
+对照 T（探针认得出「测试没跑起来」）：成立

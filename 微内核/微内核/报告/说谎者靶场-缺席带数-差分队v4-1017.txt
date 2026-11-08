@@ -1,0 +1,6 @@
+落账 isError：N=7 False ｜ N=9 False ｜ 导出 isError False ｜ 行数 99
+   session=v4-n7：Payload 里 N=7 ｜ basis 档=5 ｜ payload_sha256=a7242f4a6decdfdf ｜ hash=6cfc1fbb58cf1496
+       人话 claim=—（没量到，不是 0）
+   session=v4-n9：Payload 里 N=9 ｜ basis 档=5 ｜ payload_sha256=c31cd7cdb3bf22e3 ｜ hash=8a501ff45faad7aa
+       人话 claim=—（没量到，不是 0）
+比：Payload 各自留住 7/9 = (7,9) ｜ payload_sha256 相同吗=False ｜ 链上 hash 相同吗=False

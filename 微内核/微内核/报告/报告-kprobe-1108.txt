@@ -1,0 +1,149 @@
+起跑前内存闸：连读 5 次 = 6166 6162 6124 6062 6150 MB，中位 6150 MB（阈值 900 MB）—— 放行
+!! 交付件那枚 mcpkernel.exe 不在（C:\Users\Admin\Desktop\微内核-RSI\构建-1017\agentkernel\bin\mcpkernel.exe）—— 对照 0 会红在 TestSameRulerAsShippedKernel 上，那是「没跑」不是「判据弱」，别拿它当整轮失守
+
+==== 对照 ====
+对照 0（干净拷贝）：go test 退出码 1、PASS 303 条、FAIL 1 条；kcheck 退出码 0
+!! 干净拷贝就没过 —— 后面每一根针的结论都不可信，先修树再跑探针。
+   cells_test.go:31: 输入侧：18 个导出字段、20 格；没人替它落账的 0 个 []；指着不存在字段的 0 格 []
+对照 T（故意弄坏一个测试文件）：go build 退出码 0（该 0）、go test 输出含 [build failed]=True、有 PASS/FAIL 行=False（该 False）
+
+共享树起手检查：修回 0 个文件（该是 0 —— 不是 0 说明这棵树不是刚拷的）
+
+
+== m13b-份额超过100也放行
+   点名该红：TestDeriveBudgetIsTheOnlyOwnerOfTheFormula
+   实际报红：TestDeriveBudgetIsTheOnlyOwnerOfTheFormula
+   没红的点名：无
+   全量共红 2 条: TestDeriveBudgetIsTheOnlyOwnerOfTheFormula, TestSameRulerAsShippedKernel
+
+== m20-预算公式不复核
+   点名该红：TestHandBuiltBudgetIsRefused
+   实际报红：TestHandBuiltBudgetIsRefused
+   没红的点名：无
+   全量共红 2 条: TestHandBuiltBudgetIsRefused, TestSameRulerAsShippedKernel
+
+== m21-回夹不必真收小
+   点名该红：TestClampMustActuallyShrink
+   实际报红：TestClampMustActuallyShrink
+   没红的点名：无
+   全量共红 2 条: TestClampMustActuallyShrink, TestSameRulerAsShippedKernel
+
+== m22-协议也允许裁
+   点名该红：TestOnlySystemIsWholeOrNothing
+   实际报红：TestOnlySystemIsWholeOrNothing
+   没红的点名：无
+   全量共红 2 条: TestOnlySystemIsWholeOrNothing, TestSameRulerAsShippedKernel
+
+== m23-token白名单变黑名单
+   点名该红：TestUsageIsRelayedNotMeasured, TestTokenTotalOnlySumsTokens, TestCheckCallRefusalIsMachineReadable
+   实际报红：TestCheckCallRefusalIsMachineReadable, TestTokenTotalOnlySumsTokens, TestUsageIsRelayedNotMeasured
+   没红的点名：无
+   全量共红 4 条: TestCheckCallRefusalIsMachineReadable, TestSameRulerAsShippedKernel, TestTokenTotalOnlySumsTokens, TestUsageIsRelayedNotMeasured
+
+== m24-没数到冒充没发出去
+   点名该红：TestSentIsThreeState
+   实际报红：TestSentIsThreeState
+   没红的点名：无
+   全量共红 2 条: TestSameRulerAsShippedKernel, TestSentIsThreeState
+
+== m25-两个字节量又共用一个键名
+   点名该红：TestPartBytesMustSumToContentBytes, TestCallNumberStartsAtOne
+   实际报红：TestCallNumberStartsAtOne, TestPartBytesMustSumToContentBytes
+   没红的点名：无
+   全量共红 83 条（宽出点名的：81 条）
+
+== m26-拼错的读者声明也收
+   点名该红：TestUnreadCellsAreCountedAgainstADenominator
+   实际报红：TestUnreadCellsAreCountedAgainstADenominator
+   没红的点名：无
+   全量共红 2 条: TestSameRulerAsShippedKernel, TestUnreadCellsAreCountedAgainstADenominator
+
+== m27-框架模块前缀不匹配
+   点名该红：TestIsolationGoesRedOnALeak, TestClassifyImportEdgeShapes
+   实际报红：TestClassifyImportEdgeShapes, TestIsolationGoesRedOnALeak
+   没红的点名：无
+   全量共红 5 条: TestClassifyImportEdgeShapes, TestIsolationGoesRedOnALeak, TestLeakInATestFileIsCaughtToo, TestSameRulerAsShippedKernel, TestSubdirectoriesAreScanned
+
+== m28-cgo算成标准库
+   点名该红：TestCgoIsNotCountedAsStdlib, TestClassifyImportEdgeShapes
+   实际报红：TestCgoIsNotCountedAsStdlib, TestClassifyImportEdgeShapes
+   没红的点名：无
+   全量共红 3 条: TestCgoIsNotCountedAsStdlib, TestClassifyImportEdgeShapes, TestSameRulerAsShippedKernel
+
+== m29-不扫子目录
+   点名该红：TestSubdirectoriesAreScanned, TestSelfIsolation
+   实际报红：TestSelfIsolation, TestSubdirectoriesAreScanned
+   没红的点名：无
+   全量共红 10 条（宽出点名的：8 条）
+
+== m30-裁剪表与段表不互核
+   点名该红：TestCutsCannotOutliveTheirPartRow
+   实际报红：TestCutsCannotOutliveTheirPartRow
+   没红的点名：无
+   全量共红 2 条: TestCutsCannotOutliveTheirPartRow, TestSameRulerAsShippedKernel
+
+== m31-通知说了却没正文也放行
+   点名该红：TestNoticeCannotContradictItself
+   实际报红：TestNoticeCannotContradictItself
+   没红的点名：无
+   全量共红 2 条: TestNoticeCannotContradictItself, TestSameRulerAsShippedKernel
+
+== m32-顺序表与段表个数不互核
+   点名该红：TestOrderMustMatchPartCounts
+   实际报红：TestOrderMustMatchPartCounts
+   没红的点名：无
+   全量共红 2 条: TestOrderMustMatchPartCounts, TestSameRulerAsShippedKernel
+
+== m33-故障说法带空白也放行
+   点名该红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   实际报红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   没红的点名：无
+   全量共红 2 条: TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus, TestSameRulerAsShippedKernel
+
+== m34-对非流式也建议换非流式
+   点名该红：TestRetrySameAndDowngradeAreTwoQuestions
+   实际报红：TestRetrySameAndDowngradeAreTwoQuestions
+   没红的点名：无
+   全量共红 2 条: TestRetrySameAndDowngradeAreTwoQuestions, TestSameRulerAsShippedKernel
+
+== m35-模型id自相矛盾也放行
+   点名该红：TestSaidVersusEmptyString
+   实际报红：TestSaidVersusEmptyString
+   没红的点名：无
+   全量共红 2 条: TestSaidVersusEmptyString, TestSameRulerAsShippedKernel
+
+== m36-连歪计数与这一发不互核
+   点名该红：TestMalformedCountAndStreakAreTwoQuantities
+   实际报红：TestMalformedCountAndStreakAreTwoQuantities
+   没红的点名：无
+   全量共红 2 条: TestMalformedCountAndStreakAreTwoQuantities, TestSameRulerAsShippedKernel
+
+== m69-没收到响应的类别也许带状态码
+   点名该红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   实际报红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   没红的点名：无
+   全量共红 2 条: TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus, TestSameRulerAsShippedKernel
+
+== m70-收到过响应却不要求状态码
+   点名该红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   实际报红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   没红的点名：无
+   全量共红 2 条: TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus, TestSameRulerAsShippedKernel
+
+== m71-越界的状态码也收（0 又成了默认长相）
+   点名该红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   实际报红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   没红的点名：无
+   全量共红 2 条: TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus, TestSameRulerAsShippedKernel
+
+== m72-格式那一格说报了却报的是空串
+   点名该红：TestWireFormatSaidMatchesAndNeedsAResponse
+   实际报红：TestWireFormatSaidMatchesAndNeedsAResponse
+   没红的点名：无
+   全量共红 2 条: TestSameRulerAsShippedKernel, TestWireFormatSaidMatchesAndNeedsAResponse
+
+== m73-没收到响应也能转述对端自报了格式
+   点名该红：TestWireFormatSaidMatchesAndNeedsAResponse
+   实际报红：TestWireFormatSaidMatchesAndNeedsAResponse
+   没红的点名：无
+   全量共红 2 条: TestSameRulerAsShippedKernel, TestWireFormatSaidMatchesAndNeedsAResponse

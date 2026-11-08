@@ -1,0 +1,123 @@
+== 拒收模板（全项目根目录 .go，排除 _test.go）· 2026-10-17 12:23:31 ==
+扫的文件 9 个 ｜ 以 `kernel:` 开头的拒收模板 134 条
+分类（一条模板可以双带，所以计数相加可以大于条数）：
+  A : 3 条
+  A+C : 4 条
+  B+C : 5 条
+  C : 30 条
+  D : 92 条
+  求和 134 条 vs 模板 134 条 —— 不等就是有模板没进任何一态
+
+A 带键名（实参里有 xxx.Key）：
+  cells.go:165  kernel: %s的 %s 那一格说是 %s，却没说出处
+  input.go:105  kernel: 裁剪分档 %s 一个取值都没收 —— 那一档永远是空的
+  input.go:109  kernel: 裁剪分档 %s 收了「没被挤」—— 没被挤的段不该出现在裁剪表里
+  input.go:112  kernel: %s 同时落在 %s 与 %s 两档里 —— 它会被数两遍
+  record.go:112  kernel: %s 第 %d 发的 %s 那一格进不了账：%v
+  record.go:116  kernel: %s 第 %d 发的 %s 那一格序列化不了：%v
+  record.go:131  kernel: %s 第 %d 发的 %s 那一格账本不会收：%v
+B 带键名集合（拼的是生产者给的键名列表）：
+  cells.go:169  kernel: %s有 %d 个键名住了两个量：%s
+  cells.go:172  kernel: %s有 %d 处同一字段拆出的档重了名：%s
+  cells.go:175  kernel: %s有 %d 格的两处出处对不上：%s
+  cells.go:178  kernel: %s %d 个导出字段里有 %d 个没有任何一格替它说话（死格）：%s
+  cells.go:182  kernel: %s有 %d 格指着不存在的字段（幽灵键）：%s
+D 只报值、不带任何名字（这些才是「修的人得去猜是哪一格」）：
+  cells.go:410  kernel: 声明里键名与读者都不能空（得到 %q / %q） ｜ 实参: key, reader
+  cells.go:420  kernel: 声明了一个不在键名表里的键 %q —— 拼错的声明会让一格死格看起来是活的 ｜ 实参: key
+  cells.go:424  kernel: %s 已经被 %s 声明读过一次 —— 同一个读者声明两遍会把分母数大 ｜ 实参: key, reader
+  input.go:102  kernel: 裁剪分档表里有一档缺键名或缺说法：%+v ｜ 实参: l
+  input.go:119  kernel: %s 一档都没落 —— 它发生了也不会在账上出现 ｜ 实参: s
+  input.go:179  kernel: 单发上限 %d 不可能是正的额度 ｜ 实参: ceiling
+  input.go:182  kernel: 传输余量 %d%% 不在 [0,100) 里 ｜ 实参: slackPct
+  input.go:187  kernel: %s 的份额是 %d%% ｜ 实参: k, v
+  input.go:192  kernel: %d 类段的份额相加是 %d，超过 100 —— 那是一个兑现不了的承诺 ｜ 实参: len(shares), sum
+  input.go:198  kernel: 固定开销那一格的出处是 %s —— 它是我们估的或量的，不是对端说的 ｜ 实参: overhead.Basis
+  input.go:227  kernel: 回夹到 %d 字节 —— 那就什么都装不下了，该报「额度太紧」而不是夹到 0 ｜ 实参: effective
+  input.go:230  kernel: 这一刀夹到 %d 字节，而生效额度已经是 %d —— 没收小就不是一刀 ｜ 实参: effective, b.EffectiveCeiling
+  input.go:259  kernel: 预算里没有观察档的份额，反算不出来 ｜ 实参: 无
+  input.go:262  kernel: 传输余量 %d%% 把内容额度吃光了 ｜ 实参: b.TransportSlackPct
+  input.go:327  kernel: 第几发是 %d，发号从 1 起（0 会被读成「还没发」） ｜ 实参: m.Call
+  input.go:339  kernel: token 那一格的出处是 %s —— 我们数不出对端的分词，只有估算或转述两种可能 ｜ 实参: m.Tokens.Basis
+  input.go:342  kernel: 段表是空的 —— 一发请求至少有一段（协议或题面），空表会被读成「这一发什么都没装」 ｜ 实参: 无
+  input.go:345  kernel: 发送顺序表是空的 —— 顺序就是花钱顺序，丢了它就看不出可复用前缀稳不稳 ｜ 实参: 无
+  input.go:352  kernel: %s 那一行报了 %d 段 —— 0 段就不该占一行 ｜ 实参: p.Kind, p.Parts
+  input.go:355  kernel: %s 那一行报了 %d 字节 ｜ 实参: p.Kind, p.Bytes
+  input.go:358  kernel: %s 在段表里出现了两次 —— 一类段一行，两行就会被数两遍 ｜ 实参: p.Kind
+  input.go:367  kernel: %s 发了 %d 段，但预算里没有它的份额 ｜ 实参: p.Kind, p.Parts
+  input.go:372  kernel: 发送顺序表有 %d 项，而段表相加是 %d 段 —— 两个数得是从同一批段数出来的 ｜ 实参: len(m.Order), orderCount
+  input.go:381  kernel: 发送顺序表里有 %s，而段表里没有它那一行 ｜ 实参: k
+  input.go:388  kernel: %s 在段表里记了 %d 段，在发送顺序表里却出现 %d 次 —— 两张表数的是同一批段 ｜ 实参: p.Kind, p.Parts, ordered[p.Kind]
+  input.go:396  kernel: 各类段相加是 %d 字节，而内容总字节记的是 %d —— 两个数各算了一遍，至少一个是错的 ｜ 实参: sum, m.ContentBytes
+  input.go:399  kernel: 内容 %d 字节超过了这一发真正生效的额度 %d 字节（本该被回夹；公式算出来的是 %d，夹过 %d 刀） ｜ 实参: m.ContentBytes, m.Budget.EffectiveCeiling, m.Budget.ContentC
+  input.go:415  kernel: 第 %d 条裁剪记录挤掉了一段历史，却没说它来自第几发（RefCall=%d） ｜ 实参: i+1, c.RefCall
+  input.go:418  kernel: 第 %d 条裁剪记录说那段历史来自第 %d 发，可现在才第 %d 发 —— 引用未来的那一发，账上核不到 ｜ 实参: i+1, c.RefCall, m.Call
+  input.go:427  kernel: 这一发挤掉了 %d 段，却没把那句知情通知发出去，也没说为什么 ｜ 实参: len(m.Cuts)
+  input.go:430  kernel: 通知报的是「没发出去」，同时又报「被裁了半句」—— 没发出去的东西裁不了 ｜ 实参: 无
+  input.go:434  kernel: 通知报的是「发出去了」，却没有正文 ｜ 实参: 无
+  input.go:447  kernel: 通知报的是「发出去了」，可段表里没有 truncation-notice 那一段 —— 发不出去就不算通知过 ｜ 实参: 无
+  input.go:450  kernel: 段表里明明有 truncation-notice 那一段（它真发出去了），通知却报「没发出去」 ｜ 实参: 无
+  input.go:466  kernel: %s 的裁剪记录说留下了 %d 字节，而段表说这一类一共才发了 %d 字节 —— 两张表对不上 ｜ 实参: p.Kind, k, p.Bytes
+  input.go:477  kernel: %s 的裁剪记录说留下了 %d 字节，段表里却没有它那一行 ｜ 实参: k, keptBytes
+  input.go:496  kernel: 单发上限是 %d —— 这一份预算不是 DeriveBudget 造出来的 ｜ 实参: b.CallBytesCeiling
+  input.go:499  kernel: 传输余量是 %d%%，不在 [0,100) 里 ｜ 实参: b.TransportSlackPct
+  input.go:502  kernel: 内容额度记的是 %d，而按公式（上限 %d 扣 %d%% 余量）该是 %d —— 这条公式有了第二个 owner ｜ 实参: b.ContentCeiling, b.CallBytesCeiling, b.TransportSlackPct, w
+  input.go:508  kernel: %s 的份额是 %d%% ｜ 实参: k, v
+  input.go:513  kernel: %d 类段的份额相加是 %d，超过 100 ｜ 实参: len(b.Shares), sum
+  input.go:516  kernel: 剩余额度记的是 %d%%，而份额相加是 %d（该剩 %d）—— 两个数各算了一遍 ｜ 实参: b.LeftoverPct, sum, 100-sum
+  input.go:523  kernel: 固定开销那一格的出处是 %s —— 它是我们估的或量的，不是对端说的 ｜ 实参: b.FixedOverhead.Basis
+  input.go:526  kernel: 生效额度是 %d 字节 —— 什么都装不下 ｜ 实参: b.EffectiveCeiling
+  input.go:529  kernel: 生效额度 %d 比公式算出来的 %d 还大 —— 回夹只会收小，不会放大 ｜ 实参: b.EffectiveCeiling, b.ContentCeiling
+  input.go:533  kernel: 回夹了 %d 刀 ｜ 实参: b.ClampRounds
+  input.go:536  kernel: 生效额度 %d 与公式算出来的 %d 不一样，却记着 0 刀回夹 —— 那一刀没记账 ｜ 实参: b.EffectiveCeiling, b.ContentCeiling
+  input.go:540  kernel: 记着 %d 刀回夹，生效额度却与公式算出来的一样 —— 刀数与结果对不上 ｜ 实参: b.ClampRounds
+  journal.go:92  kernel: 没说要不要带原像（PayloadUnset）—— 这一格不许由一个默认值替调用方决定 ｜ 实参: 无
+  journal.go:110  kernel: 第 %d 条编不出来（序号 %d）：%v ｜ 实参: i+1, e.Seq, err
+  journal.go:200  kernel: %d 行里 %d 行解不开 —— 这不是空账本，是读坏了：%v ｜ 实参: j.Lines, len(j.BadLines), j.BadLines
+  journal.go:338  kernel: 读回来的账本链不符，拒绝载入：%s ｜ 实参: rep.Mismatch
+  kernel.go:135  kernel: basis=%s 必须带 source（转述谁 / 估的什么），拒收 ｜ 实参: r.Basis
+  kernel.go:140  kernel: basis=absent 必须带理由（为什么这一发没有这一格），拒收 ｜ 实参: 无
+  kernel.go:143  kernel: actor 与 kind 不能空（这条 %s/%s 将来无从归属） ｜ 实参: r.Actor, r.Kind
+  kernel.go:203  kernel: %s ｜ 实参: rep.Mismatch
+  measure.go:147  kernel: 模型自述的数 %d 不许进合计（它是线索，不是事实） ｜ 实参: m.N
+  output.go:212  kernel: 入 token 进不了合计：%v ｜ 实参: err
+  output.go:215  kernel: 出 token 进不了合计：%v ｜ 实参: err
+  output.go:222  kernel: 第几发是 %d，发号从 1 起（0 会被读成「还没发」） ｜ 实参: m.Call
+  output.go:225  kernel: 故障类别是 %q，不在 %d 种取值里（%s）—— 一个新的形状正在被当成旧的读 ｜ 实参: string(m.Failure.Kind), len(failKinds), failKindNames()
+  output.go:234  kernel: 这一发本来就不是流式的，却建议「换成非流式再发一次」 ｜ 实参: 无
+  output.go:237  kernel: 收尾原因那一格自相矛盾（said=%v reason=%q）—— 端点没说与端点说了个空串是两件事 ｜ 实参: m.Finish.Said, m.Finish.Reason
+  output.go:241  kernel: 模型 id 那一格自相矛盾（said=%v model=%q）—— 端点没报与端点报了个空串是两件事 ｜ 实参: m.ModelSaid, m.Model
+  output.go:245  kernel: 往来格式那一格自相矛盾（said=%v format=%q）—— 对端没报与报了个空串是两件事 ｜ 实参: m.WireFormatSaid, m.WireFormat
+  output.go:251  kernel: 说对端自报了格式 %q，可 %s 这一类压根没收到对端响应 —— 那串字是从哪来的？ ｜ 实参: m.WireFormat, m.Failure.Kind
+  output.go:271  kernel: 收字节那一格的出处是 %s —— 它是我们在通道上数的，只能记实测 ｜ 实参: m.WireBytesIn.Basis
+  output.go:277  kernel: 过网线字节那一格的出处是 %s —— 它是我们编码出来再数的，只能记实测 ｜ 实参: m.WireBytesOut.Basis
+  output.go:283  kernel: 报的是预算挡下，过网线字节却记成没数到 —— 预算闸在发之前就拦，那一格必然是数到的 0 ｜ 实参: 无
+  output.go:286  kernel: 报的是预算挡下，却有 %d 字节过了网线 ｜ 实参: m.WireBytesOut.N
+  output.go:307  kernel: 工具提议 %d 个、执行不了的 %d 个、链上连歪 %d 发 ｜ 实参: m.ToolCalls, m.Malformed, m.MalformedStreak
+  output.go:310  kernel: 执行不了的提议 %d 个，比提议总数 %d 还多 —— 两个数不是从同一个集合数出来的 ｜ 实参: m.Malformed, m.ToolCalls
+  output.go:315  kernel: 这一发没有执行不了的提议，链上却记着连歪 %d 发 ｜ 实参: m.MalformedStreak
+  output.go:318  kernel: 这一发有 %d 个提议执行不了，链上的连续计数却是 %d ｜ 实参: m.Malformed, m.MalformedStreak
+  output.go:323  kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾 ｜ 实参: 无
+  output.go:333  kernel: 说是没故障，却带着说法 %q / 状态 %d ｜ 实参: f.Detail, f.Status.N
+  output.go:336  kernel: 报了故障 %s 却没说是什么 —— 这一格报红时得说得出下一个人该去哪儿查 ｜ 实参: f.Kind
+  output.go:341  kernel: 故障说法首尾带空白（%q）—— 它会被抄进日志，也会被人拿去比对 ｜ 实参: f.Detail
+  output.go:347  kernel: %s 这一类是按对端响应分的，却没有状态码 —— 读的人分不清它收到响应没有 ｜ 实参: f.Kind
+  output.go:350  kernel: %s 这一类压根没收到对端响应，却记着状态码 %d —— 那个数是从哪来的？ ｜ 实参: f.Kind, f.Status.N
+  output.go:355  kernel: 状态码 %d 不在 HTTP 的 100..599 里 —— 真量到的数不会长这样 ｜ 实参: f.Status.N
+  output.go:361  kernel: 对端说要等 %d 毫秒 ｜ 实参: f.RetryAfterMs.N
+  output.go:365  kernel: 说是没故障，却记着对端要我们等 %d 毫秒 ｜ 实参: f.RetryAfterMs.N
+  output.go:369  kernel: %s 这一类原样重发不会变好，却记着「等 %d 毫秒再发」 ｜ 实参: f.Kind, f.RetryAfterMs.N
+  output.go:373  kernel: 说是没故障，却又建议换个请求重发 ｜ 实参: 无
+  output.go:379  kernel: 模型原话 %d 字节、留下 %d 字节 ｜ 实参: s.Bytes, s.Kept
+  output.go:382  kernel: 留下了 %d 字节，而原话只有 %d 字节 —— 裁不会把话裁长 ｜ 实参: s.Kept, s.Bytes
+  record.go:33  kernel: 输入侧账不自洽，第 %d 发整发拒收：%v ｜ 实参: m.Call, err
+  record.go:47  kernel: 输出侧账不自洽，第 %d 发整发拒收：%v ｜ 实参: m.Call, err
+  record.go:63  kernel: 输入侧账不自洽，第 %d 发整发拒收（输出侧也不写）：%v ｜ 实参: in.Call, err
+  record.go:67  kernel: 输出侧账不自洽，第 %d 发整发拒收（输入侧也不写）：%v ｜ 实参: out.Call, err
+  record.go:71  kernel: 两侧的发号对不上（输入 %d、输出 %d）—— 它们不是同一发 ｜ 实参: in.Call, out.Call
+分类器可能漏判（D 态但实参里就有 key/keys 这个变量名）3 条 —— 上面 D 段逐条把实参印出来了，这一列只提示「认法的词表是我定的」这件事，不改动分类，也不并进 A 的数。
+
+== 自核（钉我这把尺子）==
+正对照：record.go:112 与 cells.go:165 必须判 A ｜ 坏的：无
+对开：运行时撞过的臂 8 条（取自 非Measure那批-运行时撞一遍-v2-1017.txt）｜ 静态与运行时打架的：无
+  引的是判据行、模板在下一两行的：1 条：output.go:378→模板实为 output.go:379

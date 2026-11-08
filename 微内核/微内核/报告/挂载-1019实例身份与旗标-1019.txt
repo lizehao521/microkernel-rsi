@@ -1,0 +1,23 @@
+挂载 10-19 实例的身份与旗标（12:4x 现跑，全部为本机只读查询）
+
+[1] Get-Process：唯一 mcpkernel 进程
+
+
+Id        : 23880
+Path      : C:\Users\Admin\Desktop\微内核\构建-1017\agentkernel\bin\mcpkernel.exe
+StartTime : 2026/10/19 12:21:25
+
+
+
+[2] Get-CimInstance 的命令行（路径含中文，控制台按 GBK 显示成乱码，命令行本身逐字如下）
+C:\Users\Admin\Desktop\微内核\构建-1017\agentkernel\bin\mcpkernel.exe -append-only
+[3] 那支 exe 的盘上哈希与时间
+468c6e322e59c899606dd45f2904b22cd5291e4ef9aa175c1c1b07bc5a0a7519 *mcpkernel.exe
+-rwxr-xr-x 1 Admin 197121 6090240 2026-10-19 12:04:32.821264100 +0800 mcpkernel.exe
+[4] app 控制面数出来的工具面（query_mcp list_tools serverId=83a5d2a4…）
+    total=10；逐名：kernel.celltable / check_call / record_call / verify / tally / read_back / declare_reader / readers_report / encode_journal / load_journal
+    其中 kernel.load_journal 的 schema：required=["text"]，properties={acknowledge(enum replace), text(string)}
+    transportKind=stdio、authentication=none、status=ready、sourceEntryKey=agentkernel-1019
+
+[5] 本会话调用面（同一时刻）：mcp_list keyword=kernel 只回 agentkernel / wnh 两台；mcp_call 该连接器工具报 No connected MCP server offers a tool named …
+    ⇒ 上面 [4] 与 [5] 同时成立：登记在控制面，不等于当前会话的工具面已接入。

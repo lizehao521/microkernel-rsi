@@ -1,0 +1,58 @@
+== 静态"谁用过这格" vs 运行时矩阵：两份读数打了一架，谁赢要说清 · 2026-10-17 04:02 UTC ==
+
+跑的东西：`tasks/probe/cell_rule_readers.py` → `报告/每格被谁用过-判据渲染搬动-v2-1017.txt`
+（同一支的第一版 `…-1017.txt` 留着：那版自核报 `坏 = m.Tokens m.WireBytesIn`、退出 6 —— **正对照把正则的锅当场抓出来了**，
+ 第三参的字符类把登记调用的右括号一起吞了（`m.Tokens)`），于是两格被判成「判据=0」。修法是括号不配对就退回。）
+
+一 · 分母对开（点名，不留成数字）
+  `内核自报键名 48 个 ｜ 我从登记行抠到 43 个 ｜ 两边都对上的 43 个`
+  `内核有、我抠不到的（=5）：clipped dropped finish folded wire_format` ⇒ 其中 3 个是 `cells.go:83-85` 那个 `CutLists` 循环动态登记的
+  （`folded/clipped/dropped`，静态分不开键名）；**剩下 2 个（`finish`、`wire_format`）我的正则没咬到，写法未核——这一半未闭合，照实写。**
+  `我抠到、内核没报的 = 0`
+
+二 · 分类结果（43 格里）
+  `有判据 25 ｜ 只搬动 7 ｜ 除登记外没人碰 12 ｜ 只渲染 0`
+  只搬动那 7 格：`content_ceiling clamp_rounds chunks first_byte_ms max_gap_ms fail_kind fail_detail`
+
+三 · **这 7 格里有 5 格是分类器的假阳性，证据是今天更早的运行时矩阵**
+  `chunks / first_byte_ms / max_gap_ms` —— 55 发矩阵里这三格**每格每形状全拒**（`报告/说谎者靶场-五形状乘全格矩阵-1017.txt`），
+  闸明明在读它们；静态数成「只搬动」是因为它们的值是**表驱动**递进去的：
+  `output.go:292 stream := []struct{name string; m Measure}{{"分帧数", m.Chunks}, …}` —— 那一行既不是 `if` 也不是 `Errorf`。
+  `fail_kind / fail_detail` 同理：规则写的是 `f.Kind == FailNone`、`f.Detail != ""`（`output.go:332`），
+  而我按登记行的表达式 `m.Failure.Kind` 去子串匹配，**换了指称物（f. 而非 m.）就匹配不到**。
+  ⇒ 结论要反过来说才诚实：**静态分类不能回答"哪些格被闸念过"**；它能给出的只有嫌疑清单，
+     每一条都得像刚才这样拿运行时去撞一遍才算数。今天撞了 5 条，5 条都是假的。
+
+四 · 那还剩什么是真嫌疑
+  静态说「只搬动」而矩阵**没覆盖**的：`content_ceiling`、`clamp_rounds`（预算那两格）——它们不是 Measure，55 发矩阵测不到。
+  静态说「除登记外没人碰」的 12 格里，`model_says_kept / model_says_clipped / shares / leftover_pct / transport_slack_pct /
+  call_bytes_ceiling / fixed_overhead …` —— 这批要的是**逐格设计一种该被拒的值**再去撞（#56 那一族的正解），
+  不是再写一个静态计数器。**下一步的口径**：给这 12+2 格各写一条"什么值应当拒"，写成靶场臂，撞不出来就是没闸。
+  （注意：`fixed_overhead` 在 11 格那批里是**有**判据的（`input.go:194/519`），它出现在这份 12 格里说明
+   我这台的静态匹配对它也假阴性 —— 又一次证明第 三 节的结论。**别把这份 12 格名单当结论用。**）
+
+五 · 这份不证明什么
+  · 不证明"25 格有判据"是上限或下限 —— 上面已经看到它至少漏了 5 格（假阴性方向不定）；
+  · 不证明任何一格"该有闸而没有"：判据该不该存在是判据表的事（48 键/49 格这一轮没动）；
+  · 不替 #55/#56 做任何修法决定；两份读数谁都没被改，只是把"静态数一数"这条路**判为不可用作结论**。
+
+六 · 【04:06 UTC 追加】第二回合：契约 §1.4 的七格预算，运行时**七条全拒**，静态**七格全错**
+  探针 `tasks/probe/contract_budget_arms.py` → `报告/契约说进不了门-到底拒不拒-1017.txt`，自印：
+    `臂 7 条 ｜ 落账被拒 7 条 ｜ 收下（契约说该拒而没拒）0 条：无`、`预检与落账同判 7/7`
+  七臂各改 Budget 的一个字段（`ContentCeiling=999999`、`EffectiveCeiling=888888`、`ClampRounds=99`、`LeftoverPct=7`、
+  `TransportSlackPct=3`、`CallBytesCeiling=0`、`Shares={system:90,user:90}`），底样那几个值是
+  `32768 / 12 / 28835 / 0 / 28835 / 0 / {system:55,user:45}`（先自印再改，免得"该拒"其实是本来就非法）。
+  ⇒ 两件事同时成立，分开说：
+    ① **契约那句是真的**：`contract.md §1.4`「`InputMeta.Check()` 会把公式重算一遍再比对；手搭一份 `ContentCeiling=999999` 的预算进不了门」
+      —— 这一句不止 `ContentCeiling`，推出的/过程的量（生效额度、回夹刀数、剩余百分比、slack、上限、份额）全被核。
+      #56 里"预算那几格没有闸念它们"这个怀疑**在这批上不成立**。
+    ② **静态分类器在这七格里 7/7 判错**：这七臂改的字段是
+      `content_ceiling`、`effective_ceiling`、`clamp_rounds`、`leftover_pct`、`transport_slack_pct`、`call_bytes_ceiling`、`shares` ——
+      静态把前两格之一归「只搬动」（`content_ceiling`、`clamp_rounds`），其余五格归「除登记外没人碰」。
+      另有一格 `fixed_overhead`（静态也归「没人碰」）不在这七臂里，但 55 发矩阵里它的 S1 是**拒**
+      （`报告/说谎者靶场-五形状乘全格矩阵-1017.txt`）—— 所以按两把运行时尺子合起来算：**静态在这 8 格里 8/8 判错**。
+      机制就是第四节写的两条：表驱动传参 + 换指称物（`b.ContentCeiling` vs `m.Budget.ContentCeiling`）。
+  合起来：第四节那句"这份只负责把嫌疑名单缩到能看完的量"**现在有了反证** ——
+  它连嫌疑名单都不该给：撞过的 12 条里（5 条流式/失败类 + 这 7 条预算）**没有一条静态判对**。
+  ⇒ 修法口径改为：**判"哪格没闸"只能用运行时**（每格设计一个该被拒的值去撞），静态计数从这份起降级为**不许引用**。
+

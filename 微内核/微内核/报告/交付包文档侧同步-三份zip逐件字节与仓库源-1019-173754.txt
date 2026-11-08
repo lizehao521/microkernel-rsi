@@ -1,0 +1,89 @@
+交付包 · 文档侧同步 —— 尺子（只读数，不动包、不动仓库 .md）
+生成 2026-10-19 17:37:54 ｜ 仓库根 C:\Users\Admin\Desktop\微内核\微内核\微内核 ｜ 交付落点 C:\Users\Admin\Desktop\微内核\构建-1017 ｜ 环境变量 PDS_PKG_DIR 可换
+
+== 反臂 · 这把尺子自己会不会红（TEMP 里造微型假包假仓库，逐条 8 件）==
+  对上 ｜ 甲 · 字节一致要判相同（正对照） ｜ 现判 相同
+  对上 ｜ 乙 · 字节不一致要判不同（这把尺子会红） ｜ 现判 不同
+  对上 ｜ 丙 · 仓库无源要判核不了（不许读成 0 处不同所以齐） ｜ 现判 核不了
+  对上 ｜ 丁 · zip 与盘上同名件字节不一致要报不一致 ｜ 现报 不一致
+  对上 ｜ 丁·附 · 盘上那份不在要报核不了 ｜ 现报 核不了（盘上那份不在）
+  对上 ｜ 戊 · 包里一份 .md 都没有要判核不了（不读成齐） ｜ 现数 0 件
+  对上 ｜ 己 · NAME-MAP 表头那行含 -> 不能当条目（否则多算一件） ｜ 现解析 1 条
+  对上 ｜ 庚 · 源候选按序试：映射整路径 → 映射的文件名落仓库根 → 包内相对名同路径同名 → 仓库根同名 ｜ 全空 全落空 ｜ 有仓库/docs/pp.md 命中「规则三 包内相对名在仓库同路径同名（仓库/docs/pp.md）」｜ 抹掉 docs 又全空 是 ｜ 只有仓库/产品定位.md（映射里的文件名）时命中「规则二 兜底：拿 NAME-MAP 原样名的**文件名**去仓库根找（表里写的目录是交付树的，仓库没有）」
+  反臂结论：对上，下面那几节读数才许读
+
+NAME-MAP：从 C:\Users\Admin\Desktop\微内核\构建-1017\便携包\agentkernel\NAME-MAP.txt 解析出映射 24 条（表头那行不算条目）
+按 mtime 取最新那份 zip：agentkernel-2026-10-19-win-x64.zip（落点里共 3 份 .zip）
+
+== 一 · 最新 zip 里的 .md 逐件（zip 字节 ↔ 盘上便携树 ↔ 仓库源）==
+  PACKAGE-README.md                  zip 内条目 agentkernel/PACKAGE-README.md ｜ 3804 B ｜ date_time 2026-10-17 19:34:36
+      盘上那份：mtime 2026-10-17 19:34:37 ｜ 3804 B ｜ zip↔盘上 一致
+      仓库源：四条候选都没命中（试了：交付说明.md、交付说明.md、PACKAGE-README.md、PACKAGE-README.md）
+      字节 zip 1864dc18e21e5716… ｜ 源 -…
+      判 核不了
+      映射说它的源是仓库里的「交付说明.md」，仓库没有这份；交付树里：C:\Users\Admin\Desktop\微内核\构建-1017\agentkernel\交付说明.md ｜ mtime 2026-10-17 19:34:37 ｜ 3804 B
+  docs/README.md                     zip 内条目 agentkernel/docs/README.md ｜ 80445 B ｜ date_time 2026-10-19 02:38:58
+      盘上那份：mtime 2026-10-19 02:38:58 ｜ 80445 B ｜ zip↔盘上 一致
+      仓库源：命中 规则四 包内相对名的文件名去仓库根找 ⇒ C:\Users\Admin\Desktop\微内核\微内核\微内核\README.md（mtime 2026-10-19 02:38:58 ｜ 80445 B）
+      字节 zip 6c60dffe40df6b7b… ｜ 源 6c60dffe40df6b7b…
+      判 相同
+      有话：这一件不是映射表直接对上，是按「规则四 包内相对名的文件名去仓库根找」兜底命中的 —— 引用这条要一并带上
+  docs/contract.md                   zip 内条目 agentkernel/docs/contract.md ｜ 59485 B ｜ date_time 2026-10-19 12:13:22
+      盘上那份：mtime 2026-10-19 12:13:23 ｜ 59485 B ｜ zip↔盘上 一致
+      仓库源：命中 规则四 包内相对名的文件名去仓库根找 ⇒ C:\Users\Admin\Desktop\微内核\微内核\微内核\contract.md（mtime 2026-10-19 12:13:23 ｜ 59485 B）
+      字节 zip 494f2d7fd708764e… ｜ 源 494f2d7fd708764e…
+      判 相同
+      有话：这一件不是映射表直接对上，是按「规则四 包内相对名的文件名去仓库根找」兜底命中的 —— 引用这条要一并带上
+  docs/product-positioning.md        zip 内条目 agentkernel/docs/product-positioning.md ｜ 11601 B ｜ date_time 2026-10-18 21:28:58
+      盘上那份：mtime 2026-10-18 21:28:58 ｜ 11601 B ｜ zip↔盘上 一致
+      仓库源：命中 规则二 兜底：拿 NAME-MAP 原样名的**文件名**去仓库根找（表里写的目录是交付树的，仓库没有） ⇒ C:\Users\Admin\Desktop\微内核\微内核\微内核\产品定位.md（mtime 2026-10-18 21:28:58 ｜ 11601 B）
+      字节 zip 8863cc9a2062d2cd… ｜ 源 8863cc9a2062d2cd…
+      判 相同
+      有话：这一件不是映射表直接对上，是按「规则二 兜底：拿 NAME-MAP 原样名的**文件名**去仓库根找（表里写的目录是交付树的，仓库没有）」兜底命中的 —— 引用这条要一并带上
+  evidence/20-BH-checkup-plan.md     zip 内条目 agentkernel/evidence/20-BH-checkup-plan.md ｜ 961 B ｜ date_time 2026-10-17 19:47:34
+      盘上那份：mtime 2026-10-17 19:47:35 ｜ 961 B ｜ zip↔盘上 一致
+      仓库源：四条候选都没命中（试了：20-BH-checkup-plan.md、20-BH-checkup-plan.md、20-BH-checkup-plan.md、20-BH-checkup-plan.md）
+      字节 zip 5bf727c16f5bbb07… ｜ 源 -…
+      判 核不了
+      映射说它的源是仓库里的「凭据/20-BH-checkup-plan.md」，仓库没有这份；交付树里：C:\Users\Admin\Desktop\微内核\构建-1017\agentkernel\凭据\20-BH-checkup-plan.md ｜ mtime 2026-10-17 19:47:35 ｜ 961 B
+  ⇒ 判「不同」（包里的文档字节与仓库源不是一件事）：0 份
+  ⇒ 判「核不了」（仓库里找不到可比的那一份）：2 份：PACKAGE-README.md、evidence/20-BH-checkup-plan.md
+
+== 二 · 打包器写死的同步名单 ↔ 仓库根 .md 全数 ==
+  同步名单来源：抓到名单 3 件（第 205 行）：README.md、contract.md、产品定位.md
+  仓库根 .md 现数 3 份：README.md、contract.md、产品定位.md
+  在名单里（打包器每轮从仓库重搬）：README.md、contract.md、产品定位.md
+  仓库根有、但不在名单里（打包器根本不读 ⇒ 永远进不了包）：0 份
+  名单里有、但仓库根没有（拷贝会 continue 静默跳过）：0 份
+  全表按「表里写的路径 = 仓库里的路径」去核：落空 24 / 24 条；只取 .md 那几条：落空 3 / 3 条；PACKAGE-README.md（表里说源是「交付说明.md」，仓库那个路径没有）；docs/product-positioning.md（表里说源是「docs/产品定位.md」，仓库那个路径没有）；evidence/20-BH-checkup-plan.md（表里说源是「凭据/20-BH-checkup-plan.md」，仓库那个路径没有）
+  ⇒ 口径：这张表说的是**交付树内部**的改名（中文原样名 → 包内 ASCII 名），它写的目录是 `构建-1017\agentkernel\` 那一侧的，不是仓库的；仓库根没有 `docs/`、也没有 `凭据/`。所以「全部按仓库去找就落空」那 24 条**不是 24 个缺陷**，是这条核法不对；这一行只留 .md 那几条，是为了把「包内文档 ↔ 仓库源」这条线单独摊开。evidence 那族的源在交付工作树的 `日志/`，不在这一发的分母里。
+  口径：名单是从 C:\Users\Admin\Desktop\微内核\构建-1017\打包.py 现抓的一行；打包器改了那行，这份读数跟着变，引用时带上生成时间。
+
+== 三 · 落点里逐份 zip 对照（不只最新那一份）==
+  agentkernel-2026-10-19-win-x64.zip         .md 5 件 ｜ 与仓库源相同 3 ｜ 不同 0 ｜ 核不了 2
+        PACKAGE-README.md 核不了
+        evidence/20-BH-checkup-plan.md 核不了
+  agentkernel-2026-10-19T0240-pre66-win-x64.zip .md 5 件 ｜ 与仓库源相同 2 ｜ 不同 1 ｜ 核不了 2
+        PACKAGE-README.md 核不了
+        docs/contract.md 不同
+        evidence/20-BH-checkup-plan.md 核不了
+  agentkernel-2026-10-18-win-x64.zip         .md 5 件 ｜ 与仓库源相同 1 ｜ 不同 2 ｜ 核不了 2
+        PACKAGE-README.md 核不了
+        docs/README.md 不同
+        docs/contract.md 不同
+        evidence/20-BH-checkup-plan.md 核不了
+  ⇒ 每行是**那份包当时**与仓库现在这份字节的差，两份历史包之间不保证互相可比；引用按行取，别并成一句。
+
+== 四 · 分母自印 ==
+  zip 条目共 33 条 ｜ 其中 .md 5 件 ｜ NAME-MAP 解析 24 条 ｜ 落点 zip 3 份
+  仓库根 .md 3 份 ｜ 同步名单 3 件 ｜ 判「不同」0 份 ｜ 判「核不了」2 份
+  取数耗时 0.05 秒（含解释器起来那一段）
+
+== 五 · 这把尺子看不见的路（谁引用这份读数都该知道）==
+  · 只比 .md 的字节；不看内容语义 —— 文档里那句话与代码对不对得上，是 kwire/接口对账那一发的事，这一发替它背书不了。
+  · zip 条目的 date_time 是**打包时**写进去的，不是这份 .md 最后一次被改的时刻；mtime 也不能当来历用。
+  · 「不同」不指谁错：可能是包没跟上仓库，也可能是有人直接改了交付树/包里那一份。这一发只说两串字节不相等。
+  · 便携树是解包产物，不是交付物本体；盘上那份与 zip 那份各判各的，读数里都印了。
+  · NAME-MAP **不能当「仓库里哪份文档变成哪个条目」的清单用**：这一发实测它 3 条 .md 映射按仓库路径去找 3 条全落空（表里的路径是交付树那一侧的）。所以判「相同」里有 3 件是靠兜底规则（规则二/规则四）对上的，不是表直接对上 —— 逐件那一行都点名了用哪条。
+  · 第三节那三行是**历史 zip 对现在的仓库**：仓库再改一份 .md，历史包的「不同」只增不减，读那几行时把仓库当前的字节当作一把活动的尺，别当已封板的参照。
+  · 这一支只读数、不是闸门 ⇒ 判「不同」不红任何检；要不要把文档同步并进开机检或打包前置闸，是改判据行为，归作者拍。

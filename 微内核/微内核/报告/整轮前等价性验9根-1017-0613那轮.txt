@@ -1,0 +1,93 @@
+放大轮之前的等价性预验（9 根筛针），kprobe.py 自己印的，未编辑。跑于 10-17 06:13:41→06:15；workdir=/c/Users/Admin/AppData/Local/Temp/kprobe-eq-1017-141341-report
+筛针过滤器：m13b-,m20-,m25-,m33-,m80-,g1-,g2-,g3-,g4-
+
+起跑前内存闸：连读 5 次 = 8626 8657 8654 8654 8643 MB，中位 8654 MB（阈值 900 MB）—— 放行
+
+==== 对照 ====
+对照 0（干净拷贝）：go test 退出码 0、PASS 145 条、FAIL 0 条；kcheck 退出码 0
+对照 T（故意弄坏一个测试文件）：go build 退出码 0（该 0）、go test 输出含 [build failed]=True、有 PASS/FAIL 行=False（该 False）
+
+!! 这一轮**筛过针**（只跑名字里含 m13b-/m20-/m25-/m33-/m80-/g1-/g2-/g3-/g4- 的），其余 69 根没跑（表里共 78 根）—— 它不能当整轮结论用，只够回答「筛出来的这几根针咬不咬得住」
+
+共享树起手检查：修回 0 个文件（该是 0 —— 不是 0 说明这棵树不是刚拷的）
+
+
+== m13b-份额超过100也放行
+   点名该红：TestDeriveBudgetIsTheOnlyOwnerOfTheFormula
+   实际报红：TestDeriveBudgetIsTheOnlyOwnerOfTheFormula
+   没红的点名：无
+   全量共红 1 条: TestDeriveBudgetIsTheOnlyOwnerOfTheFormula
+
+== m20-预算公式不复核
+   点名该红：TestHandBuiltBudgetIsRefused
+   实际报红：TestHandBuiltBudgetIsRefused
+   没红的点名：无
+   全量共红 1 条: TestHandBuiltBudgetIsRefused
+
+== m25-两个字节量又共用一个键名
+   点名该红：TestPartBytesMustSumToContentBytes, TestCallNumberStartsAtOne
+   实际报红：TestCallNumberStartsAtOne, TestPartBytesMustSumToContentBytes
+   没红的点名：无
+   全量共红 38 条（宽出点名的：36 条）
+
+== m33-故障说法带空白也放行
+   点名该红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   实际报红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   没红的点名：无
+   全量共红 1 条: TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+
+== m80-抄对端原话的那格又标成我们量的
+   点名该红：TestFailureCellsFollowTheStatusAxis
+   实际报红：TestFailureCellsFollowTheStatusAxis
+   没红的点名：无
+   全量共红 1 条: TestFailureCellsFollowTheStatusAxis
+
+== g1-缺席无理由账本也收  [kcheck 针]
+   点名该红：go run ./cmd/kcheck 退出码非 0
+   实际退出码：1
+   闸门报红：✗ 缺席无理由被拒（拒了=false、拒因点名「理由」=false）、带理由被收（收了=true）：Rejected=1、Docs=2 条
+   闸门报红：✗ 1 项没过
+
+== g2-必须带来源的名单少一档  [kcheck 针]
+   点名该红：go run ./cmd/kcheck 退出码非 0
+   实际退出码：1
+   闸门报红：✗ 「必须带来源」的档只有一份判据（经 Append 探 needsSource）：名单=[relayed]（relayed/estimated 为真、其余各档为假）
+   闸门报红：✗ 1 项没过
+
+== g3-absent档也能拿去做判定  [kcheck 针]
+   点名该红：go run ./cmd/kcheck 退出码非 0
+   实际退出码：1
+   闸门报红：✗ basis=absent 不可判定；逐档可判定名单：[measured=true relayed=true estimated=false model_says=false absent=true unset=false]
+   闸门报红：✗ 1 项没过
+
+== g4-核不了却打着✓  [kcheck 针]
+   点名该红：go run ./cmd/kcheck 退出码非 0
+   实际退出码：1
+   闸门报红：✗ 核不了不打 ✓（第三种答案不许长得像绿）：✓ 字段级自洽（共 49 条，其中 0 条比对过原像）；核不了：49 条没有原像（第 1、2、3、4、5、6、7、8、…（共 49 条））—— 那些条的 PayloadH 重算不出原值
+   闸门报红：✗ 1 项没过
+
+共享树收尾：修回 1 个文件（该是 1 —— 就是最后一根针改的那一个；多于 1 说明有针改了名单之外的文件）
+
+==== 汇总 ====
+m13b-份额超过100也放行                            RED-ONLY-NAMED 1
+m20-预算公式不复核                                RED-ONLY-NAMED 1
+m25-两个字节量又共用一个键名                           RED-WIDER      38
+m33-故障说法带空白也放行                             RED-ONLY-NAMED 1
+m80-抄对端原话的那格又标成我们量的                        RED-ONLY-NAMED 1
+g1-缺席无理由账本也收                               GATE-RED       exit=1
+g2-必须带来源的名单少一档                             GATE-RED       exit=1
+g3-absent档也能拿去做判定                          GATE-RED       exit=1
+g4-核不了却打着✓                                 GATE-RED       exit=1
+
+—— 两类针分开数 ——
+go test 针 5 根：RED-ONLY-NAMED 4、RED-WIDER 1、VACUOUS 0、TEST-BROKE(没跑成) 0、TEST-HANG(超时) 0
+kcheck  针 4 根：GATE-RED 4、GATE-GREEN(空) 0、GATE-CRASH(崩) 0
+两类共用：ANCHOR-BAD 0、BUILD-BROKE 0
+取材方式：一棵共享树，每根针前修干净（累计按 SRC 逐字节修回 9 个文件次）
+
+针数 9（go test 5 + kcheck 4）；只有点名的红 4；红得更宽 1；闸门报红 4；空针/坏针 0
+!! 筛过的轮子：跳过 69 根（表里共 78 根）—— 上面那个「针数」不是整轮的分母
+
+—— 两根对照 ——
+对照 0（干净拷贝全过）：成立
+对照 T（探针认得出「测试没跑起来」）：成立

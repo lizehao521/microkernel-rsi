@@ -1,0 +1,28 @@
+== 说谎者靶场 A0 · 前后逐臂对开 · 10-17 02:10 ==
+
+两份都是**这一轮现场重跑**的真读数，不再依赖那份坏编码归档：
+  改前 = before-B 旧字节单独编出的 mcphttp-preB.exe（B 之前的 #20/#44 状态）
+  改后 = SRC 当前字节编出的 mcphttp-SRC.exe（自印 `empty_reply=0`：每条臂都真拿到了回话）
+同一支 lie_arms.sh、同一批臂、同一份载荷 —— 差别只在被连的那个实例的字节。
+
+「预检说不会拒、落账却拒了」的分歧条数：改前 4 条 → 改后 0 条
+改前分歧的臂：L1(check=false/record=true)、L2(check=false/record=true)、L3(check=false/record=true)、L6(check=false/record=true)
+改后分歧的臂：0 条 —— 七臂每一发的 check 与 record 同判
+
+逐臂（check/record）：
+  C1  合法落账（应收）                 改前 —         改后 —         
+  C2  同一发重记（应拒）                改前 —         改后 —         
+  L1  声称通知发了                   改前 false/true 改后 true/true ← 改前分歧，改后已同判
+  L2  非流式把分帧写成量到0              改前 false/true 改后 true/true ← 改前分歧，改后已同判
+  L3  转述的token标成实测             改前 false/true 改后 true/true ← 改前分歧，改后已同判
+  L4  缺席不带理由                   改前 false/false 改后 false/false 
+  L5  模型原话指纹写歪                 改前 false/false 改后 false/false 
+  L6  手搭预算（额度对不上）              改前 false/true 改后 true/true ← 改前分歧，改后已同判
+  L9  整块不给Notice               改前 true/true 改后 true/true 
+
+不变的三条（两表同判，说明 #20 没把它们改出新行为）：
+  L4/L5 改前改后都是 check=false/record=false —— L4 是臂本身无效（种法给了合法输入），L5 是 #32 那一族（账里没原话，指纹与内容之间没有判据）；
+  L9 改前改后都是 true/true —— 整块不给 Notice 一直是被门口挡下的，不属 #20 那族；
+  C1/C2（应收/重记应拒）两表一致：record=false 与 record=true。
+
+自印分母：改前表内 9 行、改后表内 9 行；可比臂 9 条；两文件 UTF-8 非法字节段=0（修好截断之后重测）

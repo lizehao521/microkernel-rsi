@@ -1,0 +1,56 @@
+# 已落地：一条都没记的账，不再戴着「核过了」那个勾
+
+日期：2026-10-15 · 状态：**已改**（用户 18:3x 一句「三个按顺序全做完」授权动这条；
+按 §8 立的规矩，动判据要**先有实例 + Go 测试 + kprobe 针 + celltable_audit**，四件都在下面）。
+
+## 实例（真读数，不是设想）
+
+1. 工具面那次：`mcphttp` 刚起来、一条都没记的时候叫 `kernel.verify`，回的是
+   `✓ 链自洽（共 0 条，其中 0 条比对过原像）`（原话在 `报告/工具面挂载实测-1015.txt`）。
+2. 同一天写 `tasks/probe/mcphttp_up.sh` 时，`status` 那一趟读到
+   `账 0 条（）` —— 空括号长得像一张填好了的分桶表。
+
+这两个都不是畸形输入：**每个新进程的第一次 `verify` / `tally` 都会经过它们**。
+`g4` 那根针管的是「核不了不许打 ✓」（手里没字节），管不到「压根没有条」这一族。
+而且改之前**没有任何测试判过空账** —— 那个 ✓ 是渲染顺手套上的，不是谁判出来的。
+
+## 改了什么（两处渲染，都不开新格）
+
+- `journal.go` `ChainReport.String()`：`Entries == 0` 时回
+  `— 尚无账可核（共 0 条）：这条链上什么都还没核过 —— 别把它读成通过`
+- `kernel.go` `Ledger.String()`：`Total == 0` 时回
+  `账 0 条（一格都没记过 —— 这不是各档都是 0，是还没有账）`
+- `cmd/kaudit` 的 `state()`：多一个第四种词 `nothing_to_audit`（空账供出去不许念成 `green`）。
+  它是**同一条三态结论在"没什么可判"时的另一种说法**，不是新的判据格。
+
+判据表**没动**：仍是 48 唯一键名 / 49 格，`celltable_audit` 重跑 `status=OK keys=48 cells=49 drift=0`。
+
+## 边界，说清没堵的那一半
+
+`Verify()` 与 `Decidable()` 的语义**一个字没改** —— 它们说的是"手里有没有不符、字节够不够重算"，
+空账上那两句确实都成立。所以 `Verify()==nil` **不是通过证书**
+（和 contract.md 对 `check_call` 的措辞同一族）。堵住"读成人话就像通过"这一层的，是上面那三处渲染。
+
+## 配齐的四件
+
+- Go 测试：`journal_test.go: TestNothingBookedDoesNotWearGreen`（两个方向都判：空账不许有 ✓、
+  真有账时 ✓ 必须回来）；`cmd/kaudit/main_test.go: TestEmptyBookIsNotGreen`；
+  `mcpsrv/mcpsrv_test.go` 里那条原来叫 `...IsGreenLiteral` 的记录测试翻成
+  `TestVerifyOnEmptyChainRefusesGreen` —— 它先按旧行为断言、改完当场红了一次，
+  红口原话：`空链的实际读数变了，这条记录测试需要重看：— 尚无账可核（共 0 条）…`
+- kprobe 针：`m83-空链戴着通过的那个勾`（journal.go）、`m84-空账的分桶行留着空括号`（kernel.go）。
+  表里因此从 **76 根变成 78 根** —— 动了判据文件，整轮凭据必须重跑，这张表已挂起（见 §7a 的补记）。
+- 外壳针：`kaudit_probe.py` 加第 8 根 `a8-空账供出去念成绿`，本轮 `RED-ONLY-NAMED 8`、两根对照成立。
+- 审计：`celltable_audit status=OK keys=48 cells=49 drift=0`；
+  `vacuous_check files=20 calls=92 可疑=0 没判=1`；`status_axis_dist SELFTEST pre=39 post=0 STATUS OK`。
+
+## 落地后的真读数（服务重启到新二进制，`curl` 打的）
+
+```
+kernel.verify → — 尚无账可核（共 0 条）：这条链上什么都还没核过 —— 别把它读成通过
+kernel.tally  → 账 0 条（一格都没记过 —— 这不是各档都是 0，是还没有账）；被拒的写入 0 次 —— …
+```
+
+而 `报告/样例-toolface-1015.jsonl`（那一发真账落盘后的 49 行）经只读外壳验仍是
+`{"checked":49,"entries":49,"state":"green"}`、`✓ 链自洽（共 49 条，其中 49 条比对过原像）` ——
+**有账的时候 ✓ 回来了**，这一句是反面方向的凭据，不是顺带。

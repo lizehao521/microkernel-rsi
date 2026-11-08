@@ -1,0 +1,68 @@
+# 装好的那一份真起一发（随包 启动-微核台-便携.cmd --no-open，随机空闲端口）
+# 三方对账：HTTP serve 到的字节 sha == 装到盘上那份 .html == /api/state 自报 html_sha256 ⇒ 见 LA 行，三个 sha16 相同。
+# 收进程：趁外壳还活着 taskkill /T 整棵树，收完数残留 = 0（前一发先 terminate() 只杀外壳，留下 3 层孤儿继续听端口，
+#   那三枚是逐名查命令行确认自己起的才收；顺序坑记在这里，别再犯）。
+# 「用户关掉控制台窗口能不能收干净」这条没测（NOT_RUN）。
+# 这一发之前那趟已在这棵树里跑过随包 HTTP 验收件，所以复验读到 disk=43 / runtime_new=5 / mutable_drift=1：
+#   可变量 记忆/记忆.json 变了（跑验收落了决定）＋ 读数/ 与 回执/ 里应用自己写的 5 枚 ⇒ 全按账上档放行，不是免检。
+# kernel.state=disabled：驱动没起内核闸 ⇒ 这一格没跑，不是跑绿。
+
+cmd=C:\Users\Admin\AppData\Local\Temp\inst-target-outer\微核台-便携-1028\启动-微核台-便携.cmd
+url=http://127.0.0.1:53765/
+[launch] cmd = C:\\Users\\Admin\\AppData\\Local\\Temp\\inst-target-outer\\\u5fae\u6838\u53f0-\u4fbf\u643a-1028\\\u542f\u52a8-\u5fae\u6838\u53f0-\u4fbf\u643a.cmd
+[launch] url = http://127.0.0.1:53765/
+LA | served=148207 disk=148207 三方相同=True（served==disk==state 自报）version=0.3.0-prototype port=53765
+LA | sha16 served=e671b133e38de299 disk=e671b133e38de299 state=e671b133e38de299
+LA | kernel.state=disabled kernel.why=--no-kernel：这一格没跑，不是跑绿 top_keys=bundles,evidence,kernel,memory,memory_meta,model,ok,server
+[launch] tree killed, wrapper alive=False
+LA | 整棵树收完之后残留 0（这一发要的是 0）
+LA | re-verify rc=0 VP | files=38 disk=43 bad=0 missing=0 extra=0 mutable_drift=1 mutable_declared=1 mutable_undeclared=0 runtime_new=5 runtime_declared=2 runtime_shadowed=0 total_drift=0 manifest_fields_missing=0 bytes_manifest=813519 bytes_disk=813519 rc=0
+--- 验包件 stdout 全文 ---
+读数 · 便携包逐文件验包（只读）
+
+包目录            C:\Users\Admin\AppData\Local\Temp\inst-target-outer\\u5fae\u6838\u53f0-\u4fbf\u643a-1028
+
+清单              清单-微核台-便携-1028.json 8226 B sha256 前 16 c8ee5b4198c39d25
+
+package           微核台-便携-1028 ｜ builder 工具-出包-1028.py ｜ built_at 2026-10-28T02:46:23+08:00
+
+source_dir        C:\Users\Admin\Desktop\\u5fae\u5185\u6838\\u4ea4\u4ed8\u5bf9\u8d26-1026\\u8bbe\u8ba1-\u684c\u9762\u7aef-v2
+
+清单自证缺项      0
+
+
+
+一、五态分开数（不并成一个「不一致」）
+
+  清单条目 38 ｜盘上实数 43 ｜BAD 0 ｜MISSING 0 ｜EXTRA 0 ｜可变量变了 1（账上声明可变量 1 个） ｜运行时新生 5（账上声明允许档 2 个）
+
+    DRIFT-MUTABLE 记忆/记忆.json ｜重算=4a7c84b4548a587e 出包时=a1e76748c971efe3 ｜422 B vs 422 B ｜理由：收件方每做一次收/退决定，工具-本地服务.py 就往里追一条（MEM_FILE）；出包时那份是空模板，用过之后必然与账上不同 ⇒ 变了不算损坏，仍逐名印出重算值 ⇒ 不记 BAD
+
+    RUNTIME 回执/receipt-D-1026-01-20261028-024808.html ｜7387 B ｜落在账上声明的运行时目录 回执/ ｜理由：操作模式每点一次收/退落一张 HTML，属收件方自己的决定历史 ⇒ 不记 EXTRA
+
+    RUNTIME 回执/receipt-D-1026-02-20261028-024808.html ｜7010 B ｜落在账上声明的运行时目录 回执/ ｜理由：操作模式每点一次收/退落一张 HTML，属收件方自己的决定历史 ⇒ 不记 EXTRA
+
+    RUNTIME 回执/receipt-D-1026-03-20261028-024808.html ｜7112 B ｜落在账上声明的运行时目录 回执/ ｜理由：操作模式每点一次收/退落一张 HTML，属收件方自己的决定历史 ⇒ 不记 EXTRA
+
+    RUNTIME 读数/服务地址.txt ｜100 B ｜落在账上声明的运行时目录 读数/ ｜理由：服务一启动就写 读数/服务地址.txt；内核闸跑过再写 读数/内核快闸.json 与 -输出.txt ⇒ 不记 EXTRA
+
+    RUNTIME 读数/验收-HTTP.txt ｜8346 B ｜落在账上声明的运行时目录 读数/ ｜理由：服务一启动就写 读数/服务地址.txt；内核闸跑过再写 读数/内核快闸.json 与 -输出.txt ⇒ 不记 EXTRA
+
+
+
+二、字节与 totals（totals 只自证清单内部，不用盘上差判红）
+
+  账上自印 bytes 813519 ｜账上逐条相加 813519 ｜盘上重算（清单范围内） 813519 ｜账上自相矛盾 0
+
+  盘上与账上的字节差 = 0（这一段是可变/损坏在动，逐名已在 BAD 与 DRIFT-MUTABLE 里，不另立一态）
+
+  清单条目数 38 ｜账上自印 files 38 ｜排除逐名 5 条
+
+  manifest sha256 前 16 c8ee5b4198c39d25（本件重算，不是抄的）
+
+
+
+VP | files=38 disk=43 bad=0 missing=0 extra=0 mutable_drift=1 mutable_declared=1 mutable_undeclared=0 runtime_new=5 runtime_declared=2 runtime_shadowed=0 total_drift=0 manifest_fields_missing=0 bytes_manifest=813519 bytes_disk=813519 rc=0
+
+RESULT PASS
+

@@ -1,0 +1,19 @@
+[
+ {
+  "stage": "search",
+  "code": "SEARCH_API_PARTIAL_FAILURE",
+  "message": "部分搜索接口失败，已继续使用可用结果：oa_semantic x1: ReadTimeout",
+  "fatal": false,
+  "detail": {
+   "oa_semantic": {
+    "count": 1,
+    "lastMessage": "ReadTimeout",
+    "queries": [
+     "verifiable append-only transparency logs proving non-omission with Merkle consistency proofs, signed checkpoints, and witnesses"
+    ]
+   }
+  },
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943524
+ }
+]

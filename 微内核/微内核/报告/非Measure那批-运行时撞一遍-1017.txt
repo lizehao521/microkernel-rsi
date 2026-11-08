@@ -1,0 +1,26 @@
+格表抠到 49 行（表头钉 49）｜ 唯一键名 48 个 ｜ 分隔符 ←
+
+== 非 Measure 那批格 · 运行时逐格撞 · 2026-10-17 12:13:35 ｜ 字节 sha256=daad549714f7fd5e ==
+底样相关几格原值：ToolCalls=0 Malformed=0 MalformedStreak=0 Notice={'Sent': False, 'Trimmed': False, 'Why': '这一发没折叠、没裁尾、没整段丢弃', 'Text': ''} WireFormat='chat.completion' WireFormatSaid=True Says={'Bytes': 21, 'Kept': 21, 'SHA256': '47bc0ee2914e0e790916512e7e6bbcec2521c613b49b9ab3cf3ea8b472b868db'}
+控制臂（什么都没改）：check=False record=False —— 收不下就整批作废
+
+臂 ｜ 这一格键名 ｜ 期望 ｜ check ｜ record ｜ 同判 ｜ 拒收原话（有没有指名这一格）
+------------------------------------------------------------------------------
+N1 说发了却没正文             ｜ notice_sent          ｜ 该拒             ｜ True  ｜ True  ｜ 同判   ｜ 整发拒收（拒收累计 1 次）：kernel: 输入侧账不自洽，第 1 发整发拒收（输出侧也不写）：kernel: 通知报的是「发出去了」，却没有正文
+    └ 期望的出处：input.go:434 ｜ 这一臂把 Notice.Sent 改成了 True
+N2 执行不了比总数多            ｜ malformed_actions    ｜ 该拒             ｜ True  ｜ True  ｜ 同判   ｜ 整发拒收（拒收累计 2 次）：kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 执行不了的提议 9 个，比提议总数 5 还多 —— 两个数不是从同一个集合数出来的
+    └ 期望的出处：output.go:310 ｜ 这一臂把 Malformed 改成了 9
+N3 有执行不了却连0            ｜ malformed_streak     ｜ 该拒             ｜ True  ｜ True  ｜ 同判   ｜ 整发拒收（拒收累计 3 次）：kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 执行不了的提议 3 个，比提议总数 0 还多 —— 两个数不是从同一个集合数出来的
+    └ 期望的出处：output.go:318 ｜ 这一臂把 MalformedStreak 改成了 0
+N4 通道档没报却说得出           ｜ wire_format_said     ｜ 该拒             ｜ True  ｜ True  ｜ 同判   ｜ 整发拒收（拒收累计 4 次）：kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 往来格式那一格自相矛盾（said=false format="text/event-stream"）—— 
+    └ 期望的出处：真流量实测（报告/真流量-第一发被内核拒收-1017.txt） ｜ 这一臂把 WireFormatSaid 改成了 False
+N5 指纹不是 64 位           ｜ model_says_sha256    ｜ 该拒             ｜ True  ｜ True  ｜ 同判   ｜ 整发拒收（拒收累计 5 次）：kernel: 输出侧账不自洽，第 1 发整发拒收（输入侧也不写）：kernel: 原话指纹是 3 位，不是 64 位十六进制 —— 拿它核不回原文
+    └ 期望的出处：contract.md §2.4 checkFingerprint ｜ 这一臂把 Says.SHA256 改成了 'abc'
+N6 内容字节给负数             ｜ content_bytes        ｜ 无依据，只记录        ｜ True  ｜ True  ｜ 同判   ｜ 整发拒收（拒收累计 6 次）：kernel: 输入侧账不自洽，第 1 发整发拒收（输出侧也不写）：kernel: 各类段相加是 20 字节，而内容总字节记的是 -1 —— 两个数各算了一遍，至少一个是错的
+    └ 期望的出处：值域 §2.4 没这条 ｜ 这一臂把 ContentBytes 改成了 -1
+
+== 自印分母 ==
+臂 6 条 ｜ 落账被拒 6 条 ｜ 被收下 0 条：无 ｜ 预检与落账同判 6/6 ｜ 拒收原话里指名了那一格（键名由格表现取）0 条
+读法：`N6 内容字节给负数` 的期望本来就是「无依据，只记录」—— 它收下/拒都不算契约被违反；
+      其余各臂若出现「期望该拒、实际收下」，那是**判据与说法对不上**（契约/代码注释写了那条却没接上），
+      那才是要立缺陷的情形；若全部按期望拒了，则 #56 对这批格的怀疑不成立。

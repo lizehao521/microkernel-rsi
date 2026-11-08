@@ -1,0 +1,122 @@
+== 薄的那批格：源码里还有哪些判据提到这一格 · 2026-10-17 13:30:07 ｜ 端点 http://127.0.0.1:8797/mcp ==
+矩阵判给「只被 1 条接住」的格 16 个 ｜ 格表现取 48 行 ｜ 键名对不上格表的：无
+
+格 ｜ 已接住的那条 ｜ 候选（源码里还提到这一格、且这批格都还没撞过的判据）｜ 说明
+------------------------------------------------------------------------------
+downgrade              ｜ output.go:373 ｜ 4 条 ｜ 下面列出候选，挑着设计臂
+     · output.go:234 ｜ 条件「if m.Failure.Downgrade && !m.Streaming {」 ｜ 模板「kernel: 这一发本来就不是流式的，却建议「换成非流式再发一次」」
+     · output.go:237 ｜ 条件「if m.Failure.Downgrade && !m.Streaming {」 ｜ 模板「kernel: 收尾原因那一格自相矛盾（said=%v reason=%q）—— 端点没说与端点说了个空串是两件」
+     · output.go:241 ｜ 条件「if m.Failure.Downgrade && !m.Streaming {」 ｜ 模板「kernel: 模型 id 那一格自相矛盾（said=%v model=%q）—— 端点没报与端点报了个空串是两」
+     · output.go:379 ｜ 条件「if f.Downgrade && f.Kind == FailNone {」 ｜ 模板「kernel: 模型原话 %d 字节、留下 %d 字节」
+endpoint_model_said    ｜ output.go:241 ｜ 1 条 ｜ 下面列出候选，挑着设计臂
+     · output.go:245 ｜ 条件「if m.ModelSaid != (m.Model != "") {」 ｜ 模板「kernel: 往来格式那一格自相矛盾（said=%v format=%q）—— 对端没报与报了个空串是两件事」
+fail_detail            ｜ output.go:333 ｜ 3 条 ｜ 下面列出候选，挑着设计臂
+     · output.go:336 ｜ 条件「if f.Kind == FailNone && (f.Detail != "" || f.Status.Decidable()) {」 ｜ 模板「kernel: 报了故障 %s 却没说是什么 —— 这一格报红时得说得出下一个人该去哪儿查」
+     · output.go:341 ｜ 条件「if f.Kind != FailNone && strings.TrimSpace(f.Detail) == "" {」 ｜ 模板「kernel: 故障说法首尾带空白（%q）—— 它会被抄进日志，也会被人拿去比对」
+     · output.go:347 ｜ 条件「if strings.TrimSpace(f.Detail) != f.Detail {」 ｜ 模板「kernel: %s 这一类是按对端响应分的，却没有状态码 —— 读的人分不清它收到响应没有」
+fail_kind              ｜ output.go:225 ｜ 32 条 ｜ 下面列出候选，挑着设计臂
+     · input.go:358 ｜ 条件「if _, dup := seen[p.Kind]; dup {」 ｜ 模板「kernel: %s 在段表里出现了两次 —— 一类段一行，两行就会被数两遍」
+     · input.go:367 ｜ 条件「if _, ok := m.Budget.ShareOf(p.Kind); !ok {」 ｜ 模板「kernel: %s 发了 %d 段，但预算里没有它的份额」
+     · input.go:372 ｜ 条件「if _, ok := m.Budget.ShareOf(p.Kind); !ok {」 ｜ 模板「kernel: 发送顺序表有 %d 项，而段表相加是 %d 段 —— 两个数得是从同一批段数出来的」
+     · input.go:388 ｜ 条件「if ordered[p.Kind] != p.Parts {」 ｜ 模板「kernel: %s 在段表里记了 %d 段，在发送顺序表里却出现 %d 次 —— 两张表数的是同一批段」
+     · input.go:415 ｜ 条件「if c.Kind != KindHistory {」 ｜ 模板「kernel: 第 %d 条裁剪记录挤掉了一段历史，却没说它来自第几发（RefCall=%d）」
+     · input.go:418 ｜ 条件「if c.Kind != KindHistory {」 ｜ 模板「kernel: 第 %d 条裁剪记录说那段历史来自第 %d 发，可现在才第 %d 发 —— 引用未来的那一发，账」
+     · input.go:447 ｜ 条件「if k == KindNotice {」 ｜ 模板「kernel: 通知报的是「发出去了」，可段表里没有 truncation-notice 那一段 —— 发不出去」
+     · input.go:466 ｜ 条件「if k := kept[p.Kind]; k > p.Bytes {」 ｜ 模板「kernel: %s 的裁剪记录说留下了 %d 字节，而段表说这一类一共才发了 %d 字节 —— 两张表对不上」
+     · input.go:566 ｜ 条件「if !c.Kind.MayFold() {」 ｜ 模板「kernel: %s 被折成了桩，但 %s 这一类不许折」
+     · input.go:569 ｜ 条件「if !c.Kind.MayFold() {」 ｜ 模板「kernel: %s 原文 0 字节 —— 0 字节的段无从折起」
+     · input.go:573 ｜ 条件「if !c.Kind.MayFold() {」 ｜ 模板「kernel: %s 折过之后是 %d 字节 —— 桩要么整段发，要么记成整段没进」
+     · input.go:580 ｜ 条件「if !c.Kind.MayShrink() {」 ｜ 模板「kernel: %s 被裁尾，但 %s 这一类是整段的」
+     · input.go:583 ｜ 条件「if !c.Kind.MayShrink() {」 ｜ 模板「kernel: %s 原文 0 字节 —— 0 字节的段无从裁起」
+     · input.go:586 ｜ 条件「if !c.Kind.MayShrink() {」 ｜ 模板「kernel: %s 留了 %d 字节、原文 %d 字节 —— 裁尾要留下一个非空的真前缀」
+     · input.go:590 ｜ 条件「if !c.Kind.MayShrink() {」 ｜ 模板「kernel: %s 记成 %s，但 %s 这一类是整段的」
+     · input.go:593 ｜ 条件「if !c.Kind.MayShrink() {」 ｜ 模板「kernel: %s 说是 %s，却记着发出去 %d 字节」
+     · input.go:597 ｜ 条件「if !c.Kind.MayShrink() {」 ｜ 模板「kernel: %s 的 squeeze 是 %q，不在四种取值里」
+     · kernel.go:143 ｜ 条件「if r.Actor == "" || r.Kind == "" {」 ｜ 模板「kernel: actor 与 kind 不能空（这条 %s/%s 将来无从归属）」
+     · output.go:251 ｜ 条件「if m.WireFormatSaid && !m.Failure.Kind.MayCarryStatus() && m.Failure.K」 ｜ 模板「kernel: 说对端自报了格式 %q，可 %s 这一类压根没收到对端响应 —— 那串字是从哪来的？」
+     · output.go:283 ｜ 条件「if m.Failure.Kind == FailBudget {」 ｜ 模板「kernel: 报的是预算挡下，过网线字节却记成没数到 —— 预算闸在发之前就拦，那一格必然是数到的 0」
+     · output.go:286 ｜ 条件「if m.Failure.Kind == FailBudget {」 ｜ 模板「kernel: 报的是预算挡下，却有 %d 字节过了网线」
+     · output.go:323 ｜ 条件「if m.Says.Bytes == 0 && m.ToolCalls == 0 && m.Failure.Kind == FailNone」 ｜ 模板「kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾」
+     · output.go:333 ｜ 条件「if f.Kind == FailNone && (f.Detail != "" || f.Status.Decidable()) {」 ｜ 模板「kernel: 说是没故障，却带着说法 %q / 状态 %d」
+     · output.go:336 ｜ 条件「if f.Kind == FailNone && (f.Detail != "" || f.Status.Decidable()) {」 ｜ 模板「kernel: 报了故障 %s 却没说是什么 —— 这一格报红时得说得出下一个人该去哪儿查」
+     · output.go:341 ｜ 条件「if f.Kind != FailNone && strings.TrimSpace(f.Detail) == "" {」 ｜ 模板「kernel: 故障说法首尾带空白（%q）—— 它会被抄进日志，也会被人拿去比对」
+     · output.go:347 ｜ 条件「if f.Kind.MayCarryStatus() && !f.Status.Decidable() {」 ｜ 模板「kernel: %s 这一类是按对端响应分的，却没有状态码 —— 读的人分不清它收到响应没有」
+     · output.go:350 ｜ 条件「if f.Kind.MayCarryStatus() && !f.Status.Decidable() {」 ｜ 模板「kernel: %s 这一类压根没收到对端响应，却记着状态码 %d —— 那个数是从哪来的？」
+     · output.go:355 ｜ 条件「if !f.Kind.MayCarryStatus() && f.Status.Decidable() {」 ｜ 模板「kernel: 状态码 %d 不在 HTTP 的 100..599 里 —— 真量到的数不会长这样」
+     · output.go:365 ｜ 条件「if f.Kind == FailNone && f.RetryAfterMs.Decidable() {」 ｜ 模板「kernel: 说是没故障，却记着对端要我们等 %d 毫秒」
+     · output.go:369 ｜ 条件「if f.Kind == FailNone && f.RetryAfterMs.Decidable() {」 ｜ 模板「kernel: %s 这一类原样重发不会变好，却记着「等 %d 毫秒再发」」
+     · output.go:373 ｜ 条件「if f.Kind != FailNone && f.RetryAfterMs.Decidable() && !f.Kind.RetrySa」 ｜ 模板「kernel: 说是没故障，却又建议换个请求重发」
+     · output.go:379 ｜ 条件「if f.Downgrade && f.Kind == FailNone {」 ｜ 模板「kernel: 模型原话 %d 字节、留下 %d 字节」
+finish_said            ｜ output.go:237 ｜ 3 条 ｜ 下面列出候选，挑着设计臂
+     · output.go:241 ｜ 条件「if m.Finish.Said != (m.Finish.Reason != "") {」 ｜ 模板「kernel: 模型 id 那一格自相矛盾（said=%v model=%q）—— 端点没报与端点报了个空串是两」
+     · output.go:245 ｜ 条件「if m.ModelSaid != (m.Model != "") {」 ｜ 模板「kernel: 往来格式那一格自相矛盾（said=%v format=%q）—— 对端没报与报了个空串是两件事」
+     · output.go:251 ｜ 条件「if m.WireFormatSaid != (m.WireFormat != "") {」 ｜ 模板「kernel: 说对端自报了格式 %q，可 %s 这一类压根没收到对端响应 —— 那串字是从哪来的？」
+malformed_actions      ｜ output.go:310 ｜ 4 条 ｜ 下面列出候选，挑着设计臂
+     · output.go:307 ｜ 条件「if m.ToolCalls < 0 || m.Malformed < 0 || m.MalformedStreak < 0 {」 ｜ 模板「kernel: 工具提议 %d 个、执行不了的 %d 个、链上连歪 %d 发」
+     · output.go:315 ｜ 条件「if m.Malformed > m.ToolCalls {」 ｜ 模板「kernel: 这一发没有执行不了的提议，链上却记着连歪 %d 发」
+     · output.go:318 ｜ 条件「if m.Malformed == 0 && m.MalformedStreak != 0 {」 ｜ 模板「kernel: 这一发有 %d 个提议执行不了，链上的连续计数却是 %d」
+     · output.go:323 ｜ 条件「if m.Malformed > 0 && m.MalformedStreak < 1 {」 ｜ 模板「kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾」
+malformed_streak       ｜ output.go:318 ｜ 4 条 ｜ 下面列出候选，挑着设计臂
+     · output.go:307 ｜ 条件「if m.ToolCalls < 0 || m.Malformed < 0 || m.MalformedStreak < 0 {」 ｜ 模板「kernel: 工具提议 %d 个、执行不了的 %d 个、链上连歪 %d 发」
+     · output.go:310 ｜ 条件「if m.ToolCalls < 0 || m.Malformed < 0 || m.MalformedStreak < 0 {」 ｜ 模板「kernel: 执行不了的提议 %d 个，比提议总数 %d 还多 —— 两个数不是从同一个集合数出来的」
+     · output.go:315 ｜ 条件「if m.Malformed == 0 && m.MalformedStreak != 0 {」 ｜ 模板「kernel: 这一发没有执行不了的提议，链上却记着连歪 %d 发」
+     · output.go:323 ｜ 条件「if m.Malformed > 0 && m.MalformedStreak < 1 {」 ｜ 模板「kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾」
+model_says_bytes       ｜ output.go:379 ｜ 27 条 ｜ 下面列出候选，挑着设计臂
+     · input.go:355 ｜ 条件「if p.Bytes < 0 {」 ｜ 模板「kernel: %s 那一行报了 %d 字节」
+     · input.go:358 ｜ 条件「if p.Bytes < 0 {」 ｜ 模板「kernel: %s 在段表里出现了两次 —— 一类段一行，两行就会被数两遍」
+     · input.go:396 ｜ 条件「if sum != m.ContentBytes {」 ｜ 模板「kernel: 各类段相加是 %d 字节，而内容总字节记的是 %d —— 两个数各算了一遍，至少一个是错的」
+     · input.go:399 ｜ 条件「if sum != m.ContentBytes {」 ｜ 模板「kernel: 内容 %d 字节超过了这一发真正生效的额度 %d 字节（本该被回夹；公式算出来的是 %d，夹过 」
+     · input.go:466 ｜ 条件「if k := kept[p.Kind]; k > p.Bytes {」 ｜ 模板「kernel: %s 的裁剪记录说留下了 %d 字节，而段表说这一类一共才发了 %d 字节 —— 两张表对不上」
+     · input.go:477 ｜ 条件「if keptBytes == 0 {」 ｜ 模板「kernel: %s 的裁剪记录说留下了 %d 字节，段表里却没有它那一行」
+     · input.go:496 ｜ 条件「if b.CallBytesCeiling <= 0 {」 ｜ 模板「kernel: 单发上限是 %d —— 这一份预算不是 DeriveBudget 造出来的」
+     · input.go:499 ｜ 条件「if b.CallBytesCeiling <= 0 {」 ｜ 模板「kernel: 传输余量是 %d%%，不在 [0,100) 里」
+     · input.go:502 ｜ 条件「if b.CallBytesCeiling <= 0 {」 ｜ 模板「kernel: 内容额度记的是 %d，而按公式（上限 %d 扣 %d%% 余量）该是 %d —— 这条公式有了第」
+     · input.go:508 ｜ 条件「if want := b.CallBytesCeiling * int64(100-b.TransportSlackPct) / 100; 」 ｜ 模板「kernel: %s 的份额是 %d%%」
+     · input.go:555 ｜ 条件「if c.FromBytes < 0 || c.ToBytes < 0 {」 ｜ 模板「kernel: %s 原文 %d 字节、发出去 %d 字节」
+     · input.go:561 ｜ 条件「if c.FromBytes < 0 || c.ToBytes < 0 {」 ｜ 模板「kernel: %s 没有 ref —— 事后谁也说不清被挤掉的是哪一段」
+     · input.go:569 ｜ 条件「if c.FromBytes <= 0 {」 ｜ 模板「kernel: %s 原文 0 字节 —— 0 字节的段无从折起」
+     · input.go:573 ｜ 条件「if c.FromBytes <= 0 {」 ｜ 模板「kernel: %s 折过之后是 %d 字节 —— 桩要么整段发，要么记成整段没进」
+     · input.go:576 ｜ 条件「if c.FromBytes <= 0 {」 ｜ 模板「kernel: %s 折过之后 %d 字节，原文才 %d 字节 —— 那它没被折，是被变大了」
+     · input.go:580 ｜ 条件「if c.ToBytes <= 0 {」 ｜ 模板「kernel: %s 被裁尾，但 %s 这一类是整段的」
+     · input.go:583 ｜ 条件「if c.ToBytes >= c.FromBytes {」 ｜ 模板「kernel: %s 原文 0 字节 —— 0 字节的段无从裁起」
+     · input.go:586 ｜ 条件「if c.FromBytes <= 0 {」 ｜ 模板「kernel: %s 留了 %d 字节、原文 %d 字节 —— 裁尾要留下一个非空的真前缀」
+     · input.go:590 ｜ 条件「if c.FromBytes <= 0 {」 ｜ 模板「kernel: %s 记成 %s，但 %s 这一类是整段的」
+     · input.go:593 ｜ 条件「if c.ToBytes <= 0 || c.ToBytes >= c.FromBytes {」 ｜ 模板「kernel: %s 说是 %s，却记着发出去 %d 字节」
+     · input.go:597 ｜ 条件「if c.ToBytes != 0 {」 ｜ 模板「kernel: %s 的 squeeze 是 %q，不在四种取值里」
+     · output.go:271 ｜ 条件「if err := m.WireBytesIn.Check("通道上收到的字节"); err != nil {」 ｜ 模板「kernel: 收字节那一格的出处是 %s —— 它是我们在通道上数的，只能记实测」
+     · output.go:277 ｜ 条件「if m.WireBytesIn.Decidable() && m.WireBytesIn.Basis != BasisMeasured {」 ｜ 模板「kernel: 过网线字节那一格的出处是 %s —— 它是我们编码出来再数的，只能记实测」
+     · output.go:283 ｜ 条件「if m.WireBytesOut.Decidable() && m.WireBytesOut.Basis != BasisMeasured」 ｜ 模板「kernel: 报的是预算挡下，过网线字节却记成没数到 —— 预算闸在发之前就拦，那一格必然是数到的 0」
+     · output.go:286 ｜ 条件「if m.WireBytesOut.Absent {」 ｜ 模板「kernel: 报的是预算挡下，却有 %d 字节过了网线」
+     · output.go:323 ｜ 条件「if m.Says.Bytes == 0 && m.ToolCalls == 0 && m.Failure.Kind == FailNone」 ｜ 模板「kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾」
+     · output.go:382 ｜ 条件「if s.Bytes < 0 || s.Kept < 0 {」 ｜ 模板「kernel: 留下了 %d 字节，而原话只有 %d 字节 —— 裁不会把话裁长」
+model_says_kept        ｜ output.go:379 ｜ 1 条 ｜ 下面列出候选，挑着设计臂
+     · output.go:382 ｜ 条件「if s.Bytes < 0 || s.Kept < 0 {」 ｜ 模板「kernel: 留下了 %d 字节，而原话只有 %d 字节 —— 裁不会把话裁长」
+model_says_sha256      ｜ input.go:607 ｜ 1 条 ｜ 下面列出候选，挑着设计臂
+     · input.go:561 ｜ 条件「if err := checkFingerprint(where+" 的原文指纹", c.SHA256); err != nil {」 ｜ 模板「kernel: %s 没有 ref —— 事后谁也说不清被挤掉的是哪一段」
+notice_sent            ｜ input.go:434 ｜ 4 条 ｜ 下面列出候选，挑着设计臂
+     · input.go:427 ｜ 条件「if len(m.Cuts) > 0 && !m.Notice.Sent && strings.TrimSpace(m.Notice.Why」 ｜ 模板「kernel: 这一发挤掉了 %d 段，却没把那句知情通知发出去，也没说为什么」
+     · input.go:430 ｜ 条件「if len(m.Cuts) > 0 && !m.Notice.Sent && strings.TrimSpace(m.Notice.Why」 ｜ 模板「kernel: 通知报的是「没发出去」，同时又报「被裁了半句」—— 没发出去的东西裁不了」
+     · input.go:447 ｜ 条件「if m.Notice.Sent && !noticeInParts {」 ｜ 模板「kernel: 通知报的是「发出去了」，可段表里没有 truncation-notice 那一段 —— 发不出去」
+     · input.go:450 ｜ 条件「if m.Notice.Sent && !noticeInParts {」 ｜ 模板「kernel: 段表里明明有 truncation-notice 那一段（它真发出去了），通知却报「没发出去」」
+notice_trimmed         ｜ input.go:430 ｜ 1 条 ｜ 下面列出候选，挑着设计臂
+     · input.go:434 ｜ 条件「if !m.Notice.Sent && m.Notice.Trimmed {」 ｜ 模板「kernel: 通知报的是「发出去了」，却没有正文」
+parts                  ｜ input.go:372 ｜ 2 条 ｜ 下面列出候选，挑着设计臂
+     · input.go:345 ｜ 条件「if len(m.Order) == 0 {」 ｜ 模板「kernel: 发送顺序表是空的 —— 顺序就是花钱顺序，丢了它就看不出可复用前缀稳不稳」
+     · input.go:352 ｜ 条件「if len(m.Order) == 0 {」 ｜ 模板「kernel: %s 那一行报了 %d 段 —— 0 段就不该占一行」
+streaming              ｜ output.go:300 ｜ 6 条 ｜ 下面列出候选，挑着设计臂
+     · output.go:234 ｜ 条件「if m.Failure.Downgrade && !m.Streaming {」 ｜ 模板「kernel: 这一发本来就不是流式的，却建议「换成非流式再发一次」」
+     · output.go:237 ｜ 条件「if m.Failure.Downgrade && !m.Streaming {」 ｜ 模板「kernel: 收尾原因那一格自相矛盾（said=%v reason=%q）—— 端点没说与端点说了个空串是两件」
+     · output.go:241 ｜ 条件「if m.Failure.Downgrade && !m.Streaming {」 ｜ 模板「kernel: 模型 id 那一格自相矛盾（said=%v model=%q）—— 端点没报与端点报了个空串是两」
+     · output.go:303 ｜ 条件「if m.Streaming && s.m.Absent {」 ｜ 模板「kernel: 这一发不是流式的，%s 却报了 %d —— 非流式没有这一格，写数就是编数」
+     · output.go:307 ｜ 条件「if m.Streaming && s.m.Absent {」 ｜ 模板「kernel: 工具提议 %d 个、执行不了的 %d 个、链上连歪 %d 发」
+     · output.go:310 ｜ 条件「if !m.Streaming && !s.m.Absent {」 ｜ 模板「kernel: 执行不了的提议 %d 个，比提议总数 %d 还多 —— 两个数不是从同一个集合数出来的」
+tool_calls             ｜ output.go:307 ｜ 3 条 ｜ 下面列出候选，挑着设计臂
+     · output.go:310 ｜ 条件「if m.ToolCalls < 0 || m.Malformed < 0 || m.MalformedStreak < 0 {」 ｜ 模板「kernel: 执行不了的提议 %d 个，比提议总数 %d 还多 —— 两个数不是从同一个集合数出来的」
+     · output.go:315 ｜ 条件「if m.Malformed > m.ToolCalls {」 ｜ 模板「kernel: 这一发没有执行不了的提议，链上却记着连歪 %d 发」
+     · output.go:323 ｜ 条件「if m.Says.Bytes == 0 && m.ToolCalls == 0 && m.Failure.Kind == FailNone」 ｜ 模板「kernel: 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾」
+wire_format_said       ｜ output.go:245 ｜ 1 条 ｜ 下面列出候选，挑着设计臂
+     · output.go:251 ｜ 条件「if m.WireFormatSaid != (m.WireFormat != "") {」 ｜ 模板「kernel: 说对端自报了格式 %q，可 %s 这一类压根没收到对端响应 —— 那串字是从哪来的？」
+
+== 自核（钉这把尺子）==
+正对照：已接住那条必须出现在候选扫描里 ｜ 不对的：model_says_sha256（已接住的那条 input.go:607 不在候选里）
+坏：回溯条件读错了，这张表不许用。

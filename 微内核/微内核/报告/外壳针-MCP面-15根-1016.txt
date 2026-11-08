@@ -1,0 +1,119 @@
+MCP 两面（mcpsrv + cmd/mcphttp）的针 —— 15 根，由 tasks/probe/mcphttp_probe.py 自己印出、未编辑。
+跑于 2026-10-16 12:23:59 → 12:31:49，脚本退出码 0。
+
+这一份为什么存在：#35（encode 的人读表头把 load 打死）落地时补了两根针，表从 13 根长到 15 根；
+判据、内核、协议语义都没动，动的是 mcpsrv 那 20 行往返。分母由脚本自己印，这里不抄。
+
+两条对照都成立；`对照 0` 印 `PASS 21 条` —— 比 13 根那份的 20 条多的正是新加的那支
+`TestEncodeJournalTextLoadsBackVerbatim`（不是探针跑重了）。
+
+== 第一轮（12:07→12:21）先报过一根 RED-WIDER，这一节的经过记在这儿 ==
+s14（把「认表头」改成「永远丢第一行」）跑出来共红 4 条，比点名的 1 条宽：
+   点名该红：TestEncodeJournalTextLoadsBackVerbatim
+   多红的那三条喂的是**不带表头的正文** —— 它们一起红恰好证明「认得太宽会吃掉第一条真账」
+   是被三支独立测试守着的，不只有那支新测试。按 §11b 那条老教训（点名单要写全，
+   否则「红得比点名宽」会被读成探针的读数不可信），把四支都写进名单后重跑，得到下面这份。
+
+== 以下为脚本自印原文（重跑那一轮）==
+==== 对照 ====
+对照 0（未改动的树）：go test 退出码 0、PASS 21 条、FAIL 0 条（该 0 / >0 / 0）
+对照 T（弄坏测试文件）：退出码 1（该非 0）、认出坏了标记=True、有 PASS/FAIL 判决行=False（该 True / False）、修回一致=True
+
+
+
+== h1-写请求先吃401  [cmd\mcphttp\main.go]
+   点名该红：TestNonPostIs405RegardlessOfAuth
+   实际报红：TestNonPostIs405RegardlessOfAuth
+   全量共红 1 条
+
+== h2-405不告知只许POST  [cmd\mcphttp\main.go]
+   点名该红：TestNonPostIs405RegardlessOfAuth
+   实际报红：TestNonPostIs405RegardlessOfAuth
+   全量共红 1 条
+
+== h3-HTTP面不查口令  [cmd\mcphttp\main.go]
+   点名该红：TestTokenGate
+   实际报红：TestTokenGate
+   全量共红 1 条
+
+== h4-请求体不设上限  [cmd\mcphttp\main.go]
+   点名该红：TestOverLimitBodyRefused
+   实际报红：TestOverLimitBodyRefused
+   全量共红 1 条
+
+== h5-垃圾体塌成没回话  [cmd\mcphttp\main.go]
+   点名该红：TestGarbageBodyIs400
+   实际报红：TestGarbageBodyIs400
+   全量共红 1 条
+
+== h6-通知回空200  [cmd\mcphttp\main.go]
+   点名该红：TestNotificationIs202NoBody
+   实际报红：TestNotificationIs202NoBody
+   全量共红 1 条
+
+== h7-网段无口令也起来  [cmd\mcphttp\main.go]
+   点名该红：TestCheckListenRefusesPublicBindWithoutToken
+   实际报红：TestCheckListenRefusesPublicBindWithoutToken
+   全量共红 1 条
+
+== s8-键名分母用推出来的  [mcpsrv\mcpsrv.go]
+   点名该红：TestCelltableAgreesWithKernelAndFreeze, TestRPCOverHTTP
+   实际报红：TestCelltableAgreesWithKernelAndFreeze, TestRPCOverHTTP
+   全量共红 2 条
+
+== s9-工具数有了第二个owner  [mcpsrv\mcpsrv.go]
+   点名该红：TestToolCountIsTheSameOwnerAsTheList, TestRPCOverHTTP
+   实际报红：TestRPCOverHTTP, TestToolCountIsTheSameOwnerAsTheList
+   全量共红 2 条
+
+== s10-少一个轴也照答  [mcpsrv\mcpsrv.go]
+   点名该红：TestReadBackRefusesEmptySession
+   实际报红：TestReadBackRefusesEmptySession
+   全量共红 1 条
+
+== s11-顶掉账本不点名也放行  [mcpsrv\mcpsrv.go]
+   点名该红：TestLoadJournalNeedsAcknowledgeToReplace
+   实际报红：TestLoadJournalNeedsAcknowledgeToReplace
+   全量共红 1 条
+
+== s12-排队不成立（直接处理）  [mcpsrv\mcpsrv.go]
+   点名该红：TestQueueTimeoutIs503AndCounted
+   实际报红：TestQueueTimeoutIs503AndCounted
+   全量共红 1 条
+
+== h8-服务端超时又变回不限  [cmd\mcphttp\main.go]
+   点名该红：TestServerTimeoutsAreSet
+   实际报红：TestServerTimeoutsAreSet
+   全量共红 1 条
+
+== s13-表头不认（往返读不回来）  [mcpsrv\mcpsrv.go]
+   点名该红：TestEncodeJournalTextLoadsBackVerbatim
+   实际报红：TestEncodeJournalTextLoadsBackVerbatim
+   全量共红 1 条
+
+== s14-任何第一行都当表头剥掉  [mcpsrv\mcpsrv.go]
+   点名该红：TestEncodeJournalTextLoadsBackVerbatim, TestLoadJournalNeedsAcknowledgeToReplace, TestLoadJournalThenVerifyOverHTTP, TestVerifyOnEmptyChainRefusesGreen
+   实际报红：TestEncodeJournalTextLoadsBackVerbatim, TestLoadJournalNeedsAcknowledgeToReplace, TestLoadJournalThenVerifyOverHTTP, TestVerifyOnEmptyChainRefusesGreen
+   全量共红 4 条
+
+==== 汇总 ====
+h1-写请求先吃401                    RED-ONLY-NAMED   exit=1
+h2-405不告知只许POST                RED-ONLY-NAMED   exit=1
+h3-HTTP面不查口令                   RED-ONLY-NAMED   exit=1
+h4-请求体不设上限                     RED-ONLY-NAMED   exit=1
+h5-垃圾体塌成没回话                    RED-ONLY-NAMED   exit=1
+h6-通知回空200                     RED-ONLY-NAMED   exit=1
+h7-网段无口令也起来                    RED-ONLY-NAMED   exit=1
+s8-键名分母用推出来的                   RED-ONLY-NAMED   exit=1
+s9-工具数有了第二个owner               RED-ONLY-NAMED   exit=1
+s10-少一个轴也照答                    RED-ONLY-NAMED   exit=1
+s11-顶掉账本不点名也放行                 RED-ONLY-NAMED   exit=1
+s12-排队不成立（直接处理）                RED-ONLY-NAMED   exit=1
+h8-服务端超时又变回不限                  RED-ONLY-NAMED   exit=1
+s13-表头不认（往返读不回来）               RED-ONLY-NAMED   exit=1
+s14-任何第一行都当表头剥掉                RED-ONLY-NAMED   exit=1
+
+针数 15（表里 15，本轮实际跑 15）；分类：RED-ONLY-NAMED 15
+取材方式：只改这两个外壳文件（cmd\mcphttp\main.go、mcpsrv\mcpsrv.go），每根针后按原字节修回（累计改过 15 次）
+对照 0（干净树全过）：成立；对照 T（认得出测试没跑起来）：成立
+每条承诺都有一根针能把它抹红；无空针、无坏针、两根对照都成立、收尾树是干净的。

@@ -1,0 +1,11 @@
+CONTROL_OK 正对照：未造破坏的拷贝 go test ./rsi/ ./cmd/krsi/ rc=0
+OK m1-R2恒等-指纹相同也放行 咬住了（点名 TestR2SameArtifactsRefused 都红）
+OK m2-R3放水也收 咬住了（点名 TestR3Criteria 都红）
+OK m3-R4不可判定也当证据 咬住了（点名 TestR4Basis 都红）
+OK m4-R5无分母也判 咬住了（点名 TestR5Improvement 都红）
+OK m5-R6重记也收 咬住了（点名 TestR6Anchor,TestCLIConflictingGenerationRefused 都红）
+OK m6-目录声明未实现 咬住了（点名 TestCatalogMatchesImplementation 都红）
+OK m7-判定恒等improved 咬住了（点名 TestR5Improvement 都红）
+OK m8-缺席塌成绿 咬住了（点名 TestR4Basis 都红）
+SUMMARY needles=8 ok=8 miss=0 broken=0 empty=0
+VERDICT ALL_BIT

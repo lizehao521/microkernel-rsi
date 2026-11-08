@@ -1,0 +1,7 @@
+== 动态档那三格 · Cuts 族逐条撞 · 2026-10-17 12:51:12 ｜ 字节 sha256=daad549714f7fd5e ==
+自核：模板取自源码 17/17 条 ｜ 取不到的：无
+三格在格表里吗：folded/clipped/dropped ｜ 不在的：无
+
+A0 合法装配：check=True record=True ｜ 底样 {"Call": 2, "Order": ["system", "user", "history", "truncation-notice"], "ContentBytes": 70}
+   内容字节相加 70 ｜ 段表 [{"Kind": "system", "Parts": 1, "Bytes": 11}, {"Kind": "user", "Parts": 1, "Bytes": 9}, {"Kind": "history", "Parts": 1, "Bytes": 30}, {"Kind": "truncation-notice", "Parts": 1, "Bytes": 20}] ｜ 份额 {"system": 35, "user": 25, "history": 30, "truncation-notice": 10} ｜ 裁剪 [{"Kind": "history", "Ref": "第 1 发的历史段（演示值·非真实流量）", "RefCall": 1, "Role": "assistant", "Squeeze": "folded", "FromBytes": 100, "ToBytes": 30, "SHA256":
+整批作废：合法装配都收不下 —— 原话：整发拒收（拒收累计 1 次）：kernel: 两侧的发号对不上（输入 2、输出 1）—— 它们不是同一发

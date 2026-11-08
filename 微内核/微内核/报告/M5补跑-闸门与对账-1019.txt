@@ -1,0 +1,164 @@
+
+===== 01 go run ./cmd/kcheck :: C:\Users\Admin\sdk\go\bin\go.exe run ./cmd/kcheck
+exit=0  stdout_lines=128  stderr_bytes=0
+--- stdout ---
+== 1. 与 Agent 框架的隔离（机械判，不由文档声明判）
+   扫了 17 个文件、125 条 import；其中标准库 115 条、本模块内 10 条；另扫了 18 个测试文件；✓ 只依赖标准库；依赖闭包 217 个包（全在标准库或本模块内）
+✓ 只依赖标准库；泄漏 0 处、测试文件里泄漏 0 处、cgo 0 处、认不出 0 处
+✓ 依赖闭包 217 个包，越界 0 个
+
+== 2. 键名表（一格一名；每个字段都得有一格替它落账）
+   输入侧 18 个导出字段 / 20 格；输出侧 26 个导出字段 / 29 格；合计 49 格
+✓ 输入侧键名表自洽：无
+✓ 输出侧键名表自洽：无
+✓ 两侧合起来没有键名住两个量：[]
+✓ 键名表里没有 bytes_out（那个装过两个量的名字）
+
+== 3. 裁剪分档表（除「没被挤」外，每个取值恰好落进一档；表自己印在下面）
+✓ 分档表自洽：无
+     · folded   折成桩：[folded]
+     · clipped  裁尾：[tail-dropped]
+     · dropped  整段没进：[dropped-whole budget-exhausted]
+
+== 4. 读者声明表（「落了账但没人读」那一半）
+— 输入侧：键名表 20 格，其中 20 格没有任何声明者读：call call_bytes_ceiling clamp_rounds clipped content_bytes content_ceiling dropped effective_ceiling fixed_overhead folded leftover_pct notice_sent notice_text notice_trimmed notice_why part_totals parts shares tokens transport_slack_pct（框架未生产，还没有任何声明者；这一栏不是判定）
+— 输出侧：键名表 29 格，其中 29 格没有任何声明者读：call chunks cost_countable downgrade endpoint_model endpoint_model_said fail_detail fail_kind fail_status finish finish_said first_byte_ms malformed_actions malformed_streak max_gap_ms model_says_bytes model_says_clipped model_says_kept model_says_sha256 retry_after_ms sent streaming tool_calls usage_in usage_out wire_bytes_in wire_bytes_out wire_format wire_format_said（同上）
+
+== 5. 键名表全文（键名 ← 字段路径 ｜ 出处）
+   输入侧
+     call                   ← Call                         ｜ measured
+     call_bytes_ceiling     ← Budget.CallBytesCeiling      ｜ measured
+     clamp_rounds           ← Budget.ClampRounds           ｜ measured
+     clipped                ← Cuts#clipped                 ｜ absent
+     content_bytes          ← ContentBytes                 ｜ measured
+     content_ceiling        ← Budget.ContentCeiling        ｜ measured
+     dropped                ← Cuts#dropped                 ｜ absent
+     effective_ceiling      ← Budget.EffectiveCeiling      ｜ measured
+     fixed_overhead         ← Budget.FixedOverhead         ｜ unset
+     folded                 ← Cuts#folded                  ｜ absent
+     leftover_pct           ← Budget.LeftoverPct           ｜ measured
+     notice_sent            ← Notice.Sent                  ｜ measured
+     notice_text            ← Notice.Text                  ｜ measured
+     notice_trimmed         ← Notice.Trimmed               ｜ measured
+     notice_why             ← Notice.Why                   ｜ measured
+     part_totals            ← Parts                        ｜ measured
+     parts                  ← Order                        ｜ measured
+     shares                 ← Budget.Shares                ｜ measured
+     tokens                 ← Tokens                       ｜ unset
+     transport_slack_pct    ← Budget.TransportSlackPct     ｜ measured
+   输出侧
+     call                   ← Call                         ｜ measured
+     chunks                 ← Chunks                       ｜ unset
+     cost_countable         ← CostCountable()              ｜ measured
+     downgrade              ← Failure.Downgrade            ｜ measured
+     endpoint_model         ← Model                        ｜ model_says
+     endpoint_model_said    ← ModelSaid                    ｜ measured
+     fail_detail            ← Failure.Detail               ｜ measured
+     fail_kind              ← Failure.Kind                 ｜ measured
+     fail_status            ← Failure.Status               ｜ unset
+     finish                 ← Finish.Reason                ｜ relayed
+     finish_said            ← Finish.Said                  ｜ measured
+     first_byte_ms          ← FirstByteMs                  ｜ unset
+     malformed_actions      ← Malformed                    ｜ measured
+     malformed_streak       ← MalformedStreak              ｜ measured
+     max_gap_ms             ← MaxGapMs                     ｜ unset
+     model_says_bytes       ← Says.Bytes                   ｜ measured
+     model_says_clipped     ← Says.Clipped()               ｜ measured
+     model_says_kept        ← Says.Kept                    ｜ measured
+     model_says_sha256      ← Says.SHA256                  ｜ measured
+     retry_after_ms         ← Failure.RetryAfterMs         ｜ unset
+     sent                   ← Sent()                       ｜ measured
+     streaming              ← Streaming                    ｜ measured
+     tool_calls             ← ToolCalls                    ｜ measured
+     usage_in               ← UsageIn                      ｜ unset
+     usage_out              ← UsageOut                     ｜ unset
+     wire_bytes_in          ← WireBytesIn                  ｜ unset
+     wire_bytes_out         ← WireBytesOut                 ｜ unset
+     wire_format            ← WireFormat                   ｜ relayed
+     wire_format_said       ← WireFormatSaid               ｜ measured
+
+== 6. 元数据到账本的接线（record.go：把每一格逐条写进那道哈希链）
+✓ 缺依据的写入被拒：errors.Is(ErrNoBasis)=true、拒收计数 Rejected=1、链上 Docs=0 条
+✓ 缺席无理由被拒（拒了=true、拒因点名「理由」=true）、带理由被收（收了=true）：Rejected=2、Docs=1 条
+✓ 「必须带来源」的档只有一份判据（经 Append 探 needsSource）：名单=[relayed estimated]（relayed/estimated 为真、其余各档为假）
+✓ basis=absent 不可判定；逐档可判定名单：[measured=true relayed=true estimated=false model_says=false absent=false unset=false]
+✓ 读回来那一半对得上：输入侧键名=[content_bytes first_byte_ms]、其中缺席=[first_byte_ms]、输出侧读回 1 格，另一本同发同侧的那格没混进来（CellsOf/Keys/AbsentKeys 按 session + step + <kind>: 前缀三个轴过滤）
+✓ 闸门自搭的最小样例过得了两侧的 Check（预算=<nil>、输入侧=<nil>、输出侧=<nil>）
+✓ RecordCall 整发落账：链上 49 条（键名表两侧合计 49 格）、拒收 0、链自洽=true
+✓ 同一发同一侧只许记一次：重记整发被拒=true、重记输入侧被拒=true、重记输出侧被拒=true，拒收计数=3、链上仍是 49 条（没多出第二套）
+✓ 落账的每一条都带一句非空的人话：链上共 49 条，Claim 为空的 0 条（[]）
+✓ 真接线记出来的账读回来与键名表逐格对齐：输入侧读回 20 个键、对上=true；输出侧读回 29 个键、对上=true
+✓ Check 不过 ⇒ 整发拒收、链上不留半发：坏输入被拒=true、一侧坏时整发被拒=true、拒收计数=2、链上 0 条
+— 账本上两种条目名：KindModelInput=model_input、KindModelOutput=model_output。元数据每一格各成一条账本记录，键名是 <kind>:<key>（例如 model_input:call）—— 账本上那些条目名就是这么拼出来的。
+
+== 6.9 自由文本那一格的上限（10-18 攻击面实测：请求体有 4 MiB 上限，单格没有；
+       一段 SYSTEM OVERRIDE 落账成功、read_back 原样交回、还盖着 measured）
+✓ 超限的通知理由整发拒收（拒了=true、点名是哪一格=true）：kernel: 输入侧账不自洽，第 1 发整发拒收（输出侧也不写）：kernel: 通知理由(Notice.Why) 有 2001 字符，超过单格上限 2000 —— 这一格会被原样抄给下一个读账的人，长度本身就是一条注入面；长文放账外，指个出处过来
+✓ 正好在上限内必须照收（反臂，边界是「超过」不是「达到」）：<nil>
+✓ 指令形状但很短的一句**照样收** —— 这一格判据只管长度不管语义；读侧那句提示（mcpsrv 的 instrShapeTag）才管形状，它只加一句提示、不改一个字节：<nil>
+✓ 超限的出处在账本门口就被拒（不等到落盘才胀）：kernel: 出处(Source) 有 2001 字符，超过单格上限 2000 —— 这一格会被原样抄给下一个读账的人，长度本身就是一条注入面；长文放账外，指个出处过来
+— 单格自由文本上限 = 2000 字符（按字符数，汉字一个算一个）
+
+== 7. 账本的字节格式（journal.go：编得出去、读得回来、「没有原像」与「被人改过」分两句话说）
+✓ 没填 PayloadMode 被拒（拒了=true、拒因点名「原像」=true）：kernel: 没说要不要带原像（PayloadUnset）—— 这一格不许由一个默认值替调用方决定
+✓ 三档渲染非空且互不相同（空的 []、撞名的 []）：[0=unset 1=不带原像 2=带原像]
+✓ 带原像编码成功：22550 字节、<nil>
+✓ 读回来 49 条（写出去 49 条）、带原像 49 条、没有原像 0 条：<nil>
+✓ 往返后的链：共 49 条、真的比对过原像 49 条、没有原像 0 条（能拿去下结论=true）
+✓ 往返后逐格原样（链上 49 条，变形的 0 条）
+✓ 不带原像读回来：49 条全部「核不了」而非「被动过」（Mismatch=""、NoPreimage=49 条、Verify 报的是=kernel: 链上 49 条没有原像（第 1、2、3、4、5、6、7、8、…（共 49 条））—— 这「不是」篡改，是手里的字节不足以重算那些条的指纹；字段级自洽已核过，但「第三方能重算原值」那一半核不了，不许读成自洽）
+✓ 核不了不打 ✓（第三种答案不许长得像绿）：— 字段级自洽（共 49 条，其中 0 条比对过原像）；核不了：49 条没有原像（第 1、2、3、4、5、6、7、8、…（共 49 条））—— 那些条的 PayloadH 重算不出原值
+✓ 改一格 kind 被整格 seal 抓到（针落上了=true、拒因点名整格指纹=true）：第 1 条整格指纹重算不符（某格被改）want=0f82cbe6157f got=cfa24ab72064
+✓ 从盘上读回来后重记同一发被拒（拒了=true）、链上仍是 49 条没多出第二套：kernel: model_input 第 1 发（session=kcheck）已经记过了 —— 同一发只许记一次，记两遍会让按键名扫账本的分析层把字节与 token 加两遍
+— Journal 自己怎么说这份文件：带原像那一份「读回 49 条、全部带原像（第三方能重算）；计数栏：没有这一行 ⇒ 不可知（不是 0）」；不带原像那一份「读回 49 条、全部没有原像（链能自洽，但第三方重算不出原值）；计数栏：没有这一行 ⇒ 不可知（不是 0）」
+✓ 带计数的字节 = 链那一半逐字节相同 + 末尾一行计数（前缀对得上=true、多出的字节=309）
+✓ 计数随账本读回来：{2 10 3 1 4 5 这一程完整可数}（链上 49 条、计数行 1 行、口径=这一程完整可数）：<nil>
+✓ 没有计数行时：49 条账照样读得回、口径=不可知（手里这份字节里没有计数那一栏）、String 里点名不可知=true
+✓ 改大一个拒收数被封条抓到（针落上了=true、拒因点名封条=true）：kernel: 链是好的，但计数那一栏不可信，拒绝载入：计数栏的封条重算不符：六个数或口径里有一格被动过（封条盖的是那七格加链尾）
+✓ 拒收次数为负被拒并点名是哪一格：kernel: 链是好的，但计数那一栏不可信，拒绝载入：计数栏里 rejected 是负数 —— 拦下来的次数不会是负的，这是坏数据不是读数
+✓ 预检拒 3 发：那一栏=3、链仍 49 条没多写、落账那一栏没被挤动（前后都是 3）
+— 计数那一栏的三态：不可知（手里这份字节里没有计数那一栏） / 这一程完整可数 / 只覆盖这一程（载入前那份文件里没有计数栏）
+✓ 下界活过一次往返：编出去=<nil>、读回来口径=只覆盖这一程（载入前那份文件里没有计数栏）（要的是 只覆盖这一程）、拒预检=1、拒落账=1
+✓ 「不可知」不许写成一行（正确形状是没有这一行）：kernel: 计数那一栏的口径是 不可知（手里这份字节里没有计数那一栏）（0）—— 落盘的计数行只认 1=完整可数 / 2=只覆盖这一程；「不可知」的正确写法是**不要写这一行**
+
+== 这一条快闸不核的事
+   「判据必须能真的红」要逐根针各跑一遍，所以不进这条快闸。跑法：
+     py -3 tasks/probe/kprobe.py <go.exe 路径> <本包目录> <临时工作目录> <报告输出路径>
+   它往临时拷贝里逐根制造破坏，要求点名的判据接住：
+   一类针跑 go test 并点名该红的测试，另一类针跑本闸门并要求退出码非 0。
+   锚点命中数不是 1 处的一根算空针；拷贝编译不过算坏针（崩不算红）。
+   针的根数与分布由它自己印，这里不抄。
+
+✓ 全部通过（项数由上面自己数，不抄在这里）
+I counted: tick=41 cross=0
+
+===== 02 celltable_audit :: C:\Users\Admin\sdk\py314\python.exe tasks\audit\celltable_audit.py C:\Users\Admin\sdk\go\bin\go.exe C:\Users\Admin\Desktop\微内核\微内核\微内核
+exit=0  stdout_lines=1  stderr_bytes=0
+--- stdout ---
+CELLTABLE AUDIT status=OK keys=48 cells=49 rows=48 drift=0 -> C:\Users\Admin\Desktop\???\???\???\??\??????-??.txt
+last 4 lines: CELLTABLE AUDIT status=OK keys=48 cells=49 rows=48 drift=0 -> C:\Users\Admin\Desktop\???\???\???\??\??????-??.txt
+
+===== 03 kwire :: C:\Users\Admin\sdk\go\bin\go.exe run ./cmd/kwire -out 报告\接口对账-交付件换字节后-1019.txt
+exit=0  stdout_lines=3  stderr_bytes=0
+--- stdout ---
+KWIRE paths=27 units=39 holes=10 trials=378 vacuous=143 tools_doc_missing=0
+DRIFT 0 NOT-VERIFIABLE 0
+KWIRE OK: 写侧最少接口与文档逐路径对上
+kwire head: KWIRE paths=27 units=39 holes=10 trials=378 vacuous=143 tools_doc_missing=0 | DRIFT 0 NOT-VERIFIABLE 0 | KWIRE OK: 写侧最少接口与文档逐路径对上
+
+===== 04 board_check :: C:\Users\Admin\sdk\py314\python.exe tasks\probe\board_check.py
+exit=1  stdout_lines=9  stderr_bytes=0
+--- stdout ---
+���� C:\\Users\\Admin\\Desktop\\\u5fae\u5185\u6838\\\u5fae\u5185\u6838\\\u5fae\u5185\u6838\\\u62a5\u544a\\\u770b\u677f.md
+�� 5 �� Ӧ�� 5
+  \u5728\u8dd1\u ��=0    ע��=3   ̧ͷд=0 �� OK
+  \u7b49\u8868\u ��=12   ע��=1   ̧ͷд=12 �� OK
+  \u5f85\u8dd1\u ��=21   ע��=0   ̧ͷд=22 �� MISMATCH
+  blocked\uff080 ��=0    ע��=0   ̧ͷд=0 �� OK
+  \u5df2\u5b8c\u ��=60   ע��=0   ̧ͷûд�������ˣ�
+�Ժˣ���ο����ϼ� 93 �� ������������� 0 �� = ����Ư
+���� 1 ����head=22 cards=21
+last 6 lines:   \u7b49\u8868\u ��=12   ע��=1   ̧ͷд=12 �� OK |   \u5f85\u8dd1\u ��=21   ע��=0   ̧ͷд=22 �� MISMATCH |   blocked\uff080 ��=0    ע��=0   ̧ͷд=0 �� OK |   \u5df2\u5b8c\u ��=60   ע��=0   ̧ͷûд�������ˣ� | �Ժˣ���ο����ϼ� 93 �� ������������� 0 �� = ����Ư | ���� 1 ����head=22 cards=21
+
+===== SUMMARY
+kcheck=0 celltable=0 kwire=0 board=1

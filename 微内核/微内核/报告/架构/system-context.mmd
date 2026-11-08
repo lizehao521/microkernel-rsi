@@ -1,0 +1,48 @@
+%% agentkernel 当前系统边界图（current-state, 每个节点都有 sourceRef，见同目录 evidence.md）
+%% 画的是"今天真的长这样"，不是"应该是这样"。缺的那条边用虚线灰格明写在图上，不藏。
+graph LR
+    subgraph EXT["外部系统"]
+        LLM["对话端点<br/>OpenAI 兼容 agnes-3.0-flash<br/>tools_probe.py:26-28"]
+        FAKE["本机假端点<br/>tasks/probe/fakellm.py:110"]
+    end
+
+    subgraph FRAME["框架侧 = 调用方（Python，非 git 仓库内不变量）"]
+        DRV["真跑驱动<br/>llm_probe / qa_loop / tools_probe"]
+        REPLAY["离线核对<br/>replay.py 不打端点"]
+        JUDGE["判定器 Judge<br/>client.py:150"]
+    end
+
+    subgraph SHELL["外壳（Go cmd，唯一允许碰进程/盘的一层）"]
+        MCP["cmd/mcpkernel<br/>stdio JSON-RPC，10 个工具"]
+        KCHECK["cmd/kcheck<br/>自检，退出码为准"]
+        KRES["cmd/kresearch"]
+    end
+
+    subgraph CORE["package kernel —— 纯账本内核，不写盘不发网络"]
+        REC["逐格出处 + 整发拒收<br/>cells.go record.go"]
+        CHAIN["哈希链账本<br/>journal.go"]
+        ISO["依赖方向自检<br/>isolate.go（读源码用 go/ast）"]
+    end
+
+    DISK["落盘账本 JSONL<br/>由驱动写，不是内核写的"]
+    GATES["慢闸 64 针<br/>tasks/probe/kprobe.py"]
+
+    DRV -->|"发一问真调用"| LLM
+    DRV -->|"自检管线时打"| FAKE
+    DRV -->|"check_call / record_call"| MCP
+    REPLAY -->|"load_journal 读回整本账"| MCP
+    MCP --> REC
+    REC --> CHAIN
+    MCP -->|"tally / verify / read_back / celltable"| DRV
+    DRV -->|"encode_journal 交出的字节自己写盘"| DISK
+    DRV --> JUDGE
+    JUDGE -->|"PASS / RED 打印"| GATES
+    KCHECK -->|"同一批判据的 Go 侧断言"| REC
+    KRES --> REC
+    ISO -.->|"只读源码，不被任何人调用时也在跑测试"| CORE
+
+    GAP["缺的这条边：<br/>内核读侧 → 下一发的装配决定<br/>**今天没有**"]:::gap
+    REC -.->|"只被事后审计读过"| GAP
+    GAP -.->|"没有任何代码走这条路"| DRV
+
+    classDef gap stroke-dasharray: 5 5,fill:#f5f5f5,color:#666

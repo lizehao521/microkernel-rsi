@@ -1,0 +1,87 @@
+== 构建打包 · 交付记录 10-17 19:36 ==
+
+一句话：**微内核第一次有了「构建产物 + 可独立核验的交付包」**。
+产物落在仓库外的 `C:\Users\Admin\Desktop\微内核\构建-1017\`（不动那棵封板树）。
+本记录里每个数都是从点名文件抄来的，点名文件自己印的；抄错以点名文件为准。
+
+【一 · 构建】`凭据/00-工具链.txt` `凭据/02-逐件构建.txt`
+- 工具链自印 `go version go1.27.2 windows/amd64`，`GOPROXY=off GOTOOLCHAIN=local`。
+- 全模块 `go build ./...` 退出码 0；逐件构建 5 件全 OK：`kaudit kcheck kresearch mcphttp mcpkernel`。
+- `go test -p 1 -count=1 ./...` 退出码 0，自印 4 行 `ok`、0 行 `FAIL`（`凭据/03-go-test.txt`）。
+- 闸门由**交付件自己**跑：`bin/kcheck.exe` 末行 `✓ 全部通过`、退出码 0（`凭据/04-kcheck-exe.txt`，105 行）。
+  这条替代了「go run 一遍给看」——看的是要被交付的那件字节，不是解释器现场编的那件。
+
+【二 · 打包】`打包读数.txt` `最终复核.txt`
+- 两棵树：**原样中文树** `agentkernel/`（清单 `校验-清单.sha256`，27 件全对上）
+  与**便携树** `便携包/agentkernel/`（清单 `MANIFEST.sha256`，28 件全对上）；zip 从便携树生成。
+- 为什么分两棵：`打包读数.txt` 里 `【zip】… 名字含非 ASCII 的条目 0 个` 这一行是被逼出来的。
+  第一版 zip 用中文条目名，实测 Git Bash 的 Info-ZIP 解出来是乱码（清单直接找不到文件、`sha256sum -c` 退出码 1），
+  `Compress-Archive` 那份额外还把分隔符写成反斜杠。⇒ 条目名走 ASCII，中文名只留在文件内容里，
+  两边对应关系随包走 `NAME-MAP.txt`。
+- 尺子能红这一条各做了两遍，两棵树各一遍：`【反对照·原样树】` 与 `【反对照·便携树】`
+  改 `bin/kaudit.exe` 头一字节 ⇒ 分母不变、对上少 1、抓到对不上 1 且**正是被改那件**；
+  从真包原样拷回 ⇒ 回到全绿。改的只是 tmp 副本，真包在改前改后各验一次，读数并排印着。
+  （第一版这里我写坏过一次：还原只写回前 64 字节 ⇒ 副本被截断，读数印成 26/27 却被我标成"还原后"。
+  已改成「从真包原样拷回」并加了硬断言：字节回去，读数必须回去。）
+- 独立第三方尺子复核（不是我那把）：`最终复核.txt` [3] 用 Info-ZIP 解出终包，
+  `sha256sum -c MANIFEST.sha256` 退出码 0，分母 28、报 OK 28、非 OK 0；解出来的 `kcheck.exe` 跑闸门末行 `✓ 全部通过`。
+- zip 自身指纹记在包外 sidecar `agentkernel-2026-10-17-win-x64.zip.sha256`（zip 的哈希不能写进 zip 里）。
+
+【三 · Better Harness（0.2.20）做了什么、停在哪】`凭据/09-BH-bundle.json` `凭据/14-BH-台账.txt`
+- `harness evidence-bundle --depth normal` 退出码 1、`status=failed`；三条必填道里 `projectHarness` 报 `PROJECT_HARNESS_UNAVAILABLE`。
+- 按它自己 SKILL.md 允许的方式单点诊断那个具名不可用 owner：`core-change-watch project-profile` 退出码 1，原文
+  `git rev-parse --show-toplevel failed: fatal: not a git repository`。
+  ⇒ **根因是结构性的**：这一道要 git 工作树，而本仓库按作者规矩不是 git 仓库（回滚靠 `.hermess-snapshots` 快照点）。
+  没有执行 `git init`。normal 深度按契约必须停，不许拿诊断输出替换 bundle，也不许手写报告件 ——
+  所以这次**没有** `report.canvas.tsx`，这是停住的证据，不是漏做。
+- 能出件的两条都出件了：`harness analyze` 退出码 0（中性简报，自印 `Source roots: 0 of 5 enabled roots exist; 7 roots were discovered`、
+  `analyzed 0 of 0 eligible sessions`、confidence Low）；`harness checkup --phase scan` 退出码 0，
+  自印 `findings 条数 0`、`cleanup.eligible=false reason=runtime-evidence-unavailable`、`coverage.sources` 7 条全部 `exists=false`。
+
+【四 · Phone Use / Mobile Use（0.7.5）不适用，且是带证据的不适用】`凭据/08-手机侧.txt`
+- `list_targets` 原样返回 `{"ok":true,"command":"list_targets","data":[]}` —— 0 个目标。
+- 环境自检：Android SDK / adb / emulator / controller proto / build-tools / AVD / JDK 逐项 `✗`；
+  HarmonyOS DevEco 全家 `✗`、HDC `!`；iOS 整项 `UNSUPPORTED: macOS host: Unsupported host: win32`。
+- 工作区里移动端工程入口标记命中 **0** 个（`AndroidManifest.xml`/`build-profile.json5`/`*.xcodeproj`/`Package.swift`/`module.json5`）。
+  这个内核是 Go 命令行与 MCP 服务端件，没有 App 形态可给它操作 —— 它这一轮没参与，不写成参与。
+
+【五 · 下一件能推的事（不在本轮做）】
+- 要 BH 出报告件，只有两条路：要么仓库成为 git 工作树（与「不用 git」的规矩冲突，等表态），
+  要么你明确点名 quick 深度、并接受报告里把 `projectHarness` 明标为不可用。
+- 要让 Mobile Use 真有活干，得先装 Android SDK + JDK 并建 AVD（本机当前全缺），且得有一个移动端工程入口。
+
+== 追加 · 19:45 逐件 smoke：把 README 点名「还没人验」的那一半补上 ==
+读数原件在包内 `凭据/18-逐件smoke.txt` 与 `凭据/19-两面-tools清单.txt`（路径 `C:\Users\Admin\Desktop\微内核\构建-1017\`）。
+
+- **两面 `tools/list` 回的是同一份字节**（这条内核自己的文档写着"端到端对照还没有"）：
+  stdio 面（`mcpkernel.exe`，行分隔 JSON-RPC）回帧 6766 字节，剥掉行尾换行 6765；
+  HTTP 面（`mcphttp.exe` 起在 127.0.0.1:8802）回帧体 6765 字节；
+  **两边直接逐字节相同 = True**，同一个 sha256 前缀 `4743ba3ee201253a`；
+  把 `result.tools` 用同一种序列化再量一次也是同一个 sha256（`02c2b3a2e0b05009…`），工具数两边都是 10，首个 `kernel.celltable`。
+  ⇒ 「方法名与措辞只有一份」这句今天不只是读代码读出来的，是两面各真跑一遍、字节对上拿到的。
+- **`kaudit.exe` 的只读性**：拿仓库里那份 `报告/样例-agent.jsonl` 供到 127.0.0.1:8803，
+  `GET /v1/verify` → HTTP 200 且 `state=green`；`POST /v1/verify` 带体 ×5 与空体 ×5，**2xx 计数 0**（读到 405）。
+  `GET /v1/tools` → 404（这个路径本来就没有，记下来免得被读成"接口齐了"）。
+  同一件更早一轮里 5 次带体 POST 有 2 次客户端没读到响应（传输层断），本轮 10/10 都读到 405 ——
+  **记为偶发、未复现、未定性**，不写成缺陷也不写成已排除。
+- **`kresearch.exe` 只验编译、不验运行**，两条硬理由：它把端点写死成外网地址（`cmd/kresearch/main.go` 里那句 `const base`），
+  跑一发就是替你把请求打到别人的机器上；且它默认往 `报告/样例-真接口两发.jsonl` 写，那是仓库里的凭据，覆盖了就没了。
+  要跑它需要你点名端点口令（只走环境变量）并在 TEMP 拷贝里跑。
+- 收尾：起过的 8802/8803 全部收干净（第一轮 8803 没一次收掉，`netstat` 抓到 pid 后补 `taskkill`，之后监听数 0）；
+  挂载中的 8797 一个字节没动。
+- 包随之重出：原样树 29/29、便携树 30/30 对上；zip 内含 31 件、非 ASCII 条目 0；
+  外部交叉核（Info-ZIP 解 + `sha256sum -c`）分母 30、报 OK 30、非 OK 0，解出来的 `kcheck.exe` 末行仍 `✓ 全部通过`。
+
+== 追加 · 19:47 BH 还有两件不需要 git 的件，出了 ==
+读数原件在包内 `凭据/20-BH-checkup-plan.md` 与 `凭据/21-BH-plan-determinism.txt`。
+
+- `harness checkup --phase plan` 退出码 0，出的是**它自己渲染的只读计划件**（含 Plan digest、Actions 0、
+  自印「No configuration was changed. Apply requires this digest and explicit action ids.」）——我没有跑 apply 那一相。
+  ⇒ 前面【三】那句「BH 出不了件」要说得再准一点：**报告件（canvas）出不了，计划件出得了**，
+  挡的只是需要 `projectHarness` 那一条道的那一种件。
+- 它的 digest 稳不稳，正反各两发量过：不钉窗口连跑两发 ⇒ 两个不同 digest；
+  钉 `--since/--until` 连跑两发 ⇒ 同一 digest（`108f52c3…`）。
+  ⇒ **digest 里含着观察窗口的戳**。所以它那句「Apply 要用这个 digest」只有在**同样钉住窗口**重跑时才核得回来；
+  默认跑法每次都不一样，事后拿旧 digest 去核对必然核不上。包内收的是钉住窗口那一发，窗口串就写在那件上。
+- 它报 `configured 0`（Skills/MCP/Plugins 全 0）是按**项目作用域**数资产——这个仓库里没有 `.qoder` 级的 Rules/Skills/MCP 配置，
+  不等于本机没装插件（本机用户级装了十几家）。这条容易被读成"这仓库没配任何东西"，先写在这儿。

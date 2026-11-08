@@ -1,0 +1,119 @@
+== 1. 与 Agent 框架的隔离（机械判，不由文档声明判）
+   扫了 15 个文件、103 条 import；其中标准库 96 条、本模块内 7 条；另扫了 13 个测试文件；✓ 只依赖标准库；依赖闭包 214 个包（全在标准库或本模块内）
+✓ 只依赖标准库；泄漏 0 处、测试文件里泄漏 0 处、cgo 0 处、认不出 0 处
+✓ 依赖闭包 214 个包，越界 0 个
+
+== 2. 键名表（一格一名；每个字段都得有一格替它落账）
+   输入侧 18 个导出字段 / 20 格；输出侧 26 个导出字段 / 29 格；合计 49 格
+✓ 输入侧键名表自洽：无
+✓ 输出侧键名表自洽：无
+✓ 两侧合起来没有键名住两个量：[]
+✓ 键名表里没有 bytes_out（那个装过两个量的名字）
+
+== 3. 裁剪分档表（除「没被挤」外，每个取值恰好落进一档；表自己印在下面）
+✓ 分档表自洽：无
+     · folded   折成桩：[folded]
+     · clipped  裁尾：[tail-dropped]
+     · dropped  整段没进：[dropped-whole budget-exhausted]
+
+== 4. 读者声明表（「落了账但没人读」那一半）
+— 输入侧：键名表 20 格，其中 20 格没有任何声明者读：call call_bytes_ceiling clamp_rounds clipped content_bytes content_ceiling dropped effective_ceiling fixed_overhead folded leftover_pct notice_sent notice_text notice_trimmed notice_why part_totals parts shares tokens transport_slack_pct（框架未生产，还没有任何声明者；这一栏不是判定）
+— 输出侧：键名表 29 格，其中 29 格没有任何声明者读：call chunks cost_countable downgrade endpoint_model endpoint_model_said fail_detail fail_kind fail_status finish finish_said first_byte_ms malformed_actions malformed_streak max_gap_ms model_says_bytes model_says_clipped model_says_kept model_says_sha256 retry_after_ms sent streaming tool_calls usage_in usage_out wire_bytes_in wire_bytes_out wire_format wire_format_said（同上）
+
+== 5. 键名表全文（键名 ← 字段路径 ｜ 出处）
+   输入侧
+     call                   ← Call                         ｜ measured
+     call_bytes_ceiling     ← Budget.CallBytesCeiling      ｜ measured
+     clamp_rounds           ← Budget.ClampRounds           ｜ measured
+     clipped                ← Cuts#clipped                 ｜ measured
+     content_bytes          ← ContentBytes                 ｜ measured
+     content_ceiling        ← Budget.ContentCeiling        ｜ measured
+     dropped                ← Cuts#dropped                 ｜ measured
+     effective_ceiling      ← Budget.EffectiveCeiling      ｜ measured
+     fixed_overhead         ← Budget.FixedOverhead         ｜ unset
+     folded                 ← Cuts#folded                  ｜ measured
+     leftover_pct           ← Budget.LeftoverPct           ｜ measured
+     notice_sent            ← Notice.Sent                  ｜ measured
+     notice_text            ← Notice.Text                  ｜ measured
+     notice_trimmed         ← Notice.Trimmed               ｜ measured
+     notice_why             ← Notice.Why                   ｜ measured
+     part_totals            ← Parts                        ｜ measured
+     parts                  ← Order                        ｜ measured
+     shares                 ← Budget.Shares                ｜ measured
+     tokens                 ← Tokens                       ｜ unset
+     transport_slack_pct    ← Budget.TransportSlackPct     ｜ measured
+   输出侧
+     call                   ← Call                         ｜ measured
+     chunks                 ← Chunks                       ｜ unset
+     cost_countable         ← CostCountable()              ｜ measured
+     downgrade              ← Failure.Downgrade            ｜ measured
+     endpoint_model         ← Model                        ｜ model_says
+     endpoint_model_said    ← ModelSaid                    ｜ measured
+     fail_detail            ← Failure.Detail               ｜ measured
+     fail_kind              ← Failure.Kind                 ｜ measured
+     fail_status            ← Failure.Status               ｜ unset
+     finish                 ← Finish.Reason                ｜ relayed
+     finish_said            ← Finish.Said                  ｜ measured
+     first_byte_ms          ← FirstByteMs                  ｜ unset
+     malformed_actions      ← Malformed                    ｜ measured
+     malformed_streak       ← MalformedStreak              ｜ measured
+     max_gap_ms             ← MaxGapMs                     ｜ unset
+     model_says_bytes       ← Says.Bytes                   ｜ measured
+     model_says_clipped     ← Says.Clipped()               ｜ measured
+     model_says_kept        ← Says.Kept                    ｜ measured
+     model_says_sha256      ← Says.SHA256                  ｜ measured
+     retry_after_ms         ← Failure.RetryAfterMs         ｜ unset
+     sent                   ← Sent()                       ｜ measured
+     streaming              ← Streaming                    ｜ measured
+     tool_calls             ← ToolCalls                    ｜ measured
+     usage_in               ← UsageIn                      ｜ unset
+     usage_out              ← UsageOut                     ｜ unset
+     wire_bytes_in          ← WireBytesIn                  ｜ unset
+     wire_bytes_out         ← WireBytesOut                 ｜ unset
+     wire_format            ← WireFormat                   ｜ relayed
+     wire_format_said       ← WireFormatSaid               ｜ measured
+
+== 6. 元数据到账本的接线（record.go：把每一格逐条写进那道哈希链）
+✓ 缺依据的写入被拒：errors.Is(ErrNoBasis)=true、拒收计数 Rejected=1、链上 Docs=0 条
+✓ 缺席无理由被拒（拒了=true、拒因点名「理由」=true）、带理由被收（收了=true）：Rejected=2、Docs=1 条
+✓ 「必须带来源」的档只有一份判据（经 Append 探 needsSource）：名单=[relayed estimated]（relayed/estimated 为真、其余各档为假）
+✓ basis=absent 不可判定；逐档可判定名单：[measured=true relayed=true estimated=false model_says=false absent=false unset=false]
+✓ 读回来那一半对得上：输入侧键名=[content_bytes first_byte_ms]、其中缺席=[first_byte_ms]、输出侧读回 1 格，另一本同发同侧的那格没混进来（CellsOf/Keys/AbsentKeys 按 session + step + <kind>: 前缀三个轴过滤）
+✓ 闸门自搭的最小样例过得了两侧的 Check（预算=<nil>、输入侧=<nil>、输出侧=<nil>）
+✓ RecordCall 整发落账：链上 49 条（键名表两侧合计 49 格）、拒收 0、链自洽=true
+✓ 同一发同一侧只许记一次：重记整发被拒=true、重记输入侧被拒=true、重记输出侧被拒=true，拒收计数=3、链上仍是 49 条（没多出第二套）
+✓ 落账的每一条都带一句非空的人话：链上共 49 条，Claim 为空的 0 条（[]）
+✓ 真接线记出来的账读回来与键名表逐格对齐：输入侧读回 20 个键、对上=true；输出侧读回 29 个键、对上=true
+✓ Check 不过 ⇒ 整发拒收、链上不留半发：坏输入被拒=true、一侧坏时整发被拒=true、拒收计数=2、链上 0 条
+— 账本上两种条目名：KindModelInput=model_input、KindModelOutput=model_output。元数据每一格各成一条账本记录，键名是 <kind>:<key>（例如 model_input:call）—— 账本上那些条目名就是这么拼出来的。
+
+== 7. 账本的字节格式（journal.go：编得出去、读得回来、「没有原像」与「被人改过」分两句话说）
+✓ 没填 PayloadMode 被拒（拒了=true、拒因点名「原像」=true）：kernel: 没说要不要带原像（PayloadUnset）—— 这一格不许由一个默认值替调用方决定
+✓ 三档渲染非空且互不相同（空的 []、撞名的 []）：[0=unset 1=不带原像 2=带原像]
+✓ 带原像编码成功：22490 字节、<nil>
+✓ 读回来 49 条（写出去 49 条）、带原像 49 条、没有原像 0 条：<nil>
+✓ 往返后的链：共 49 条、真的比对过原像 49 条、没有原像 0 条（能拿去下结论=true）
+✓ 往返后逐格原样（链上 49 条，变形的 0 条）
+✓ 不带原像读回来：49 条全部「核不了」而非「被动过」（Mismatch=""、NoPreimage=49 条、Verify 报的是=kernel: 链上 49 条没有原像（第 1、2、3、4、5、6、7、8、…（共 49 条））—— 这「不是」篡改，是手里的字节不足以重算那些条的指纹；字段级自洽已核过，但「第三方能重算原值」那一半核不了，不许读成自洽）
+✓ 核不了不打 ✓（第三种答案不许长得像绿）：— 字段级自洽（共 49 条，其中 0 条比对过原像）；核不了：49 条没有原像（第 1、2、3、4、5、6、7、8、…（共 49 条））—— 那些条的 PayloadH 重算不出原值
+✓ 改一格 kind 被整格 seal 抓到（针落上了=true、拒因点名整格指纹=true）：第 1 条整格指纹重算不符（某格被改）want=ac8ee54abb9a got=5949d380761d
+✓ 从盘上读回来后重记同一发被拒（拒了=true）、链上仍是 49 条没多出第二套：kernel: model_input 第 1 发（session=kcheck）已经记过了 —— 同一发只许记一次，记两遍会让按键名扫账本的分析层把字节与 token 加两遍
+— Journal 自己怎么说这份文件：带原像那一份「读回 49 条、全部带原像（第三方能重算）；计数栏：没有这一行（不可知，不是 0）」；不带原像那一份「读回 49 条、全部没有原像（链能自洽，但第三方重算不出原值）；计数栏：没有这一行（不可知，不是 0）」
+✓ 带计数的字节 = 链那一半逐字节相同 + 末尾一行计数（前缀对得上=true、多出的字节=299）
+✓ 计数随账本读回来：{2 10 3 1 4 5}（链上 49 条、计数行 1 行、口径=这一程完整可数）：<nil>
+✓ 没有计数行时：49 条账照样读得回、口径=不可知（手里这份字节里没有计数那一栏）、String 里点名不可知=true
+✓ 改大一个拒收数被封条抓到（针落上了=true、拒因点名封条=true）：kernel: 链是好的，但计数那一栏不可信，拒绝载入：计数栏的封条重算不符：六个数里有一格被动过（封条盖的是那六个数加链尾）
+✓ 拒收次数为负被拒并点名是哪一格：kernel: 链是好的，但计数那一栏不可信，拒绝载入：计数栏里 rejected 是负数 —— 拦下来的次数不会是负的，这是坏数据不是读数
+✗ 预检拒 3 发：那一栏=3、链仍 49 条没多写、落账那一栏没被挤动（=3）
+— 计数那一栏的三态：不可知（手里这份字节里没有计数那一栏） / 这一程完整可数 / 只覆盖这一程（载入前那份文件里没有计数栏）
+
+== 这一条快闸不核的事
+   「判据必须能真的红」要逐根针各跑一遍，所以不进这条快闸。跑法：
+     py -3 tasks/probe/kprobe.py <go.exe 路径> <本包目录> <临时工作目录> <报告输出路径>
+   它往临时拷贝里逐根制造破坏，要求点名的判据接住：
+   一类针跑 go test 并点名该红的测试，另一类针跑本闸门并要求退出码非 0。
+   锚点命中数不是 1 处的一根算空针；拷贝编译不过算坏针（崩不算红）。
+   针的根数与分布由它自己印，这里不抄。
+
+✗ 1 项没过
+exit status 1

@@ -1,0 +1,16 @@
+== 起跑脚本 run_freeze_round.sh 的工具链探针 · 三发对照（10-19 午后）==
+   脚本本体 mtime 10-17 14:36:16 ｜ sha c756c4c81e9b ｜ 与 回滚基线-1019c/1017am 记录的字节同一支（脚本一个字没动，本轮只补对照）
+
+   正对照（真跑 · 不造假）：`bash tasks/probe/run_freeze_round.sh eq` 的自印第一行 ——
+     本轮用的 GO=/c/Users/Admin/sdk/go/bin/go.exe ｜ PY=/c/Users/Admin/sdk/py314/python.exe ｜ TEMP=/tmp
+     它证明了「先探后用」在这台机器上探到的是本机 SDK（旧那版这里写死的是 Administrator 的路径，会撞空），
+     而且把用的 GO=/PY=/TEMP= 印进了归档头部（#63 要的第二半：让归档能看出是哪台机器跑的）。
+     读数原件：报告/封板轮-等价性预验-9根-1019.txt
+
+   两根负对照（把候选路径指到不存在的地方，看它是不是真的不起跑）：
+   [两支都指空] 退出码 9（期望 9）｜ stdout 原样：!! 找不到工具链：GO=[] PY=[] ⏐ 找过：PATH 里的 go/python、GO_OVERRIDE/PY_OVERRIDE、/c/Users/{Admin,Administrator}/sdk/{go,py314} ⏐ 不起跑。把上面两个变量指到实际装的地方（脚本不替你猜）。
+   [只缺 GO] 退出码 9（期望 9）｜ stdout 原样：!! 找不到工具链：GO=[] PY=[/c/Users/Admin/sdk/py314/python.exe] ⏐ 找过：PATH 里的 go/python、GO_OVERRIDE/PY_OVERRIDE、/c/Users/{Admin,Administrator}/sdk/{go,py314} ⏐ 不起跑。把上面两个变量指到实际装的地方（脚本不替你猜）。
+
+   判读：两发都必须 exit 9 且把「找过哪几处」印出来 —— 成立（上面退出码两发都是 9）。
+   负对照用的是脚本的 TEMP 副本（只把路径字符串换掉，其余字节相同），没动仓库里那一支。
+   还欠的一句：`TEMP=/tmp` 是这台 git-bash 里的实际取值（脚本吃 $TEMP，回退值 /c/Users/Admin/AppData/Local/Temp 今天没走到，所以那条回退分支只有代码在场、没有读数）。

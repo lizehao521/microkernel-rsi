@@ -1,0 +1,66 @@
+读数 · dsh 网页 UI 插件看板探针 · 两把臂（绿的发配臂，证明那个「收」不是白给的）
+时刻：2026-10-27 20:0x–20:1x
+臂都写在另一个 profile 副本 `home/profiles/arm/`（从绿的 `home/profiles/web/` 整份 cp 过来再改一刀），
+⇒ 绿的这一路（web profile）一个字节没动；改前那份在 `TEMP-备份/插件看板-1027/改前-dcb327c59877333b/`。
+起服：`DSH_HOME="$PWD/home" timeout 600 node node_modules/@deepseek-ai/dsh/lib/bin.js --profile arm --patch probe-ui-arm-1027.yml -- --no-open --port 0`
+（`--port 0` 让系统挑口，日志自印 URL；每一次起服都是一发新现场，rev 各不同。）
+
+────────────────────────────────────────────────────────────
+臂 A：把 bundle 自己登记的 id 改错一个字母（`id: "dsh-plugin-journal-TYPO"`，其余逐字不动）
+预期：宿主扫描照收（它只读 package.json，不看 bundle 内容）⇒ 图里仍有这一行；客户端装载时找不到这个 id ⇒ 大声红。
+实测（页面回执原样摘录）：
+  hasProbe = false，steps = []（工厂根本没被物化 ⇒ 连 step 都没落下）
+  bootRowCount = 70（与绿的发同一个数 ⇒ 图不检查 bundle 内容）
+  ourRow = [{id:"dsh-plugin-journal", rev:"0cee02b0de0f"}]、ourBatch = [{phase:"application", n:12}]
+  tabCount（页面没起来，无从数）= 0 —— 这一条是「页面崩了所以没标签页」，不写成「槽位判据红」
+整页红字（document.body.innerText 原样，一字不改）：
+  HARNESS Failed to load plugins dsh-plugin-journal
+  web boot: 1 entry did not activate
+  dsh-plugin-journal: import failed: client-modules: could not load "dsh-plugin-journal":
+  plugins/??@deepseek-ai/dsh-client-ui-trajectory/client.js,dsh-plugin-journal/client.js,@deepseek-ai/dsh-session-log-export/client.js,
+  @deepseek-ai/dsh-api-remote-access/client.js,@deepseek-ai/dsh-client-file-upload/client.js,@deepseek-ai/dsh-client-ui-deliverables/client.js,
+  @deepseek-ai/dsh-api-remotes/client.js,@deepseek-ai/dsh-typert-registry/client.js,@deepseek-ai/dsh-client-connection/client.js,
+  @deepseek-ai/dsh-api-session-controller/client.js,@deepseek-ai/dsh-api-workspace-controller/client.js,
+  @deepseek-ai/dsh-client-ui-directory-picker-native/client.js&rev=67ae21093284: already executed without registering "dsh-plugin-journal";
+  plugins/??dsh-plugin-journal/client.js&rev=0cee02b0de0f: loaded without registering "dsh-plugin-journal" via __ModuleLoader__.load
+⇒ 三条读得出来的：① 装载确实认 id（绿的发不是恒绿）；② 它先试共享 combo 批、再试本包单独的 combo URL 兜底（两段错话各点名下法）；
+   ③ **一发写坏的第三方 client bundle 能把整个网页端砖掉** —— boot 挂载对「任何一个入口没激活」是整页 throw，不是跳过那一格。
+   这一条不是我们的判据，是 dsh 这个框架的爆炸半径，记下来给看板定位用（审计层≠防线，这条恰好是防线的缺位）。
+
+────────────────────────────────────────────────────────────
+臂 B：只把 `package.json` 的 `dsh.client.platform` 从 `"web"` 改成 `"node"`（client.js 逐字恢复成绿的那份）
+预期：宿主扫描把它判成「不是 client 包」（`resolveMeta` 里 `decl.platform !== "web"` → 缓存 null → 不建行）⇒ 图少一行、没有红字、网页照常起。
+实测（页面回执原样摘录）：
+  pre = {hasProbe:false, bootRowCount: 69, ourRow: 0, ourBatchHit: 0}   ← 绿的发是 70 / 1 / 1
+  bodyHasFail = false ⇒ 少一行不报错，这一族是「静默不收」，不是「拒了并告诉你」
+标签页这一格：没量到，不是 0。
+  我在浏览器里连走三次「关 onboarding 弹窗 → 账号菜单 → 设置 → 内置插件」，前两次走到设置页但 `[role=tab]` 数到 0，
+  第三次 `document.querySelector('[role=dialog]')` 拿回的是「开始使用 登录 DeepSeek 账号，或添加 API Key…」——
+  onboarding 那个模态在 arm B 这一发反复回到最上层，把设置页挡住了。
+  ⇒ 点名是哪一支在响：不是「我们的标签页没了」，是「这一发的浏览器路径没走通」。
+  ⇒ 而「平台判成 node 就没有这个 tab」这件事不需要靠这一格：客户端插件名单就是从图行里推出来的
+    （`dsh-client-modules/lib/client.js` 里 `parseBootManifest` 组 `plugins.push({id: row.id, ...})`），
+    行都没有 ⇒ 插件都不会被构造。这条是**读码所得**，不是现场量到的，按口径标在这里。
+
+────────────────────────────────────────────────────────────
+两把臂合起来能说什么 / 不能说什么
+能：装载这一路有牙 —— id 错一整页红（A）、platform 错就整行不进图（B），绿的发那四步不是恒绿。
+不能：
+- 不能说「rev 是文件元数据不是内容哈希」是现场结论 —— 这条只在读码里（`index.js` 的 `artifactRevision` = mtimeMs/ctimeMs/size 的 framedHash）。
+  要做成现场得「改内容不动 mtime/ctime/size」，Windows 上这一刀不好干净落下，这发没做，欠着。
+- 臂 B 的标签页那一格没量到（上面写了为什么），别读成 0。
+- 真人读者 0/1 = NOT_RUN；网页端在真人手里好不好用 = NOT_RUN；这一发只有我自己用 browser-use 走的机器路径。
+- 两把臂都是 TEMP profile 副本，`--port 0` 随机口、超时自杀；没碰 8797/8799，没发过任何模型请求。
+
+────────────────────────────────────────────────────────────
+补：旁路账这一族这次到底记了几条（这一段是改稿，不是初稿）
+初稿这里写过「本次 0 个事件——没开会话」。**那句是错的**，我按盘上现数重打：
+  journal-probe-ui.jsonl（绿的发那一路）= 3 条：i=0 permission/preset、i=1 sandbox/mode、i=2 approval/policy，同一条会话 session-6e97e3…
+  journal-probe-arm.jsonl（两把臂共用同一本，因为臂的 overlay 只有一份）= 6 条 = 两次起服各 3 条：
+    session-34e0a4…（臂 A 那一发）i 从 0 数到 2；session-230225…（臂 B 那一发）i 又从 0 数到 2。
+⇒ 三条对看板设计有直接后果的：
+  ① 插件一被挂载就记 3 条**会话初始化**事件（permission/preset、sandbox/mode、approval/policy），不需要有人打一个字；
+  ② `i` 是「这一发插件实例内的序号」，**跨会话会重数**（两发都是 0,1,2）⇒ 看板拿它当分母会把两程当一程，必须带 session 键；
+  ③ 两把臂写同一本账 ⇒ 臂的读数文件不能只按插件名分档，要按「overlay + 起服那一发」分。
+  链尾自印：ui 那本 `05862462ac732cc5`，arm 那本 `947d125b7d295f34`（现算，未进内核账 —— 这一族的账今天只到「能不能装」，没到「折成 49 格」）。
+

@@ -1,0 +1,107 @@
+内核「不联网 / 不写盘」静态尺子 · 2026-10-19 15:59:47
+（只读源码，不起服务、不碰任何端口、不写树内除本读数件以外的文件；判据表 48 键/49 格一格没动）
+
+== 自核（先钉这把尺子，再谈读数）==
+  反臂 · 沙箱 bad.go（net/http + os.WriteFile + exec.Command）：红 ｜ 内核根包生产文件：网络族 2 处、写盘族 1 处
+  正臂 · 沙箱 good.go（只用 fmt/strings）：绿 ｜ 内核根包生产文件：网络族 0 处、写盘族 0 处
+  空跑臂 · 沙箱空目录：判成核不了 ｜ 一个生产 .go 都没扫到 —— 这一发核不了，不是合格
+     bad.go 的网络族命中 = 2 处 OK
+     bad.go 的写盘族命中 = 1 处 OK
+     bad.go 的起进程族命中 = 1 处 OK
+     bad.go 上第二把尺子（只看 import 路径）= 1 条：OK
+     good.go 上第二把尺子 = 0 条：OK（不假红）
+  自核结论：三臂各自红过/绿过/判成核不了 ⇒ 这把尺子会红，上面读数可用
+
+== 甲 · 内核根包（README:593 那句的主语 `package kernel`；判据压在这一圈的生产文件上）==
+  文件：非测试 8 份 cells.go input.go isolate.go journal.go kernel.go measure.go output.go record.go ｜ 测试 11 份
+  生产文件命中（逐名）：
+    网络：0 处
+    写盘：0 处
+    读盘：5 处
+      isolate.go:163  parsed, perr := parser.ParseFile(fset, f, nil, parser.ImportsOnly)
+      isolate.go:228  if st, err := os.Stat(dir); err != nil || !st.IsDir() {
+      isolate.go:232  err := filepath.WalkDir(dir, func(p string, d os.DirEntry, err error) error {
+      isolate.go:255  b, err := os.ReadFile(filepath.Join(dir, "go.mod"))
+      isolate.go:388  if st, err := os.Stat(dir); err != nil || !st.IsDir() {
+    起进程：2 处
+      isolate.go:329  p, err := exec.LookPath("go")
+      isolate.go:336  cmd := exec.Command(goBin, "list", "-deps", "./...")
+    环境：1 处
+      isolate.go:327  goBin := os.Getenv("GOBIN_EXE")
+  测试文件命中（同族**分开计数、不压判据**，理由见下面第五节）：
+  
+    网络：0 处
+    写盘：2 处
+      isolate_test.go:54  if err := os.MkdirAll(filepath.Dir(filepath.Join(dir, name)), 0o700); err != nil {
+      isolate_test.go:57  if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o600); err != nil {
+    读盘：0 处
+    起进程：0 处
+    环境：0 处
+  判据：网络族=0 且 写盘族=0 ⇒ 成立 ｜ 内核根包生产文件：网络族 0 处、写盘族 0 处
+  两把尺子对开（「网络 0 处」这句不能只靠一条调用点正则）：
+    尺一 · 调用点正则命中的生产文件：0 个
+    尺二 · 只看 import 路径撞网络族的：0 条
+    逐名分歧 = 0 个文件 
+    内核根包 import 全集 20 条（逐条列出，供人工复核，不靠我转述）：
+      bytes
+      crypto/sha256
+      encoding/base64
+      encoding/hex
+      encoding/json
+      errors
+      fmt
+      go/ast
+      go/parser
+      go/token
+      os
+      os/exec
+      path/filepath
+      reflect
+      runtime
+      sort
+      strconv
+      strings
+      time
+      unicode/utf8
+  写盘那一句的旁证（正交于调用点正则）：碰得着文件系统的只有 import os / os/exec / path/filepath 的那些文件。
+    今天内核根包生产文件里 import 这三样的 = 1 份：isolate.go
+    ⇒ 除这 1 份以外，其余 7 份生产文件连 `os` 都没引，写不了盘也起不了进程 —— 这一句不依赖我的正则。
+
+== 乙 · 内核包以外（只数不判：外壳本来要听 HTTP，算进来是拿错分母）==
+  mcpsrv/（协议外壳）：生产 1 份、测试 4 份 ｜ 命中（生产＋测试合计）网络 0、写盘 0、读盘 3、起进程 0、环境 0
+      mcpsrv/mcpsrv_test.go          读盘=3
+      （乙圈按调用点正则数，`http.` / URL 一类的方法名会虚高，所以只数不判；判据只压甲圈那 8 份生产文件）
+  cmd/*（闸、审计、打包、对账等工具）：生产 7 份、测试 3 份 ｜ 命中（生产＋测试合计）网络 104、写盘 2、读盘 6、起进程 0、环境 8
+      cmd/kaudit/main.go             网络=28 读盘=1 环境=2
+      cmd/kaudit/main_test.go        网络=14 读盘=1
+      cmd/kresearch/main.go          网络=3 写盘=1
+      cmd/kwire/main.go              读盘=1
+      cmd/kwire/report.go            写盘=1 读盘=2
+      cmd/mcphttp/guard_test.go      网络=6
+      cmd/mcphttp/main.go            网络=25 环境=6
+      cmd/mcphttp/main_test.go       网络=28 读盘=1
+      （乙圈按调用点正则数，`http.` / URL 一类的方法名会虚高，所以只数不判；判据只压甲圈那 8 份生产文件）
+
+== 三 · 这一把看不见的路（写在这里，不藏在注释里）==
+  · **import 了 os / net 本身不表态**：这一支把标准库 import 单列成空，表态的是调用点。
+    代价是「把 URL 拼好交给调用方去拨」这种形状看不见 —— 那一路只有真跑或 go list -deps 兜得住。
+  · **内核把字节交给调用方写盘**（`kernel.encode_journal` 只回字节，README:129/377 那条设计）
+    在源码上就是 `[]byte` 返回，不构成写盘命中 ⇒ 「内核不写盘」这句能机械核，但「整条链不写盘」不能。
+  · 反射、`any` 里塞进来的 io.Writer、plugin.Open、cgo、通过环境变量拿到的路径 —— 五族正则都不产生命中。
+    cgo 这一条按 `import "C"` 归到「起进程/够到原生」那一族， isolate.go 也是同一口径。
+  · 这一把是**尺子不是闸门**：没进 `cmd/kcheck`。进闸门的代价仍是 #26 卡上那句 —— 改闸门 = 整轮 80 根再过期一次。
+
+== 四 · 测试文件为什么不压判据（这一条口径我没自己定死，写清留给作者）==
+  · 事实：`isolate.go` 那把尺子把测试文件**并进**了结论（`Isolated()` 里 `len(r.TestLeaks) == 0` 也参与），
+    因为它判的是「这个包引了什么」，测试文件同样在包目录里、同样进 `go list -deps` 闭包。
+  · 这一把判的是「编进交付字节的能力」：`_test.go` 不进 `go build` 的产物，所以内核测试在 TEMP 造沙箱喂
+    `CheckIsolation`（今天写盘 2 处）**不构成**「内核会写盘」——但**也不构成**「这一族干净」。
+  · 两态都印了：并进判据 ⇒ 今天判据从「成立」变「不成立」（写盘 2 处）；不并 ⇒ 留一个「测试文件能写盘」的口子。
+    选哪个是口径决定，不是我这一发该拍的；这一把先把两态的数都摆出来。
+    唯一并进判据的是「读不了文件」和「一个生产文件都没扫到」——那两态只能塌成「核不了」，不许读成绿。
+
+== 五 · 分母自印 ==
+  内核根包 .go 19 份（生产 8 ＋ 测试 11 ＋ 读不了 0）｜ 生产文件五族命中：网络 0 ｜ 写盘 0 ｜ 读盘 5 ｜ 起进程 2 ｜ 环境 1
+  测试文件五族命中：网络 0 ｜ 写盘 2 ｜ 读盘 0 ｜ 起进程 0 ｜ 环境 0
+  两把独立尺子（同一句「不联网」）：调用点正则 0 个文件 ｜ import 路径 0 条 ｜ 逐名分歧 0 个
+  沙箱反臂文件 3 份（bad/good/空目录）｜ 端口 0 个 ｜ 服务 0 台 ｜ 树内写入 1 份（本读数件）

@@ -1,0 +1,134 @@
+== 元数据谎的拒收覆盖面 · 2026-10-17 10:13:09 · 判据表由现场 celltable 要，不抄 ==
+
+== 分母（工具自印，不是我列的）==
+住在写路径那一族（input.go、output.go、measure.go、cells.go、record.go）里、且落在 Check/plan/DeriveBudget 函数体内的拒收分支：106 条（按消息去重）
+这些是「一发元数据谎能被内核拒掉的所有话术」的全集 —— A0 那 7 条臂只覆盖其中一部分。
+
+== 覆盖（只认从服务面真打出来的）==
+拿来对开的读数文件 4 份：说谎者靶场-A0-1017-改后重跑.txt、说谎者靶场-A0-1017.txt、说谎者靶场-A0-前后逐臂对开-1017.txt、拒收数不落盘-51-1017.txt
+读数里抠到内核原话 17 句；其中能对上分母的 1 条分母被面上打到过
+
+已覆盖（分母 → 面上原话出处的份数）：
+  [√] 通知报的是「发出去了」，却没有正文                                        input.go:func Check:119  ←2 处
+
+未覆盖（今天只能从 Go 测试里红、面上打不出来，或压根没有载荷能打到）：
+  [ ] token 那一格的出处是 %s —— 我们数不出对端的分词，只有估算或转述两种可能               input.go:func Check:18
+  [ ] %s一格都没交出来 —— 那要么是键名表空了，要么是这条判据在空转                        cells.go:func CheckCells:10
+  [ ] %s %d 个导出字段里有 %d 个没有任何一格替它说话（死格）：%s                      cells.go:func CheckCells:41
+  [ ] %s有 %d 个键名住了两个量：%s                                       cells.go:func CheckCells:26
+  [ ] %s是 %d 位，不是 64 位十六进制 —— 拿它核不回原文                          input.go:func checkFingerprint:10
+  [ ] %s有 %d 处同一字段拆出的档重了名：%s                                   cells.go:func CheckCells:32
+  [ ] %s有 %d 格指着不存在的字段（幽灵键）：%s                                 cells.go:func CheckCells:47
+  [ ] %s有 %d 格的两处出处对不上：%s                                      cells.go:func CheckCells:36
+  [ ] %s的 %s 那一格说是 %s，却没说出处                                    cells.go:func CheckCells:20
+  [ ] %s 一档都没落 —— 它发生了也不会在账上出现                                 input.go:func CheckCutLists:26
+  [ ] %s 原文 0 字节 —— 0 字节的段无从折起                                 input.go:func check:28
+  [ ] %s 原文 0 字节 —— 0 字节的段无从裁起                                 input.go:func check:51
+  [ ] %s 原文 %d 字节、发出去 %d 字节                                    input.go:func check:17
+  [ ] %s 发了 %d 段，但预算里没有它的份额                                    input.go:func Check:52
+  [ ] %s 同时落在 %s 与 %s 两档里 —— 它会被数两遍                            input.go:func CheckCutLists:19
+  [ ] %s 在段表里出现了两次 —— 一类段一行，两行就会被数两遍                           input.go:func Check:35
+  [ ] %s 在段表里记了 %d 段，在发送顺序表里却出现 %d 次 —— 两张表数的是同一批段             input.go:func Check:74
+  [ ] %s 折过之后 %d 字节，原文才 %d 字节 —— 那它没被折，是被变大了                   input.go:func check:39
+  [ ] %s 折过之后是 %d 字节 —— 桩要么整段发，要么记成整段没进                        input.go:func check:33
+  [ ] %s 报的是缺席，却带着出处 %s —— 没量到的东西说不出是谁算的                       measure.go:func Check:15
+  [ ] %s 报的是缺席，却带着数 %d —— 缺席不许顺手塞一个值                           measure.go:func Check:12
+  [ ] %s 有数 %d 却没说谁算的（basis 空）—— 这一格会被下游当成实测                   measure.go:func Check:27
+  [ ] %s 没有 ref —— 事后谁也说不清被挤掉的是哪一段                             input.go:func check:21
+  [ ] %s 没被挤，就不该出现在裁剪表里                                        input.go:func check:11
+  [ ] %s 留了 %d 字节、原文 %d 字节 —— 裁尾要留下一个非空的真前缀                    input.go:func check:54
+  [ ] %s 的 squeeze 是 %q，不在四种取值里                                input.go:func check:69
+  [ ] %s 的份额是 %d%%                                             input.go:func DeriveBudget:18
+  [ ] %s 的裁剪记录说留下了 %d 字节，段表里却没有它那一行                            input.go:func checkCutsAgainstParts:20
+  [ ] %s 的裁剪记录说留下了 %d 字节，而段表说这一类一共才发了 %d 字节 —— 两张表对不上          input.go:func checkCutsAgainstParts:12
+  [ ] %s 的说话人是 %q，不在四种取值里 —— 被裁的段丢了说话人，事后就分不清裁掉的是模型自述还是人的指令    input.go:func check:12
+  [ ] %s 第 %d 发一格都没有，没什么可记的                                    record.go:func plan:26
+  [ ] %s 第 %d 发的 %s 那一格序列化不了：%v                                record.go:func plan:35
+  [ ] %s 第 %d 发的 %s 那一格账本不会收：%v                                record.go:func plan:49
+  [ ] %s 第 %d 发的 %s 那一格进不了账：%v                                 record.go:func plan:30
+  [ ] %s 第 %d 发（session=%s）已经记过了 —— 同一发只许记一次，                  record.go:func plan:18
+  [ ] %d 类段的份额相加是 %d，超过 100                                    input.go:func check:23
+  [ ] %d 类段的份额相加是 %d，超过 100 —— 那是一个兑现不了的承诺                     input.go:func DeriveBudget:19
+  [ ] %s 被折成了桩，但 %s 这一类不许折                                     input.go:func check:23
+  [ ] %s 被裁尾，但 %s 这一类是整段的                                      input.go:func check:49
+  [ ] %s 记成 %s，但 %s 这一类是整段的                                    input.go:func check:58
+  [ ] %s 说是 %s 的，却没说来源（转述谁 / 估的是什么）                            measure.go:func Check:31
+  [ ] %s 说是 %s，却记着发出去 %d 字节                                    input.go:func check:61
+  [ ] %s 说是被判成不可信的，却又不是缺席 —— 那它到底收没收这个数                        measure.go:func Check:23
+  [ ] %s 说是被判成不可信的，却没说为什么，也没留住对端给的那个数                          measure.go:func Check:19
+  [ ] %s 这一类压根没收到对端响应，却记着状态码 %d —— 那个数是从哪来的？                   output.go:func check:26
+  [ ] %s 这一类原样重发不会变好，却记着「等 %d 毫秒再发」                            output.go:func check:48
+  [ ] %s 这一类是按对端响应分的，却没有状态码 —— 读的人分不清它收到响应没有                   output.go:func check:24
+  [ ] %s 那一行报了 %d 字节                                           input.go:func Check:30
+  [ ] %s 那一行报了 %d 段 —— 0 段就不该占一行                               input.go:func Check:27
+  [ ] %s有一格键名或字段路径是空的：%+v                                      cells.go:func CheckCells:14
+  [ ] %s不是十六进制：%v                                              input.go:func checkFingerprint:12
+  [ ] 传输余量 %d%% 不在 [0,100) 里                                   input.go:func DeriveBudget:14
+  [ ] 传输余量是 %d%%，不在 [0,100) 里                                  input.go:func check:12
+  [ ] 内容 %d 字节超过了这一发真正生效的额度 %d 字节（本该被回夹；公式算出来的是 %d，夹过 %d 刀）    input.go:func Check:82
+  [ ] 内容额度记的是 %d，而按公式（上限 %d 扣 %d%% 余量）该是 %d —— 这条公式有了第二个 owner input.go:func check:18
+  [ ] 剩余额度记的是 %d%%，而份额相加是 %d（该剩 %d）—— 两个数各算了一遍                 input.go:func check:27
+  [ ] 单发上限 %d 不可能是正的额度                                         input.go:func DeriveBudget:11
+  [ ] 单发上限是 %d —— 这一份预算不是 DeriveBudget 造出来的                    input.go:func check:10
+  [ ] 发送顺序表是空的 —— 顺序就是花钱顺序，丢了它就看不出可复用前缀稳不稳                     input.go:func Check:22
+  [ ] 发送顺序表有 %d 项，而段表相加是 %d 段 —— 两个数得是从同一批段数出来的                input.go:func Check:56
+  [ ] 发送顺序表里有 %s，而段表里没有它那一行                                    input.go:func Check:64
+  [ ] 各类段相加是 %d 字节，而内容总字节记的是 %d —— 两个数各算了一遍，至少一个是错的            input.go:func Check:78
+  [ ] 回夹了 %d 刀                                                 input.go:func check:56
+  [ ] 固定开销那一格的出处是 %s —— 它是我们估的或量的，不是对端说的                       input.go:func DeriveBudget:26
+  [ ] 对端说要等 %d 毫秒                                              output.go:func check:39
+  [ ] 工具提议 %d 个、执行不了的 %d 个、链上连歪 %d 发                           output.go:func Check:101
+  [ ] 往来格式那一格自相矛盾（said=%v format=%q）—— 对端没报与报了个空串是两件事          output.go:func Check:29
+  [ ] 执行不了的提议 %d 个，比提议总数 %d 还多 —— 两个数不是从同一个集合数出来的              output.go:func Check:106
+  [ ] 报了故障 %s 却没说是什么 —— 这一格报红时得说得出下一个人该去哪儿查                    output.go:func check:13
+  [ ] 报的是预算挡下，却有 %d 字节过了网线                                     output.go:func Check:75
+  [ ] 报的是预算挡下，过网线字节却记成没数到 —— 预算闸在发之前就拦，那一格必然是数到的 0             output.go:func Check:74
+  [ ] 收字节那一格的出处是 %s —— 它是我们在通道上数的，只能记实测                        output.go:func Check:51
+  [ ] 收尾原因那一格自相矛盾（said=%v reason=%q）—— 端点没说与端点说了个空串是两件事        output.go:func Check:22
+  [ ] 故障类别是 %q，不在 %d 种取值里（%s）—— 一个新的形状正在被当成旧的读                 output.go:func Check:10
+  [ ] 故障说法首尾带空白（%q）—— 它会被抄进日志，也会被人拿去比对                         output.go:func check:20
+  [ ] 模型 id 那一格自相矛盾（said=%v model=%q）—— 端点没报与端点报了个空串是两件事       output.go:func Check:25
+  [ ] 模型原话 %d 字节、留下 %d 字节                                      output.go:func check:8
+  [ ] 段表是空的 —— 一发请求至少有一段（协议或题面），空表会被读成「这一发什么都没装」               input.go:func Check:20
+  [ ] 段表里明明有 truncation-notice 那一段（它真发出去了），通知却报「没发出去」          input.go:func Check:136
+  [ ] 状态码 %d 不在 HTTP 的 100..599 里 —— 真量到的数不会长这样                output.go:func check:33
+  [ ] 生效额度 %d 与公式算出来的 %d 不一样，却记着 0 刀回夹 —— 那一刀没记账               input.go:func check:58
+  [ ] 生效额度 %d 比公式算出来的 %d 还大 —— 回夹只会收小，不会放大                     input.go:func check:52
+  [ ] 生效额度是 %d 字节 —— 什么都装不下                                    input.go:func check:49
+  [ ] 留下了 %d 字节，而原话只有 %d 字节 —— 裁不会把话裁长                         output.go:func check:10
+  [ ] 第 %d 条裁剪记录挤掉了一段历史，却没说它来自第几发（RefCall=%d）                  input.go:func Check:98
+  [ ] 第 %d 条裁剪记录说那段历史来自第 %d 发，可现在才第 %d 发 —— 引用未来的那一发，账上核不到     input.go:func Check:101
+  [ ] 第几发是 %d，发号从 1 起（0 会被读成「还没发」）                             input.go:func Check:7
+  [ ] 裁剪分档 %s 一个取值都没收 —— 那一档永远是空的                              input.go:func CheckCutLists:15
+  [ ] 裁剪分档 %s 收了「没被挤」—— 没被挤的段不该出现在裁剪表里                         input.go:func CheckCutLists:17
+  [ ] 裁剪分档表里有一档缺键名或缺说法：%+v                                     input.go:func CheckCutLists:11
+  [ ] 记着 %d 刀回夹，生效额度却与公式算出来的一样 —— 刀数与结果对不上                     input.go:func check:68
+  [ ] 说对端自报了格式 %q，可 %s 这一类压根没收到对端响应 —— 那串字是从哪来的？               output.go:func Check:37
+  [ ] 说是没故障，却又建议换个请求重发                                         output.go:func check:54
+  [ ] 说是没故障，却带着说法 %q / 状态 %d                                   output.go:func check:9
+  [ ] 说是没故障，却记着对端要我们等 %d 毫秒                                    output.go:func check:43
+  [ ] 过网线字节那一格的出处是 %s —— 它是我们编码出来再数的，只能记实测                     output.go:func Check:69
+  [ ] 这一发不是流式的，%s 却报了 %d —— 非流式没有这一格，写数就是编数                    output.go:func Check:94
+  [ ] 这一发什么都没回（原话 0 字节、0 个提议），却记成了正常收尾                         output.go:func Check:130
+  [ ] 这一发挤掉了 %d 段，却没把那句知情通知发出去，也没说为什么                          input.go:func Check:110
+  [ ] 这一发是流式的，%s 却报缺席 —— 流式就该量得到它                              output.go:func Check:92
+  [ ] 这一发有 %d 个提议执行不了，链上的连续计数却是 %d                             output.go:func Check:125
+  [ ] 这一发本来就不是流式的，却建议「换成非流式再发一次」                               output.go:func Check:21
+  [ ] 这一发没有执行不了的提议，链上却记着连歪 %d 发                                output.go:func Check:118
+  [ ] 通知报的是「发出去了」，可段表里没有 truncation-notice 那一段 —— 发不出去就不算通知过   input.go:func Check:133
+  [ ] 通知报的是「没发出去」，同时又报「被裁了半句」—— 没发出去的东西裁不了                     input.go:func Check:113
+
+== 自印分母 ==
+分母=106 ｜ 面上打到=1 ｜ 未打到=105 ｜ 覆盖率=1%
+面上抠到但对不上分母的句子（可能是别的层说的，或跨函数拼句）=15 句，列前 8 句：
+   · model_input 第 1 发（session=a0-legal）已经记过了 —— 同一发只许记一次，记两遍会让按
+   · model_input 第 1 发（session=a0-legal）已经记过了 —— 同一发只许记一次，记两遍会让按�
+   · 入 token 那一格的出处是 measured —— 分词器在对端，我们只能转述（或如实记缺席）
+   · 各类段相加是 20 字节，而内容总字节记的是 999999 —— 两个数各算了一遍，至少一个
+   · 输入侧账不自洽，第 1 发整发拒收（输出侧也不写）：kernel: 各类段相加是 20 字节，
+   · 输入侧账不自洽，第 1 发整发拒收（输出侧也不写）：kernel: 各类段相加是 20 字节，而内容总字节记的是 999999 —— 两个数各算了一遍，至少一个是错的
+   · 输入侧账不自洽，第 1 发整发拒收（输出侧也不写）：kernel: 各类段相加是 20 字节，�
+   · 输入侧账不自洽，第 1 发整发拒收（输出侧也不写）：kernel: 通知报的是「发出去了
+
+一句实话：这份数**不判**「未覆盖的那些该不该补臂」—— 它只把『完整名单』这句话从我的清单
+换成一个可复算的分母。要补哪些、面到底能不能打到，是 #20/#48 那一族要拍的口径。

@@ -1,0 +1,51 @@
+读数 · dsh 网页 UI 插件看板探针（绿的那一发）
+时刻：2026-10-27 19:5x 起服，20:00 落这份字
+工作目录：C:/Users/Admin/AppData/Local/Temp/dsh-probe-1027
+起服命令（后台 + timeout 900，TEMP profile，端口 0 让 OS 挑）：
+  DSH_HOME="$PWD/home" timeout 900 node node_modules/@deepseek-ai/dsh/lib/bin.js \
+    --profile web --patch probe-ui-1027.yml -- --no-open --port 0
+    > probe-serve-1027-r2.log 2>&1
+日志自印的一行（含访问令牌，令牌只在本次会话有效、不进仓库）：见 probe-serve-1027-r2.log 第 1 行
+
+这一份里所有数都是「页面自己印出来的字符串」被 browser-use evaluate_script 原样摘录，不是我把话说成的数。
+要复核只能重跑；重跑会换 rev（rev = 文件 mtime/ctime/size 的哈希，不是内容哈希 —— 见 dsh-client-modules/lib/index.js 的 artifactRevision）。
+
+1) 装载器收不收这份手搓 bundle —— 收。
+工厂步序（window.__DSH_JPROBE__.steps 原样）：
+  factory_enter → require_react=ok → factory_return → slot_register=ok
+非 scoped 包名能不能解析 —— 能。loader 行名 = `dsh-plugin-journal`（无斜杠无冒号），
+`exactPackageSpecifier` 认它，`nearestPackage` 从 index.js 往上找到的 package.json 里 name 与它逐字相等才收。
+
+2) 它被折进 boot graph 的哪一批（页面读 window.__DSH_BOOT__ 自印）：
+  boot graph 里有没有这一行：有（phase=application，rev=7b702f71f1a2，同批 12 个入口）
+  分母自印：entries 70 行 / batches 3 批
+  url：plugins/??dsh-plugin-journal/client.js&rev=7b702f71f1a2   ← 组合(combo)路由，一 URL 打多个 client.js
+我们那一行的原始形状（window.__DSH_BOOT__.entries 过滤 id 后的 JSON 原样）：
+  {"id":"dsh-plugin-journal","url":"plugins/??dsh-plugin-journal/client.js&rev=7b702f71f1a2","rev":"7b702f71f1a2","inject":["@deepseek-ai/dsh-client-locale"]}
+
+3) 标签页渲不渲染 —— 渲染。
+设置 → 内置插件（这一族 section 的 label 是「内置插件」，槽位 `settings.section` id=plugins）里的 tab 自印：
+  [{t:"插件列表", sel:true}, {t:"内核探针", sel:false}] → 点过后 → [{t:"插件列表", sel:false}, {t:"内核探针", sel:true}]
+可见那个 tabpanel 的 5 行 li 原样：
+  1. boot graph 里有没有这一行：有（phase=application，rev=7b702f71f1a2，同批 12 个入口）
+  2. 分母自印：entries 70 行 / batches 3 批
+  3. settings.plugins.tab 现有标签页数：2
+  4. 工厂步序：factory_enter → require_react=ok → factory_return → slot_register=ok
+  5. bundle 字节：手搓，未经 tsdown 构建（无 sourceMappingURL）
+（第 1 行的 rev 与第 2 条窗口里那一枚是同一枚 `7b702f71f1a2` —— 面板 li 与 window.__DSH_BOOT__ 两次读数是同一起服那一发，不另造数。）
+
+4) 截图这一格：没拿到。
+`take_screenshot` 两次都回 NATIVE_BROWSER_VIEWPORT_UNAVAILABLE（visibilityState=hidden，画布 580x425）。
+⇒ 本条是「DOM 结构读数（aria-selected / 可见 tabpanel 文本）」，不是肉眼开图；
+   按证据规矩，图形/排版这一格仍欠着，580x425 这个画布宽也不够当几何证据。
+
+5) 这一发用到的件（都在 TEMP 的 profile 副本里，内核树与 dsh 安装正本没动）：
+  home/profiles/web/node_modules/dsh-plugin-journal/package.json  —— 改了：加 exports["."] / ["./client"] 与 dsh.client{platform:"web",inject:[...]}
+  home/profiles/web/node_modules/dsh-plugin-journal/lib/client.js —— 新建：手搓 bundle（window.__ModuleLoader__.load）
+  probe-ui-1027.yml —— 新建：只插旁路插件，out 指 journal-probe-ui.jsonl，不接中继、不发模型请求
+  改前备份：C:/Users/Admin/Desktop/微内核/TEMP-备份/插件看板-1027/改前-dcb327c59877333b/（index.js + package.json 两份）
+
+6) 这一发不能说什么：
+- 不能说什么 —— 还没有看板：这一页只印了它自己怎么被装进来的，没读内核账本、没算成本、没有一格来自 `read_back`。
+- 「loader 收了」不等于「以后每发都收」：rev 用的是文件元数据（mtime/ctime/size），内容改了但元数据一样 → 图不重排；这条要靠臂来量。
+- 真人读者 0/1（NOT_RUN）、这台机器之外的第二个 dsh 安装（NOT_RUN）。

@@ -1,0 +1,68 @@
+==== twenty-readings.txt (第一批（GBK 控制台落盘，读时按 GBK 解；正文已另抄进档案）) ====
+=== 1. 合法的一发（基线）===
+--- 合法
+    check_call  isError=False  回话：输入侧：自洽 / 输出侧：自洽
+    record_call isError=True  回话：整发拒收（拒收累计 1 次）：kernel: model_input 第 1 发（session=derive-probe-1016）已经记过了 —— 同一发只许记一次，记两遍会让按键名扫账本的分析层把字节与 token 加两遍
+=== 2. ContentBytes 超生效额度 ===
+--- 超额度
+    check_call  isError=False  回话：输入侧：kernel: 各类段相加是 20 字节，而内容总字节记的是 999999 —— 两个数各算了一遍，至少一个是错的 / 输出侧：自洽
+    record_call isError=True  回话：整发拒收（拒收累计 2 次）：kernel: 输入侧账不自洽，第 1 发整发拒收（输出侧也不写）：kernel: 各类段相加是 20 字节，而内容总字节记的是 999999 —— 两个数各算了一遍，至少一个是错的
+=== 3. 类型错：Call 填成字符串（解码错误会不会被吞）===
+--- 类型错
+    check_call  isError=False  回话：输入侧：kernel: 第几发是 0，发号从 1 起（0 会被读成「还没发」） / 输出侧：自洽
+    record_call isError=True  回话：整发拒收（拒收累计 3 次）：kernel: 输入侧账不自洽，第 0 发整发拒收（输出侧也不写）：kernel: 第几发是 0，发号从 1 起（0 会被读成「还没发」）
+=== 3b. arguments 里没有 input 那一侧 ===
+--- 缺 input 侧
+    check_call  isError=False  回话：输入侧：kernel: 第几发是 0，发号从 1 起（0 会被读成「还没发」） / 输出侧：自洽
+    record_call isError=True  回话：整发拒收（拒收累计 4 次）：kernel: 输入侧账不自洽，第 0 发整发拒收（输出侧也不写）：kernel: 第几发是 0，发号从 1 起（0 会被读成「还没发」）
+=== 3c. Tokens 拼成 Tokenz（拼错的键会不会被静默丢掉）===
+--- 键名拼错
+    check_call  isError=False  回话：输入侧：kernel: token 数 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测 / 输出侧：自洽
+    record_call isError=True  回话：整发拒收（拒收累计 5 次）：kernel: 输入侧账不自洽，第 1 发整发拒收（输出侧也不写）：kernel: token 数 有数 0 却没说谁算的（basis 空）—— 这一格会被下游当成实测
+=== 4. arguments 是一段坏 JSON ===
+    check_call  isError=None  回话：空回话
+    record_call isError=None  回话：空回话
+=== 5. 同一发重记（去重门）===
+    record_call isError=True  回话：整发拒收（拒收累计 6 次）：kernel: model_input 第 1 发（session=derive-probe-1016）已经记过了 —— 同一发只许记一次，记两遍会让按键名扫账本的分析层把字节与 token 加两遍
+=== 收尾 tally（isError=False）===
+    账 49 条（absent=5 estimated=2 measured=37 model_says=1 relayed=4）；被拒的写入 6 次 —— 拒收也要看得见，不然「被拒」会读成「没发生过」
+Traceback (most recent call last):
+  File "C:\Users\Administrator\AppData\Local\Temp\twenty_probe.py", line 135, in <module>
+    print("=== 收尾 verify（isError=%s）===\n    %s" % (e, t[:300]))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'gbk' codec can't encode character '\u2713' in position 37: illegal multibyte sequence
+
+==== twenty-readings2.txt (第二批（坏 JSON 的形状、缺 Notice 那一发）) ====
+=== A. 坏 JSON 当 arguments（B 报的"空回话"到底是形状）===
+  HTTP 状态：202
+  Content-Type：None   Content-Length：0
+  正文（前 300）：''
+  正文长度：0 字节
+
+=== B. 整条请求体坏到连 jsonrpc 都解不开 ===
+  HTTP 状态：400   正文（前 300）：'{"error":"体不是一条 JSON-RPC 请求（要有 method）","got_bytes":12}'
+
+=== C. 零值合法的那一格：把 Notice 整块抹掉（外壳应当报"没给"还是替它补零值？）===
+  check_call  isError=False  回话：输入侧：自洽 / 输出侧：自洽
+  record_call isError=True  回话：整发拒收（拒收累计 7 次）：kernel: model_input 第 1 发（session=derive-probe-1016）已经记过了 —— 同一发只许记一次，记两遍会让按键名扫账本的分析层把字节与 token 加两遍
+
+=== D. 一个没记过的新发号（Call=2）的合法账，验证两面对同一份合法账都放 ===
+  check_call  isError=False  回话：输入侧：自洽 / 输出侧：自洽
+  record_call isError=False  回话：整发落账 49 条（输入侧 20 格 + 输出侧 29 格），链上共 98 条
+
+=== E. verify 与 tally 原话 ===
+  kernel.verify isError=False：✓ 链自洽（共 98 条，其中 98 条比对过原像）
+  kernel.tally isError=False：账 98 条（absent=10 estimated=4 measured=74 model_says=2 relayed=8）；被拒的写入 7 次 —— 拒收也要看得见，不然「被拒」会读成「没发生过」
+
+==== twenty-readings3.txt (第三批（第 9/10 发对照与收尾）) ====
+=== 第 9 发：整块不给 Notice（不是给零值，是**这个键根本没出现**）===
+  check_call  isError=False：输入侧：自洽 / 输出侧：自洽
+  record_call isError=False：整发落账 49 条（输入侧 20 格 + 输出侧 29 格），链上共 147 条
+  read_back(input) 账上那四格长什么样：session=derive-probe-1016 的第 9 发 input 侧共 20 格，其中缺席 []： / call                   measured  9 / call_bytes_ceiling     measured  32768 / clamp_rounds           measured  1 / clipped                measured  0 段（裁剪表是空的） / content_bytes          measured  20 / content_ceiling        measured  28835 / dropped                measured  0 段（裁剪表是空的） / effective_ceiling      measured  28735 / fixed_overhead         estimated ≈300（这是估算，不是测量）：估的是骨架+模型名粗估 / folded                 measured  0 段（裁剪表是空的） / leftover_pct           measured  0 / notice_sent            measured  否 / notice_text            measured  （这一格是空的） / notice_trimmed         measured  否 / notice_why             measured  （这一格是空的） / part_totals            measured  2 类共 20 字节：system=1 user=1 / parts                  measured  2 段：system user / shares                 measured  system=55 user=45 / tokens                 estimated ≈7（这是
+
+=== 对照：第 10 发，明明给了 Notice（Sent=false、Why 有理由）===
+  record_call isError=False：整发落账 49 条（输入侧 20 格 + 输出侧 29 格），链上共 196 条
+  read_back(input)：session=derive-probe-1016 的第 10 发 input 侧共 20 格，其中缺席 []： / call                   measured  10 / call_bytes_ceiling     measured  32768 / clamp_rounds           measured  1 / clipped                measured  0 段（裁剪表是空的） / content_bytes          measured  20 / content_ceiling        measured  28835 / dropped                measured  0 段（裁剪表是空的） / effective_ceiling      measured  28735 / fixed_overhead         estimated ≈300（这是估算，不是测量）：估的是骨架+模型名粗估 / folded                 measured  0 段（裁剪表是空的） / leftover_pct           measured  0 / notice_sent            measured  否 / notice_text            measured  （这一格是空的） / notice_trimmed         measured  否 / notice_why             measured  没折叠没裁尾 / part_totals            measured  2 类共 20 字节：system=1 user=1 / parts                  measured  2 段：system user / shares                 measured  system=55 user=45 / tokens                 estimated ≈7（这是
+
+=== 收尾 tally：账 196 条（absent=20 estimated=8 measured=148 model_says=4 relayed=16）；被拒的写入 7 次 —— 拒收也要看得见，不然「被拒」会读成「没发生过」
+=== 收尾 verify：✓ 链自洽（共 196 条，其中 196 条比对过原像）

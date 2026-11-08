@@ -1,0 +1,582 @@
+整轮慢闸原始读数（由 tasks/probe/kprobe.py 自己印出，未编辑）。跑于 1019-131245；报告文件 /tmp/kprobe-final-1019-131245-report
+
+起跑前内存闸：连读 5 次 = 6238 6152 6085 6011 6019 MB，中位 6085 MB（阈值 900 MB）—— 放行
+
+==== 对照 ====
+对照 0（干净拷贝）：go test 退出码 0、PASS 174 条、FAIL 0 条；kcheck 退出码 0
+对照 T（故意弄坏一个测试文件）：go build 退出码 0（该 0）、go test 输出含 [build failed]=True、有 PASS/FAIL 行=False（该 False）
+
+共享树起手检查：修回 0 个文件（该是 0 —— 不是 0 说明这棵树不是刚拷的）
+
+
+== m13b-份额超过100也放行
+   点名该红：TestDeriveBudgetIsTheOnlyOwnerOfTheFormula
+   实际报红：TestDeriveBudgetIsTheOnlyOwnerOfTheFormula
+   没红的点名：无
+   全量共红 1 条: TestDeriveBudgetIsTheOnlyOwnerOfTheFormula
+
+== m20-预算公式不复核
+   点名该红：TestHandBuiltBudgetIsRefused
+   实际报红：TestHandBuiltBudgetIsRefused
+   没红的点名：无
+   全量共红 1 条: TestHandBuiltBudgetIsRefused
+
+== m21-回夹不必真收小
+   点名该红：TestClampMustActuallyShrink
+   实际报红：TestClampMustActuallyShrink
+   没红的点名：无
+   全量共红 1 条: TestClampMustActuallyShrink
+
+== m22-协议也允许裁
+   点名该红：TestOnlySystemIsWholeOrNothing
+   实际报红：TestOnlySystemIsWholeOrNothing
+   没红的点名：无
+   全量共红 1 条: TestOnlySystemIsWholeOrNothing
+
+== m23-token白名单变黑名单
+   点名该红：TestUsageIsRelayedNotMeasured, TestTokenTotalOnlySumsTokens, TestCheckCallRefusalIsMachineReadable
+   实际报红：TestCheckCallRefusalIsMachineReadable, TestTokenTotalOnlySumsTokens, TestUsageIsRelayedNotMeasured
+   没红的点名：无
+   全量共红 3 条: TestCheckCallRefusalIsMachineReadable, TestTokenTotalOnlySumsTokens, TestUsageIsRelayedNotMeasured
+
+== m24-没数到冒充没发出去
+   点名该红：TestSentIsThreeState
+   实际报红：TestSentIsThreeState
+   没红的点名：无
+   全量共红 1 条: TestSentIsThreeState
+
+== m25-两个字节量又共用一个键名
+   点名该红：TestPartBytesMustSumToContentBytes, TestCallNumberStartsAtOne
+   实际报红：TestCallNumberStartsAtOne, TestPartBytesMustSumToContentBytes
+   没红的点名：无
+   全量共红 49 条（宽出点名的：47 条）
+
+== m26-拼错的读者声明也收
+   点名该红：TestUnreadCellsAreCountedAgainstADenominator
+   实际报红：TestUnreadCellsAreCountedAgainstADenominator
+   没红的点名：无
+   全量共红 1 条: TestUnreadCellsAreCountedAgainstADenominator
+
+== m27-框架模块前缀不匹配
+   点名该红：TestIsolationGoesRedOnALeak, TestClassifyImportEdgeShapes
+   实际报红：TestClassifyImportEdgeShapes, TestIsolationGoesRedOnALeak
+   没红的点名：无
+   全量共红 4 条: TestClassifyImportEdgeShapes, TestIsolationGoesRedOnALeak, TestLeakInATestFileIsCaughtToo, TestSubdirectoriesAreScanned
+
+== m28-cgo算成标准库
+   点名该红：TestCgoIsNotCountedAsStdlib, TestClassifyImportEdgeShapes
+   实际报红：TestCgoIsNotCountedAsStdlib, TestClassifyImportEdgeShapes
+   没红的点名：无
+   全量共红 2 条: TestCgoIsNotCountedAsStdlib, TestClassifyImportEdgeShapes
+
+== m29-不扫子目录
+   点名该红：TestSubdirectoriesAreScanned, TestSelfIsolation
+   实际报红：TestSelfIsolation, TestSubdirectoriesAreScanned
+   没红的点名：无
+   全量共红 9 条（宽出点名的：7 条）
+
+== m30-裁剪表与段表不互核
+   点名该红：TestCutsCannotOutliveTheirPartRow
+   实际报红：TestCutsCannotOutliveTheirPartRow
+   没红的点名：无
+   全量共红 1 条: TestCutsCannotOutliveTheirPartRow
+
+== m31-通知说了却没正文也放行
+   点名该红：TestNoticeCannotContradictItself
+   实际报红：TestNoticeCannotContradictItself
+   没红的点名：无
+   全量共红 1 条: TestNoticeCannotContradictItself
+
+== m32-顺序表与段表个数不互核
+   点名该红：TestOrderMustMatchPartCounts
+   实际报红：TestOrderMustMatchPartCounts
+   没红的点名：无
+   全量共红 1 条: TestOrderMustMatchPartCounts
+
+== m33-故障说法带空白也放行
+   点名该红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   实际报红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   没红的点名：无
+   全量共红 1 条: TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+
+== m34-对非流式也建议换非流式
+   点名该红：TestRetrySameAndDowngradeAreTwoQuestions
+   实际报红：TestRetrySameAndDowngradeAreTwoQuestions
+   没红的点名：无
+   全量共红 1 条: TestRetrySameAndDowngradeAreTwoQuestions
+
+== m35-模型id自相矛盾也放行
+   点名该红：TestSaidVersusEmptyString
+   实际报红：TestSaidVersusEmptyString
+   没红的点名：无
+   全量共红 1 条: TestSaidVersusEmptyString
+
+== m36-连歪计数与这一发不互核
+   点名该红：TestMalformedCountAndStreakAreTwoQuantities
+   实际报红：TestMalformedCountAndStreakAreTwoQuantities
+   没红的点名：无
+   全量共红 1 条: TestMalformedCountAndStreakAreTwoQuantities
+
+== m69-没收到响应的类别也许带状态码
+   点名该红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   实际报红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   没红的点名：无
+   全量共红 1 条: TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+
+== m70-收到过响应却不要求状态码
+   点名该红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   实际报红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   没红的点名：无
+   全量共红 1 条: TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+
+== m71-越界的状态码也收（0 又成了默认长相）
+   点名该红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   实际报红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   没红的点名：无
+   全量共红 1 条: TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+
+== m72-格式那一格说报了却报的是空串
+   点名该红：TestWireFormatSaidMatchesAndNeedsAResponse
+   实际报红：TestWireFormatSaidMatchesAndNeedsAResponse
+   没红的点名：无
+   全量共红 1 条: TestWireFormatSaidMatchesAndNeedsAResponse
+
+== m73-没收到响应也能转述对端自报了格式
+   点名该红：TestWireFormatSaidMatchesAndNeedsAResponse
+   实际报红：TestWireFormatSaidMatchesAndNeedsAResponse
+   没红的点名：无
+   全量共红 1 条: TestWireFormatSaidMatchesAndNeedsAResponse
+
+== m74-通知说发了而段表里没有那一段
+   点名该红：TestNoticeSentIsPinnedToThePartTable
+   实际报红：TestNoticeSentIsPinnedToThePartTable
+   没红的点名：无
+   全量共红 1 条: TestNoticeSentIsPinnedToThePartTable
+
+== m75-段表里有通知段却不许标成没发
+   点名该红：TestNoticeSentIsPinnedToThePartTable
+   实际报红：TestNoticeSentIsPinnedToThePartTable
+   没红的点名：无
+   全量共红 1 条: TestNoticeSentIsPinnedToThePartTable
+
+== m76-挤掉一段历史不指来自第几发
+   点名该红：TestHistoryCutMustNameItsCall
+   实际报红：TestHistoryCutMustNameItsCall
+   没红的点名：无
+   全量共红 1 条: TestHistoryCutMustNameItsCall
+
+== m77-历史裁剪可以指向未来那一发
+   点名该红：TestHistoryCutMustNameItsCall
+   实际报红：TestHistoryCutMustNameItsCall
+   没红的点名：无
+   全量共红 1 条: TestHistoryCutMustNameItsCall
+
+== m78-状态码那一格又写死成实测
+   点名该红：TestFailureCellsFollowTheStatusAxis
+   实际报红：TestFailureCellsFollowTheStatusAxis
+   没红的点名：无
+   全量共红 1 条: TestFailureCellsFollowTheStatusAxis
+
+== m79-对端自报的格式被记成我们量的
+   点名该红：TestFailureCellsFollowTheStatusAxis
+   实际报红：TestFailureCellsFollowTheStatusAxis
+   没红的点名：无
+   全量共红 1 条: TestFailureCellsFollowTheStatusAxis
+
+== m80-抄对端原话的那格又标成我们量的
+   点名该红：TestFailureCellsFollowTheStatusAxis
+   实际报红：TestFailureCellsFollowTheStatusAxis
+   没红的点名：无
+   全量共红 1 条: TestFailureCellsFollowTheStatusAxis
+
+== m81-说是没故障却带着说法或状态码也放行
+   点名该红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   实际报红：TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+   没红的点名：无
+   全量共红 1 条: TestFailureNeedsADetailAndOnlyHTTPCarriesAStatus
+
+== m82-知不知道对端自报格式被记成对端说的
+   点名该红：TestFailureCellsFollowTheStatusAxis
+   实际报红：TestFailureCellsFollowTheStatusAxis
+   没红的点名：无
+   全量共红 1 条: TestFailureCellsFollowTheStatusAxis
+
+== m83-空链戴着通过的那个勾
+   点名该红：TestNothingBookedDoesNotWearGreen
+   实际报红：TestNothingBookedDoesNotWearGreen
+   没红的点名：无
+   全量共红 3 条: TestEmptyBookIsNotGreen, TestNothingBookedDoesNotWearGreen, TestVerifyOnEmptyChainRefusesGreen
+
+== m84-空账的分桶行留着空括号
+   点名该红：TestNothingBookedDoesNotWearGreen
+   实际报红：TestNothingBookedDoesNotWearGreen
+   没红的点名：无
+   全量共红 1 条: TestNothingBookedDoesNotWearGreen
+
+== m38-说话人不核
+   点名该红：TestCutNeedsRefRoleAndAFullFingerprint
+   实际报红：TestCutNeedsRefRoleAndAFullFingerprint
+   没红的点名：无
+   全量共红 1 条: TestCutNeedsRefRoleAndAFullFingerprint
+
+== m39-指纹只在一侧被守
+   点名该红：TestCutNeedsRefRoleAndAFullFingerprint, TestSaysFingerprintAndKeptBytes
+   实际报红：TestCutNeedsRefRoleAndAFullFingerprint, TestSaysFingerprintAndKeptBytes
+   没红的点名：无
+   全量共红 2 条: TestCutNeedsRefRoleAndAFullFingerprint, TestSaysFingerprintAndKeptBytes
+
+== m40-空段表也放行
+   点名该红：TestEmptyPartsOrOrderIsRefused
+   实际报红：TestEmptyPartsOrOrderIsRefused
+   没红的点名：无
+   全量共红 1 条: TestEmptyPartsOrOrderIsRefused
+
+== m41-认不出模块名也静默放过
+   点名该红：TestMissingToolchainIsReportedNotFaked
+   实际报红：TestMissingToolchainIsReportedNotFaked
+   没红的点名：无
+   全量共红 1 条: TestMissingToolchainIsReportedNotFaked
+
+== m42-生效额度可以大于公式额度
+   点名该红：TestHandBuiltBudgetIsRefused
+   实际报红：TestHandBuiltBudgetIsRefused
+   没红的点名：无
+   全量共红 1 条: TestHandBuiltBudgetIsRefused
+
+== m18b-份额那一格不排序
+   点名该红：TestCellOrderIsStable
+   实际报红：TestCellOrderIsStable
+   没红的点名：无
+   全量共红 1 条: TestCellOrderIsStable
+
+== m43-反函数取整方向写反
+   点名该红：TestObservationShareAndItsReverseAgree
+   实际报红：TestObservationShareAndItsReverseAgree
+   没红的点名：无
+   全量共红 1 条: TestObservationShareAndItsReverseAgree
+
+== m44-空键名表也算过
+   点名该红：TestCellCountCarriesADenominator
+   实际报红：TestCellCountCarriesADenominator
+   没红的点名：无
+   全量共红 1 条: TestCellCountCarriesADenominator
+
+== m45-派生格不必写成方法
+   点名该红：TestDerivedCellMustBeWrittenAsAMethod
+   实际报红：TestDerivedCellMustBeWrittenAsAMethod
+   没红的点名：无
+   全量共红 39 条（宽出点名的：38 条）
+
+== m46-不可信却不是缺席也放行
+   点名该红：TestRefusedAndAbsentCannotImpersonateEachOther
+   实际报红：TestRefusedAndAbsentCannotImpersonateEachOther
+   没红的点名：无
+   全量共红 1 条: TestRefusedAndAbsentCannotImpersonateEachOther
+
+== m47-不可信渲染成没量到
+   点名该红：TestDistrustedKeepsTheNumberItRefused
+   实际报红：TestDistrustedKeepsTheNumberItRefused
+   没红的点名：无
+   全量共红 1 条: TestDistrustedKeepsTheNumberItRefused
+
+== m48-分档表漏一档也不报
+   点名该红：TestCutListsTableCanBeCaughtBeingWrong
+   实际报红：TestCutListsTableCanBeCaughtBeingWrong
+   没红的点名：无
+   全量共红 1 条: TestCutListsTableCanBeCaughtBeingWrong
+
+== m49-空回话算正常收尾
+   点名该红：TestEmptyReplyIsNotANormalFinish
+   实际报红：TestEmptyReplyIsNotANormalFinish
+   没红的点名：无
+   全量共红 1 条: TestEmptyReplyIsNotANormalFinish
+
+== m51-空顺序表也放行
+   点名该红：TestEmptyPartsOrOrderIsRefused
+   实际报红：TestEmptyPartsOrOrderIsRefused
+   没红的点名：无
+   全量共红 1 条: TestEmptyPartsOrOrderIsRefused
+
+== m52-预算挡下可以没数到
+   点名该红：TestSentIsThreeState
+   实际报红：TestSentIsThreeState
+   没红的点名：无
+   全量共红 1 条: TestSentIsThreeState
+
+== m53-plan不再用账本判据先过一遍
+   点名该红：TestPlanRefusesWhatAppendWouldRefuse
+   实际报红：TestPlanRefusesWhatAppendWouldRefuse
+   没红的点名：无
+   全量共红 1 条: TestPlanRefusesWhatAppendWouldRefuse
+
+== m54-同一发同一侧可以记两遍
+   点名该红：TestSameCallCannotBeRecordedTwice, TestNoHalfCallEvenWhenTranslationFailsLate
+   实际报红：TestNoHalfCallEvenWhenTranslationFailsLate, TestSameCallCannotBeRecordedTwice
+   没红的点名：无
+   全量共红 4 条: TestLoadedLedgerRefusesToRecordTheSameCallTwice, TestNoHalfCallEvenWhenTranslationFailsLate, TestPreCheckPredictsDedupGate, TestSameCallCannotBeRecordedTwice
+
+== m55-RecordCall不先核输入侧
+   点名该红：TestRecordCallNeverLeavesHalfACallOnTheLedger, TestCheckCallRefusalIsMachineReadable
+   实际报红：TestCheckCallRefusalIsMachineReadable, TestRecordCallNeverLeavesHalfACallOnTheLedger
+   没红的点名：无
+   全量共红 6 条: TestCheckCallRefusalIsMachineReadable, TestFreeTextCellsRefuseOverlong, TestGateCountsSurviveEncodeAndLoad, TestNewGateDoesNotLieAboutCountersWhenFileCarriesThem, TestPrecheckRejectionsAreCountedSeparately, TestRecordCallNeverLeavesHalfACallOnTheLedger
+
+== m56-两侧发号对不上也收
+   点名该红：TestRecordCallNeverLeavesHalfACallOnTheLedger
+   实际报红：TestRecordCallNeverLeavesHalfACallOnTheLedger
+   没红的点名：无
+   全量共红 1 条: TestRecordCallNeverLeavesHalfACallOnTheLedger
+
+== m57-claimOf把空串原样交回
+   点名该红：TestClaimOfNeverHandsBackAnEmptySentence, TestClaimsReadBackAsSentencesComputedFromTheFixture
+   实际报红：TestClaimOfNeverHandsBackAnEmptySentence, TestClaimsReadBackAsSentencesComputedFromTheFixture
+   没红的点名：无
+   全量共红 2 条: TestClaimOfNeverHandsBackAnEmptySentence, TestClaimsReadBackAsSentencesComputedFromTheFixture
+
+== m58-缺席不翻成absent档
+   点名该红：TestBasisOfRefusesEveryShapeOfBasisLying, TestAbsentCellsLandOnTheLedgerAsAbsentNotZero, TestTallyCountsRecordedAbsencesIntoTheAbsentBucket
+   实际报红：TestAbsentCellsLandOnTheLedgerAsAbsentNotZero, TestBasisOfRefusesEveryShapeOfBasisLying, TestTallyCountsRecordedAbsencesIntoTheAbsentBucket
+   没红的点名：无
+   全量共红 4 条: TestAbsentCellsLandOnTheLedgerAsAbsentNotZero, TestBasisOfRefusesEveryShapeOfBasisLying, TestFailureCellsFollowTheStatusAxis, TestTallyCountsRecordedAbsencesIntoTheAbsentBucket
+
+== m59-AbsentKeys不只挑absent档
+   点名该红：TestAbsentCellsLandOnTheLedgerAsAbsentNotZero
+   实际报红：TestAbsentCellsLandOnTheLedgerAsAbsentNotZero
+   没红的点名：无
+   全量共红 3 条: TestAbsentCellsLandOnTheLedgerAsAbsentNotZero, TestCutsAbsentVersusEmptyAreTwoSentencesOnTheWire, TestNilCutListLandsAsAbsentWhileAnEmptyOneStaysMeasured
+
+== m60-CellsOf不按发与侧过滤
+   点名该红：TestCellsOfReadsBackOneCallOneSideOnly
+   实际报红：TestCellsOfReadsBackOneCallOneSideOnly
+   没红的点名：无
+   全量共红 3 条: TestCellsOfKeepsTwoSessionsApart, TestCellsOfReadsBackOneCallOneSideOnly, TestNilCutListLandsAsAbsentWhileAnEmptyOneStaysMeasured
+
+== m62-checkRecord不要求actor与kind
+   点名该红：TestPlanRefusesWhatAppendWouldRefuse
+   实际报红：TestPlanRefusesWhatAppendWouldRefuse
+   没红的点名：无
+   全量共红 1 条: TestPlanRefusesWhatAppendWouldRefuse
+
+== m63-commit中途失败时条数报假
+   点名该红：TestCommitAcceptsEveryShapePlanTranslates
+   实际报红：TestCommitAcceptsEveryShapePlanTranslates
+   没红的点名：无
+   全量共红 1 条: TestCommitAcceptsEveryShapePlanTranslates
+!! m64-RecordInput不Check就记账: 锚点命中 0 处（该是 1 处）-> '\tif err := m.Check(); err != nil {\n\t\tl.countRejected++\n\t\treturn 0, fmt'
+
+== m65-plan收空键名表
+   点名该红：TestPlanRefusesAnEmptyCellList
+   实际报红：TestPlanRefusesAnEmptyCellList
+   没红的点名：无
+   全量共红 1 条: TestPlanRefusesAnEmptyCellList
+!! m66-RecordCall边翻译边落账留半发: 锚点命中 0 处（该是 1 处）-> '\toutRecs, err := l.plan(session, actor, out.Call, KindModelOutput, out'
+
+== m67-缺席值带出处也收
+   点名该红：TestBasisOfRefusesEveryShapeOfBasisLying
+   实际报红：TestBasisOfRefusesEveryShapeOfBasisLying
+   没红的点名：无
+   全量共红 1 条: TestBasisOfRefusesEveryShapeOfBasisLying
+
+== m68-非三态的值也能报缺席
+   点名该红：TestBasisOfRefusesEveryShapeOfBasisLying, TestNilCutListLandsAsAbsentWhileAnEmptyOneStaysMeasured, TestCutsAbsentVersusEmptyAreTwoSentencesOnTheWire
+   实际报红：TestBasisOfRefusesEveryShapeOfBasisLying, TestCutsAbsentVersusEmptyAreTwoSentencesOnTheWire, TestNilCutListLandsAsAbsentWhileAnEmptyOneStaysMeasured
+   没红的点名：无
+   全量共红 3 条: TestBasisOfRefusesEveryShapeOfBasisLying, TestCutsAbsentVersusEmptyAreTwoSentencesOnTheWire, TestNilCutListLandsAsAbsentWhileAnEmptyOneStaysMeasured
+
+== m85-没交的裁剪表又署成实测
+   点名该红：TestNilCutListLandsAsAbsentWhileAnEmptyOneStaysMeasured, TestCutsAbsentVersusEmptyAreTwoSentencesOnTheWire
+   实际报红：TestCutsAbsentVersusEmptyAreTwoSentencesOnTheWire, TestNilCutListLandsAsAbsentWhileAnEmptyOneStaysMeasured
+   没红的点名：无
+   全量共红 2 条: TestCutsAbsentVersusEmptyAreTwoSentencesOnTheWire, TestNilCutListLandsAsAbsentWhileAnEmptyOneStaysMeasured
+
+== m86-nil 名单又被抹成空表
+   点名该红：TestNilCutListLandsAsAbsentWhileAnEmptyOneStaysMeasured, TestCutsAbsentVersusEmptyAreTwoSentencesOnTheWire
+   实际报红：TestCutsAbsentVersusEmptyAreTwoSentencesOnTheWire, TestNilCutListLandsAsAbsentWhileAnEmptyOneStaysMeasured
+   没红的点名：无
+   全量共红 2 条: TestCutsAbsentVersusEmptyAreTwoSentencesOnTheWire, TestNilCutListLandsAsAbsentWhileAnEmptyOneStaysMeasured
+
+== j1-空原像被当成没有原像
+   点名该红：TestEmptyPreimageRoundTripsAsPresentNotAbsent
+   实际报红：TestEmptyPreimageRoundTripsAsPresentNotAbsent
+   没红的点名：无
+   全量共红 2 条: TestChainRecomputesAndCatchesTampering, TestEmptyPreimageRoundTripsAsPresentNotAbsent
+
+== j2-没有原像那行不记成无原像
+   点名该红：TestOmittedPreimageIsNotAccusedOfTampering
+   实际报红：TestOmittedPreimageIsNotAccusedOfTampering
+   没红的点名：无
+   全量共红 6 条: TestEncodeJournalTextLoadsBackVerbatim, TestEntryCapRefusesAndCountsSeparately, TestNewGateDoesNotLieAboutCountersWhenFileCarriesThem, TestNoPreimageIsNotGreen, TestOmittedPreimageIsNotAccusedOfTampering, TestVerifyDelegatesToTheSameJudgmentAsCheckChain
+
+== j3-没填PayloadMode也放行
+   点名该红：TestMarshalRefusesAnUnsetPayloadMode
+   实际报红：TestMarshalRefusesAnUnsetPayloadMode
+   没红的点名：无
+   全量共红 1 条: TestMarshalRefusesAnUnsetPayloadMode
+
+== j4-选了带原像却不写字节
+   点名该红：TestJournalRoundTripKeepsEveryCellRecomputable
+   实际报红：TestJournalRoundTripKeepsEveryCellRecomputable
+   没红的点名：无
+   全量共红 5 条: TestEmptyPreimageRoundTripsAsPresentNotAbsent, TestGateRoundTripsWithoutTouchingTheChain, TestJournalRoundTripKeepsEveryCellRecomputable, TestLoadedLedgerRefusesToRecordTheSameCallTwice, TestTamperedPayloadIsStillCaught
+
+== j5-整格seal不重算
+   点名该红：TestEditedClaimIsCaughtByTheSealNotThePayload
+   实际报红：TestEditedClaimIsCaughtByTheSealNotThePayload
+   没红的点名：无
+   全量共红 4 条: TestChainRecomputesAndCatchesTampering, TestEditedClaimIsCaughtByTheSealNotThePayload, TestRecordedChainRecomputesAndCatchesTampering, TestTamperedLedgerRefused
+
+== j6-payload不与指纹比对
+   点名该红：TestTamperedPayloadIsStillCaught
+   实际报红：TestTamperedPayloadIsStillCaught
+   没红的点名：无
+   全量共红 2 条: TestChainRecomputesAndCatchesTampering, TestTamperedPayloadIsStillCaught
+
+== j7-坏行静默丢掉不报错
+   点名该红：TestBadLineIsReportedWithItsLineNumber, TestEncodeJournalTextLoadsBackVerbatim
+   实际报红：TestBadLineIsReportedWithItsLineNumber, TestEncodeJournalTextLoadsBackVerbatim
+   没红的点名：无
+   全量共红 3 条: TestBadGateLineIsNotCountedAsPresent, TestBadLineIsReportedWithItsLineNumber, TestEncodeJournalTextLoadsBackVerbatim
+
+== j8-读回来的账不填进账本
+   点名该红：TestLoadedLedgerRefusesToRecordTheSameCallTwice
+   实际报红：TestLoadedLedgerRefusesToRecordTheSameCallTwice
+   没红的点名：无
+   全量共红 10 条（宽出点名的：9 条）
+
+== j9-无原像时Verify直接报绿
+   点名该红：TestOmittedPreimageIsNotAccusedOfTampering, TestVerifyDelegatesToTheSameJudgmentAsCheckChain
+   实际报红：TestOmittedPreimageIsNotAccusedOfTampering, TestVerifyDelegatesToTheSameJudgmentAsCheckChain
+   没红的点名：无
+   全量共红 2 条: TestOmittedPreimageIsNotAccusedOfTampering, TestVerifyDelegatesToTheSameJudgmentAsCheckChain
+
+== j10-读侧丢了session这一轴
+   点名该红：TestCellsOfKeepsTwoSessionsApart
+   实际报红：TestCellsOfKeepsTwoSessionsApart
+   没红的点名：无
+   全量共红 2 条: TestCellsOfKeepsTwoSessionsApart, TestCutsAbsentVersusEmptyAreTwoSentencesOnTheWire
+
+== g1-缺席无理由账本也收  [kcheck 针]
+   点名该红：go run ./cmd/kcheck 退出码非 0
+   实际退出码：1
+   闸门报红：✗ 缺席无理由被拒（拒了=false、拒因点名「理由」=false）、带理由被收（收了=true）：Rejected=1、Docs=2 条
+   闸门报红：✗ 1 项没过
+
+== g2-必须带来源的名单少一档  [kcheck 针]
+   点名该红：go run ./cmd/kcheck 退出码非 0
+   实际退出码：1
+   闸门报红：✗ 「必须带来源」的档只有一份判据（经 Append 探 needsSource）：名单=[relayed]（relayed/estimated 为真、其余各档为假）
+   闸门报红：✗ 1 项没过
+
+== g3-absent档也能拿去做判定  [kcheck 针]
+   点名该红：go run ./cmd/kcheck 退出码非 0
+   实际退出码：1
+   闸门报红：✗ basis=absent 不可判定；逐档可判定名单：[measured=true relayed=true estimated=false model_says=false absent=true unset=false]
+   闸门报红：✗ 1 项没过
+
+== g4-核不了却打着✓  [kcheck 针]
+   点名该红：go run ./cmd/kcheck 退出码非 0
+   实际退出码：1
+   闸门报红：✗ 核不了不打 ✓（第三种答案不许长得像绿）：✓ 字段级自洽（共 49 条，其中 0 条比对过原像）；核不了：49 条没有原像（第 1、2、3、4、5、6、7、8、…（共 49 条））—— 那些条的 PayloadH 重算不出原值
+   闸门报红：✗ 1 项没过
+
+共享树收尾：修回 1 个文件（该是 1 —— 就是最后一根针改的那一个；多于 1 说明有针改了名单之外的文件）
+
+==== 汇总 ====
+m13b-份额超过100也放行                            RED-ONLY-NAMED 1
+m20-预算公式不复核                                RED-ONLY-NAMED 1
+m21-回夹不必真收小                                RED-ONLY-NAMED 1
+m22-协议也允许裁                                 RED-ONLY-NAMED 1
+m23-token白名单变黑名单                           RED-ONLY-NAMED 3
+m24-没数到冒充没发出去                              RED-ONLY-NAMED 1
+m25-两个字节量又共用一个键名                           RED-WIDER      49
+m26-拼错的读者声明也收                              RED-ONLY-NAMED 1
+m27-框架模块前缀不匹配                              RED-WIDER      4
+m28-cgo算成标准库                               RED-ONLY-NAMED 2
+m29-不扫子目录                                  RED-WIDER      9
+m30-裁剪表与段表不互核                              RED-ONLY-NAMED 1
+m31-通知说了却没正文也放行                            RED-ONLY-NAMED 1
+m32-顺序表与段表个数不互核                            RED-ONLY-NAMED 1
+m33-故障说法带空白也放行                             RED-ONLY-NAMED 1
+m34-对非流式也建议换非流式                            RED-ONLY-NAMED 1
+m35-模型id自相矛盾也放行                            RED-ONLY-NAMED 1
+m36-连歪计数与这一发不互核                            RED-ONLY-NAMED 1
+m69-没收到响应的类别也许带状态码                         RED-ONLY-NAMED 1
+m70-收到过响应却不要求状态码                           RED-ONLY-NAMED 1
+m71-越界的状态码也收（0 又成了默认长相）                    RED-ONLY-NAMED 1
+m72-格式那一格说报了却报的是空串                         RED-ONLY-NAMED 1
+m73-没收到响应也能转述对端自报了格式                       RED-ONLY-NAMED 1
+m74-通知说发了而段表里没有那一段                         RED-ONLY-NAMED 1
+m75-段表里有通知段却不许标成没发                         RED-ONLY-NAMED 1
+m76-挤掉一段历史不指来自第几发                          RED-ONLY-NAMED 1
+m77-历史裁剪可以指向未来那一发                          RED-ONLY-NAMED 1
+m78-状态码那一格又写死成实测                           RED-ONLY-NAMED 1
+m79-对端自报的格式被记成我们量的                         RED-ONLY-NAMED 1
+m80-抄对端原话的那格又标成我们量的                        RED-ONLY-NAMED 1
+m81-说是没故障却带着说法或状态码也放行                      RED-ONLY-NAMED 1
+m82-知不知道对端自报格式被记成对端说的                      RED-ONLY-NAMED 1
+m83-空链戴着通过的那个勾                             RED-WIDER      3
+m84-空账的分桶行留着空括号                            RED-ONLY-NAMED 1
+m38-说话人不核                                  RED-ONLY-NAMED 1
+m39-指纹只在一侧被守                               RED-ONLY-NAMED 2
+m40-空段表也放行                                 RED-ONLY-NAMED 1
+m41-认不出模块名也静默放过                            RED-ONLY-NAMED 1
+m42-生效额度可以大于公式额度                           RED-ONLY-NAMED 1
+m18b-份额那一格不排序                              RED-ONLY-NAMED 1
+m43-反函数取整方向写反                              RED-ONLY-NAMED 1
+m44-空键名表也算过                                RED-ONLY-NAMED 1
+m45-派生格不必写成方法                              RED-WIDER      39
+m46-不可信却不是缺席也放行                            RED-ONLY-NAMED 1
+m47-不可信渲染成没量到                              RED-ONLY-NAMED 1
+m48-分档表漏一档也不报                              RED-ONLY-NAMED 1
+m49-空回话算正常收尾                               RED-ONLY-NAMED 1
+m51-空顺序表也放行                                RED-ONLY-NAMED 1
+m52-预算挡下可以没数到                              RED-ONLY-NAMED 1
+m53-plan不再用账本判据先过一遍                        RED-ONLY-NAMED 1
+m54-同一发同一侧可以记两遍                            RED-WIDER      4
+m55-RecordCall不先核输入侧                       RED-WIDER      6
+m56-两侧发号对不上也收                              RED-ONLY-NAMED 1
+m57-claimOf把空串原样交回                         RED-ONLY-NAMED 2
+m58-缺席不翻成absent档                           RED-WIDER      4
+m59-AbsentKeys不只挑absent档                   RED-WIDER      3
+m60-CellsOf不按发与侧过滤                         RED-WIDER      3
+m62-checkRecord不要求actor与kind               RED-ONLY-NAMED 1
+m63-commit中途失败时条数报假                        RED-ONLY-NAMED 1
+m64-RecordInput不Check就记账                   ANCHOR-BAD     
+m65-plan收空键名表                              RED-ONLY-NAMED 1
+m66-RecordCall边翻译边落账留半发                    ANCHOR-BAD     
+m67-缺席值带出处也收                               RED-ONLY-NAMED 1
+m68-非三态的值也能报缺席                             RED-ONLY-NAMED 3
+m85-没交的裁剪表又署成实测                            RED-ONLY-NAMED 2
+m86-nil 名单又被抹成空表                           RED-ONLY-NAMED 2
+j1-空原像被当成没有原像                              RED-WIDER      2
+j2-没有原像那行不记成无原像                            RED-WIDER      6
+j3-没填PayloadMode也放行                        RED-ONLY-NAMED 1
+j4-选了带原像却不写字节                              RED-WIDER      5
+j5-整格seal不重算                               RED-WIDER      4
+j6-payload不与指纹比对                           RED-WIDER      2
+j7-坏行静默丢掉不报错                               RED-WIDER      3
+j8-读回来的账不填进账本                              RED-WIDER      10
+j9-无原像时Verify直接报绿                          RED-ONLY-NAMED 2
+j10-读侧丢了session这一轴                         RED-WIDER      2
+g1-缺席无理由账本也收                               GATE-RED       exit=1
+g2-必须带来源的名单少一档                             GATE-RED       exit=1
+g3-absent档也能拿去做判定                          GATE-RED       exit=1
+g4-核不了却打着✓                                 GATE-RED       exit=1
+
+—— 两类针分开数 ——
+go test 针 76 根：RED-ONLY-NAMED 56、RED-WIDER 18、VACUOUS 0、TEST-BROKE(没跑成) 0、TEST-HANG(超时) 0
+kcheck  针 4 根：GATE-RED 4、GATE-GREEN(空) 0、GATE-CRASH(崩) 0
+两类共用：ANCHOR-BAD 2、BUILD-BROKE 0
+取材方式：一棵共享树，每根针前修干净（累计按 SRC 逐字节修回 78 个文件次）
+
+针数 80（go test 76 + kcheck 4）；只有点名的红 56；红得更宽 18；闸门报红 4；空针/坏针 2
+空针/坏针清单：
+  m64-RecordInput不Check就记账                   ANCHOR-BAD     
+  m66-RecordCall边翻译边落账留半发                    ANCHOR-BAD     
+
+—— 两根对照 ——
+对照 0（干净拷贝全过）：成立
+对照 T（探针认得出「测试没跑起来」）：成立
+
+!! 这一轮**不绿**：2 根针没咬住（VACUOUS / 坏针 / 崩 / 超时） —— 退出码 1。
+   退出码分成四档：0 干净、1 有针没咬住、2 对照不成立（那种连读数都不可信）、3 起跑前内存闸拦下（那一次连报告文件都不写，说明在 <报告路径>.not-run）。第一轮整轮表里有 2 根 VACUOUS，脚本当时照样退出 0 —— 「有一根针是空的」与「这一轮全绿」共用一个 0，等于没说。

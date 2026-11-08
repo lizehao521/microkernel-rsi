@@ -1,0 +1,14 @@
+{
+  "producer": "demo-harness",
+  "generation": 2,
+  "artifacts": [
+    {"path": "harness.py", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "bytes": 2048}
+  ],
+  "criteria_sha256": "criteria-v1",
+  "criteria_diff": [],
+  "readings": [
+    {"metric": "latency_ms", "n": 900, "basis": 1, "direction": "down"},
+    {"metric": "pass_rate", "n": 9, "basis": 1, "direction": "up", "denominator": 10}
+  ],
+  "claim": "自称更快更准，但产物字节没变（假改进夹具，R2 该拒）"
+}

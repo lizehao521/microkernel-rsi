@@ -1,0 +1,10 @@
+== 样例-假key一发.jsonl
+  发1 fail_kind=config            status=0    wire_in=118   wire_out=662   sent=发出去了     finish=（这一格是空的）    says=0
+== 样例-空端口一发.jsonl
+  发1 fail_kind=transport         status=0    wire_in=0     wire_out=662   sent=发出去了     finish=（这一格是空的）    says=0
+== 样例-工具提议.jsonl
+  发1 fail_kind=（这一格是空的）          status=0    wire_in=586   wire_out=662   sent=发出去了     finish=tool_calls  says=0
+  发2 fail_kind=（这一格是空的）          status=0    wire_in=452   wire_out=1050  sent=发出去了     finish=stop        says=22
+  发3 fail_kind=malformed_action  status=0    wire_in=428   wire_out=1180  sent=发出去了     finish=length      says=0
+  发4 fail_kind=malformed_action  status=0    wire_in=2849  wire_out=1321  sent=发出去了     finish=length      says=1
+  发5 fail_kind=（这一格是空的）          status=0    wire_in=429   wire_out=1555  sent=发出去了     finish=stop        says=1

@@ -1,0 +1,23 @@
+led01 OLD turns=2   样例-LLM两发.jsonl                 {'measured 0': 2}
+led02 NEW turns=6   样例-agent.jsonl                 {'absent': 6}
+led03 NEW turns=1   样例-toolface-1015.jsonl         {'absent': 1}
+led04 OLD turns=1   样例-假key一发.jsonl                {'measured 0': 1}
+led05 OLD turns=0   样例-协议档-照实记.jsonl               {}
+led06 OLD turns=1   样例-协议档-让步装.jsonl               {'measured 0': 1}
+led07 NEW turns=4   样例-封板轮工具提议.jsonl               {'absent': 3, 'measured 200': 1}
+led08 OLD turns=3   样例-工具提议-第一次.jsonl              {'measured 0': 3}
+led09 OLD turns=5   样例-工具提议.jsonl                  {'measured 0': 5}
+led10 OLD turns=3   样例-挤历史.jsonl                   {'measured 0': 3}
+led11 OLD turns=5   样例-挤历史真端点.jsonl                {'measured 0': 5}
+led12 OLD turns=2   样例-真接口两发.jsonl                 {'measured 0': 2}
+led13 OLD turns=1   样例-空端口一发.jsonl                 {'measured 0': 1}
+led14 OLD turns=6   样例-答题六发.jsonl                  {'measured 0': 6}
+led15 NEW turns=6   样例-答题循环.jsonl                  {'absent': 6}
+led16 OLD turns=5   样例-走私对照.jsonl                  {'measured 0': 5}
+led17 OLD turns=5   样例-走私成功.jsonl                  {'measured 0': 5}
+
+ALL     {'measured 0': 39, 'absent': 16, 'measured 200': 1}
+OLD(改前落账) {'measured 0': 39}   <- 这一堆该是清一色 measured 0
+NEW(改后落账) {'absent': 16, 'measured 200': 1}   <- 这一堆里不许再有 measured 0
+
+SELFTEST pre-change measured-0 count=39 (must be >0)  post-change=0

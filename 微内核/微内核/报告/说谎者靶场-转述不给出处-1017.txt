@@ -1,0 +1,23 @@
+== 说谎者靶场 · 第三种谎形状：Basis=relayed(2) ＋ Source 空 · 2026-10-17 11:16:27 ==
+分母现场从源码抠：11 个 measureCell 键 -> tokens fixed_overhead usage_in usage_out wire_bytes_out wire_bytes_in chunks first_byte_ms max_gap_ms fail_status retry_after_ms
+控制臂（没动过）：check=False record=False —— 这一发必须能被收下，否则后面全是假数
+
+格 ｜ 预检isError ｜ 落账isError ｜ 同判? ｜ 消息里带的是键名还是人话标签
+------------------------------------------------------------------------------
+tokens           ｜ check=True  ｜ record=True  ｜ 同判 ｜ 只带人话标签 ｜ token 数 说是 relayed 的，却没说来源（转述谁 / 估的是什么）
+fixed_overhead   ｜ check=True  ｜ record=True  ｜ 同判 ｜ 只带人话标签 ｜ 固定开销 说是 relayed 的，却没说来源（转述谁 / 估的是什么）
+usage_in         ｜ check=True  ｜ record=True  ｜ 同判 ｜ 只带人话标签 ｜ 入 token 说是 relayed 的，却没说来源（转述谁 / 估的是什么）
+usage_out        ｜ check=True  ｜ record=True  ｜ 同判 ｜ 只带人话标签 ｜ 出 token 说是 relayed 的，却没说来源（转述谁 / 估的是什么）
+wire_bytes_out   ｜ check=True  ｜ record=True  ｜ 同判 ｜ 只带人话标签 ｜ 过网线的请求体字节 说是 relayed 的，却没说来源（转述谁 / 估的是什么）
+wire_bytes_in    ｜ check=True  ｜ record=True  ｜ 同判 ｜ 只带人话标签 ｜ 通道上收到的字节 说是 relayed 的，却没说来源（转述谁 / 估的是什么）
+chunks           ｜ check=True  ｜ record=True  ｜ 同判 ｜ 只带人话标签 ｜ 分帧数 说是 relayed 的，却没说来源（转述谁 / 估的是什么）
+first_byte_ms    ｜ check=True  ｜ record=True  ｜ 同判 ｜ 只带人话标签 ｜ 首帧等待 说是 relayed 的，却没说来源（转述谁 / 估的是什么）
+max_gap_ms       ｜ check=True  ｜ record=True  ｜ 同判 ｜ 只带人话标签 ｜ 最大帧间等待 说是 relayed 的，却没说来源（转述谁 / 估的是什么）
+fail_status      ｜ check=True  ｜ record=True  ｜ 同判 ｜ 两样都不带 ｜ 说是没故障，却带着说法 "" / 状态 5
+retry_after_ms   ｜ check=True  ｜ record=True  ｜ 同判 ｜ 只带人话标签 ｜ 对端要我们等多久 说是 relayed 的，却没说来源（转述谁 / 估的是什么）
+
+== 自印分母 ==
+分母=11 ｜ 跑到=11 ｜ 落账被拒=11 ｜ 预检与落账同判=11 ｜ 回话为空的臂=0
+消息里**带 snake 键名**的=0 ｜ **只带人话标签**的=10 ｜ 两样都不带的=1
+读法：这一族如果键名命中 = 分母，说明内核**已经有一种带机器可读格名的拒收消息**（`cells.go:163-165` 那句用 c.Key），#48 就不是「从无到有」，而是「把另一族也接到这个先例上」。
+它不证明：不证明所有判据族都带键名 —— 前两支量的 `Measure.Check` 那一族实测 0/8 带键名（`报告/说谎者靶场-全格-改后-原话三数-1017.txt:30`）。两个数分开数，不许相加。

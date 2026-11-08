@@ -1,0 +1,98 @@
+启动件真跑验收 ｜ 生成 2026-10-28 10:51:25 ｜ 跑的是桌面上那一发 C:/Users/Admin/Desktop/start-kernel-board.ps1（不是我另搓的命令）
+起服那一趟自印：pid=17112 ｜log=board-serve-20261028-104825.log（83 B）｜launcher 退出码 0 ｜preflight 那三枚身份见上一趟读数
+url 行：含 token= 吗 = True ｜该行 82 字符 ｜令牌长度 43 ｜令牌本身不进本文件、不进说明、不进记忆
+  GET `/`  -> 状态 = 401 ｜字节 = 68｜罪名 HTTPError 401 Unauthorized
+  GET `/?token=…` -> 状态 = 401 ｜字节 = 68｜罪名 HTTPError 401 Unauthorized
+  GET `/kernel-board` -> 状态 = 200 ｜字节 = 11879
+    顶层键 11 个：config_file,denominators,generated_at,kind,ledgers,provenance,reader,reader_bytes,reader_file,reader_sha256_16,sidecars
+      config_file -> C:/Users/Admin/Desktop/微内核/外部现场-dsh-1027/看板插件-1027/board-config-1027.j
+      denominators -> 子键 11：ledger_files_absent,ledger_files_listed,ledger_files_read,ledger_gate_lines_total,ledger_groups_total,ledger_rows_total,sidecar_files_absent,sidecar_files_listed,sidecar_files_read,sidecar_rows_total
+      generated_at -> 2026-10-28T02:51:25.222Z
+      kind -> agentkernel-dsh-board
+      ledgers -> 列表 4 条
+      provenance -> 列表 2 条
+      reader -> kernel-board-reader 1027-r1
+      reader_bytes -> 11369
+      reader_file -> C:\Users\Admin\AppData\Local\Temp\dsh-probe-1027\home\profiles\web\nod
+      reader_sha256_16 -> 4f97b0bc8d898069
+      sidecars -> 列表 6 条
+    令牌明文出现在这份路由 JSON 里吗 = False（应为 False）
+    分母自印（路由这一侧的 11 个数，逐名）：ledger_files_absent=1　ledger_files_listed=4　ledger_files_read=3　ledger_gate_lines_total=3　ledger_groups_total=15　ledger_rows_total=735　sidecar_files_absent=1　sidecar_files_listed=6　sidecar_files_read=5　sidecar_rows_total=113　sidecar_sessions_total=7
+    件的身份：reader=kernel-board-reader 1027-r1 reader_bytes=11369 reader_sha16=4f97b0bc8d898069 ｜部署件路径 index.js
+    这一族的老口径仍然适用：上面是路由读数，浏览器里那张表真渲染成什么样只有 DOM 结构读数，截图照旧 NOT_RUN
+进程树归属（本尺自己的壳在下面点名排除，排除完才是「这一发起了几层」）：
+  THIS-RULER-EXCLUDED 20176 parent=9756 :: "C:\Program Files\Git\bin\bash.exe" -c "{ source '/c/Users/Admin/.qoder-cn/shell-snapshots/snapshot-
+  THIS-RULER-EXCLUDED 22816 parent=20176 :: "C:\Program Files\Git\bin\..\usr\bin\bash.exe" -c "{ source '/c/Users/Admin/.qoder-cn/shell-snapshot
+  THIS-RULER-EXCLUDED 8476 parent=22816 :: "C:\Program Files\Git\bin\..\usr\bin\bash.exe" -c "{ source '/c/Users/Admin/.qoder-cn/shell-snapshot
+  THIS-RULER-EXCLUDED 24572 parent=9756 :: "C:\Program Files\Git\bin\bash.exe" -c "{ source '/c/Users/Admin/.qoder-cn/shell-snapshots/snapshot-
+  THIS-RULER-EXCLUDED 21816 parent=24572 :: "C:\Program Files\Git\bin\..\usr\bin\bash.exe" -c "{ source '/c/Users/Admin/.qoder-cn/shell-snapshot
+  THIS-RULER-EXCLUDED 22476 parent=21816 :: "C:\Program Files\Git\bin\..\usr\bin\bash.exe" -c "{ source '/c/Users/Admin/.qoder-cn/shell-snapshot
+  SERVER 17112 parent=16000 :: "C:\Users\Admin\.codearts\runtimes\node\node.exe" C:\Users\Admin\AppData\Local\Temp\dsh-probe-1027\n
+  THIS-RULER-EXCLUDED 25544 parent=16000 :: C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile -ExecutionPolicy Bypass -Comman
+  ���� 8 �� ��������һ����� 1 �� �������Լ��Ŀ� 7 ��
+  PORT 56279 LISTENING 1
+收法（作者说收再收，那时才按整棵树：taskkill /T /F /PID 17112 → 收完现数残留，必须印 0）
+―― 浏览器半（同一发 launcher 起来的那个口，真点开那张表）｜生成 2026-10-28 11:08:07 ――
+路径：账号菜单 → 设置(Ctrl+Alt+,) → 内置插件 → [role=tab]内核看板 ｜开局模态：开局有「开始使用」模态；按钮 .click() 一次没关掉，dispatchEvent('click') 才关
+没走的那条路（写下来免得下次又找）：全局「插件」面板（内置插件配置那一栏）不长这一格，只有 子智能体/网页搜索/Agent 循环/终端 四条 ⇒ 这一格挂的槽是 settings.plugins.tab，不是全局插件面板
+屏上结构（class=screen，evaluate_script 从当页读回，非截图）：tab 名 ['插件列表', '内核看板'] ｜表 5 张 ｜每张行 [8, 8, 6, 16, 4] ｜对话框正文 6318 字符
+截图照旧 NOT_RUN（visibilityState=hidden，headless 画布比 CSS 视口窄，这张图不能当几何证据）
+对账一（条数）：屏 sidecar 行 6 vs 路由 sidecars 6 ｜屏 ledger 行 4 vs 路由 ledgers 4 ⇒ 对
+对账二（三态里的 absent）：屏 absent：sidecar 1 / ledger 1 ｜路由 absent：1 / 1 ⇒ 对
+对账三（逐名绿红）：逐名对账 10 条，不一致 0 条 ｜全对上 ⇒ 对
+　逐名（屏上标签→路由候选数:路由状态(屏状态)）：外部现场-dsh-1027/journal-web.jsonl→候选1:green(屏green) ｜dsh-probe-1027/journal-web.jsonl→候选1:green(屏green) ｜dsh-probe-1027/journal-board-1027.jsonl→候选1:green(屏green) ｜臂产物-看板/旁路账-原样重抄.jsonl→候选1:green(屏green) ｜臂产物-看板/旁路账-改一格.jsonl→候选1:red(屏red) ｜臂产物-看板/旁路账-这一发没写.jsonl→候选1:absent(屏absent) ｜外部现场-dsh-1027/内核账-dsh-fold-1027.jsonl→候选1:green(屏green) ｜臂产物-看板/内核账-原样重抄.jsonl→候选1:green(屏green) ｜臂产物-看板/内核账-改一格.jsonl→候选1:red(屏red) ｜臂产物-看板/内核账-这一发没写.jsonl→候选1:absent(屏absent)
+对账四（件身份）：index.js 11369 B sha16=4f97b0bc8d898069（路由自印 sha16=4f97b0bc8d898069）｜client.js 20803 B sha16=a2980249532ea6f0 ⇒ 对
+对账五（这一格的门）：无令牌 GET /kernel-board -> 200 ｜11879 B ⇒ 路由侧没挂令牌校验；关不关归你，本件只报状态不动它
+对账六（结构：每张表该有几行）：屏每表行 [8, 8, 6, 16, 4] ｜分母应有 [8, 8, 6, 16, 4] ⇒ 全对上 ⇒ 对
+对账七（屏上每一行的数，不只颜色）：屏上逐行取数 10 条，数字不一致 0 条 ｜全对上 ⇒ 对
+　逐行：外部现场-dsh-1027/journal-web.jsonl 七项全对 ｜dsh-probe-1027/journal-web.jsonl 七项全对 ｜dsh-probe-1027/journal-board-1027.jsonl 七项全对 ｜臂产物-看板/旁路账-原样重抄.jsonl 七项全对 ｜臂产物-看板/旁路账-改一格.jsonl 七项全对 ｜臂产物-看板/旁路账-这一发没写.jsonl=absent(屏absent,路由exists=False) ｜外部现场-dsh-1027/内核账-dsh-fold-1027.jsonl 七项全对 ｜臂产物-看板/内核账-原样重抄.jsonl 七项全对 ｜臂产物-看板/内核账-改一格.jsonl 七项全对 ｜臂产物-看板/内核账-这一发没写.jsonl=absent(屏absent,路由exists=False)
+　负对照（这把尺子会不会红）：现账响 0 条 ｜负对照响 3 条（改 3 处）｜罪名开头：旁路 臂产物-看板/旁路账-改一格.jsonl 字节 屏=53294 路由=53293、旁路 臂产物-看板/旁路账-这一发没写.jsonl 屏=green，但路由这条没读数（exists=False，宿主没读它）、内核 臂产物-看板/内核账-改一格.jsonl 落账发数 屏=246 路由=245 ⇒ 红得起来
+对账八（gate 那张小表）：屏上 gate 行 3 条（这张表共 4 行，全部取回）｜不一致 0 条 ｜全对上 ⇒ 对
+　逐条：外部现场-dsh-1027/内核账-dsh-fold-1027.jsonl v=v2 sha=906d79be4e9a8990 七计数 5/1/0/0/0/0/1 全对 ｜臂产物-看板/内核账-原样重抄.jsonl v=v2 sha=906d79be4e9a8990 七计数 5/1/0/0/0/0/1 全对 ｜臂产物-看板/内核账-改一格.jsonl v=v2 sha=906d79be4e9a8990 七计数 5/1/0/0/0/0/1 全对
+屏上原文·gate 那 4 行（class=screen）：
+  │ gate（内核那一趟自己印的）|rejected|precheck_rejected|precheck_door|door_refused|bad_requests|transport_refused|state
+  │ 外部现场-dsh-1027/内核账-dsh-fold-1027.jsonl v2 sha 906d79be4e9a8990 | 5 | 1 | 0 | 0 | 0 | 0 | 1
+  │ 臂产物-看板/内核账-原样重抄.jsonl v2 sha 906d79be4e9a8990 | 5 | 1 | 0 | 0 | 0 | 0 | 1
+  │ 臂产物-看板/内核账-改一格.jsonl v2 sha 906d79be4e9a8990 | 5 | 1 | 0 | 0 | 0 | 0 | 1
+屏上原文·旁路账那 8 行（class=screen）：
+  │ 旁路账（dsh 侧车自己写的链）|状态|行数|程数|链头 12|断点|重锚|字节|sha256 前 16
+  │ 外部现场-dsh-1027/journal-web.jsonl|green|26|1|92c7401177cb|0（印 0）|0|53291|3b92b9853cdd9442
+  │ dsh-probe-1027/journal-web.jsonl|green|32|3|8d717ace8feb|0（印 0）|0|55073|6a848fb08cbdf192
+  │ dsh-probe-1027/journal-board-1027.jsonl|green|3|1|ae9ab9eb4d74|0（印 0）|0|831|4fbdca9d884c8211
+  │ 臂产物-看板/旁路账-原样重抄.jsonl|green|26|1|92c7401177cb|0（印 0）|0|53291|3b92b9853cdd9442
+  │ 臂产物-看板/旁路账-改一格.jsonl|red|26|1|92c7401177cb|1（印 1）|0|53293|5e831afade27038a
+  │ 臂产物-看板/旁路账-这一发没写.jsonl|absent|没量到|没量到|—|—|—|—|—
+  │ 理由：文件不在盘上（不是 0 行 —— 是没量到）
+屏上原文·内核账那 6 行（class=screen）：
+  │ 内核账 |状态|落账发数|程数|gate 行|链头 12|gate 那行写的链头|两数对上|断点|sha256 前 16
+  │ 外部现场-dsh-1027/内核账-dsh-fold-1027.jsonl|green|245|5|1|ee8cc45dedf6|ee8cc45dedf6|相等|0（印 0）|324d877c01f6047b
+  │ 臂产物-看板/内核账-原样重抄.jsonl|green|245|5|1|ee8cc45dedf6|ee8cc45dedf6|相等|0（印 0）|324d877c01f6047b
+  │ 臂产物-看板/内核账-改一格.jsonl|red|245|5|1|ee8cc45dedf6|ee8cc45dedf6|相等|1（印 1）|890327785c730302
+  │ 臂产物-看板/内核账-这一发没写.jsonl|absent|没量到|没量到|没量到|—|—|—|—|—
+  │ 理由：文件不在盘上（不是 0 行 —— 是没量到）
+路由分母自印（class=disk，宿主现读盘）：ledger_files_absent=1　ledger_files_listed=4　ledger_files_read=3　ledger_gate_lines_total=3　ledger_groups_total=15　ledger_rows_total=735　sidecar_files_absent=1　sidecar_files_listed=6　sidecar_files_read=5　sidecar_rows_total=113　sidecar_sessions_total=7
+这一半能说什么：这张表在浏览器里真渲染了 5 张表、三态（green/red/absent）俱在、两把臂与「这一发没写」在同一张表里，且屏上的条数/状态与宿主路由那份逐名对上。
+不能说什么：屏上的行是 DOM 读回的文本，没肉眼开图（截图 NOT_RUN）；「双击桌面那个 .cmd 就能看到这页」这句里，起服与出表两半都在这一发量到了，但「非起点用户第一次点会不会卡在开始使用模态」是 NOT_RUN（真人 0/1）。
+
+寿命与就绪（11:40–12:03 四把） ｜追加 2026-10-28 12:04:56
+四把怎么起的、各量到什么（逐把，别把两形的数混成一句）：
+  形一 经我这只尺的管道起（寿命1，capture_output）：启动件 rc=0、pid 19860、log 83 B；启动件返回后 2.0/14/26/38 秒四发全 ConnectionRefused，
+        收时刻 Get-Process 说该 pid 已不在、listen=0、我们这一族 node=0 ⇒ 这一发是真死了，不是"还没起来"。
+  形一 另一把（寿命2，同样 capture_output）：被活着的 node 拖住管道 5 分钟以上（它继承了启动件那根 stdout），我把自己这只尺掐了 ⇒ 整段读数没落盘，
+        事后现数 listen=1、pid 19804 在听 ⇒ "起了而且活着"是量到的，"寿命多长"这一格因为我的包装形式没量到，记 absent 带理由。
+  形二 按人真会走的路起（寿命4，Start-Process 给它自己的控制台窗口）：起后 2.1s/6.1s 连接被拒，13.4s 首次 200/11879B，之后逐 2 秒共 36 发，
+        到 119.0s 观察窗结束一直在答（首次不答=None）；结束时 pid 22960 在听、C 盘剩 8245 MB。
+  形二 再一把（就绪差-1028.py，同一条形二但把启动件的输出 tee 进文件）：10.3s 首次 200，逐 2 秒 28 发到 87.7s 没断；
+        启动件自己印的全 14 行非空正文带回（令牌隐去）：port 56279 free → pid 19504 → url 一行 → NOTE 两行 → listen 1 socket(s) on 56279 →
+        stop taskkill /T /F /PID 19504 → keep the server stays up…。⇒ 它印的 listen 是"印那一刻现数"，量到的是 1，不是猜的。
+这一把新抓到的两处，都是测量件自己的坑，不是启动件的：
+  坑一 取退出码的包装形式：同一个 -CheckOnly，powershell -Command "& x.ps1 2>&1|Out-String" 取到 rc=1，-File 取到 rc=3；
+        上一趟"臂检处五红"就红在这里 —— 脚本自己的 exit 3 没动，是我把管道末端的 rc 当成了它的。已改成 -File，臂检五处复跑全绿（见 启动件臂检-1028.txt）。
+  坑二 PS 5.1 的 Tee-Object 落的是 UTF-16：按 UTF-8 读，"listen 1 socket(s)" 被读成一串带空格的字 ⇒ 我的判据印出"正文里没有 listen 那行"（假红）。
+        同一份文件按 utf-16 重读：14 行、listen 那行在、keep 那句在。所以"没有那行"这句收回，别当发现写进说明。
+关于"stays up"那句能说什么：形二两发分别量到 ≥120 秒、≥88 秒没断，且启动件印的 listen 是现数 —— 这句在双击那条路上是成立的。
+不能说什么：形一两发早死（19860 两秒内、17112 在两趟检查之间）死因没查到，记 absent；"任何调用形式都不会早死"没量过，别写成已验。
+归属与收法（现在还在听的是我 12:01 起的那一发）：pid 19504，收法 taskkill /T /F /PID 19504，收完按命令行现数残留要印 0；
+今天已按这条收过一发：22960 带子一层 18444，/T /F 之后 listen=0、我们这一族 node=0（现数）。
+另一本账不在我这只尺上：pid 19496 是 --patch ./journal-web3.yml --port 0（听 53827），不是我们起的，没动它，只报状态。
+分母自印：这一节里的"把"=4 ｜"形"=2 ｜新抓到的测量件坑=2 ｜启动件侧新发现=0（那句 listen 是现数，不是缺陷）

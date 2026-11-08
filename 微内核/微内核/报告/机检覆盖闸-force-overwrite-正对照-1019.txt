@@ -1,0 +1,11 @@
+== 机检 `--force-overwrite` 的正对照（目标在 TEMP，不碰任何凭据）==
+   原件 C:\Users\Admin\AppData\Local\Temp\stdio-1019\force-arm-1019.txt（mtime 10-19 13:04:31，sha ad4acd0591c9）
+
+== 正对照：--force-overwrite 真能盖（目标在 TEMP，不碰任何凭据）==
+   端点 http://127.0.0.1:18802/mcp ｜ 我自己起的实例（pid 19408）
+[第一发（建）] 退出码 1 ｜ 目标 sha=ec14c9358095ee8c ｜ mtime=13:04:30 ｜ 行数=46
+    stdout 末尾（ASCII 转义，控制台不能吃中文）：\\n / \\u7ed3\\u8bba\\uff1a\\u65ad\\u94fe 0 \\u5904\\u3001\\u4e0d\\u53ef\\u6838 1 \\u5904\\uff1b\\u516d\\u6bb5 + \\u7ea6\\u675 /         \\u9000\\u51fa\\u7801 1\\uff08\\u65ad\\u94fe\\u6216\\u4e0d\\u53ef\\u6838\\u90fd\\u4e0d\\u8bb8\\u8bfb\\u6210\\u30
+
+[第二发（带旗标盖）] 退出码 1 ｜ 目标 sha=5c0779ed8de35e12 ｜ mtime=13:04:31 ｜ 行数=46
+    stdout 末尾（ASCII 转义，控制台不能吃中文）：\\n / \\u7ed3\\u8bba\\uff1a\\u65ad\\u94fe 0 \\u5904\\u3001\\u4e0d\\u53ef\\u6838 1 \\u5904\\uff1b\\u516d\\u6bb5 + \\u7ea6\\u675 /         \\u9000\\u51fa\\u7801 1\\uff08\\u65ad\\u94fe\\u6216\\u4e0d\\u53ef\\u6838\\u90fd\\u4e0d\\u8bb8\\u8bfb\\u6210\\u30
+

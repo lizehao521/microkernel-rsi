@@ -1,0 +1,204 @@
+# 在「装好的」树里跑随包的 工具-验收HTTP.py（先起服务、跑完收掉），证明装机后的应用不是只解压成功：
+# 条数与结果按下面这份 RESULT 行自印；skip 那几条依赖内核快闸，便携/装机树没带内核树 ⇒ 记 SKIP 不记绿。
+PASS GET / 200
+
+PASS GET / bytes match build
+
+PASS GET / sha match build
+
+PASS CSP self only
+
+PASS nosniff
+
+PASS single-file no <link>
+
+PASS single-file no script src
+
+PASS no external hosts in page
+
+PASS health ok
+
+PASS page has model control
+
+PASS page has model toggle copy
+
+PASS state 200
+
+PASS state model off by default
+
+PASS state model boundary declared
+
+PASS api model off
+
+PASS use_model without bridge absent
+
+PASS use_model without bridge 0 calls
+
+PASS state 3 deliveries
+
+PASS state 16 claims
+
+PASS claims basis all disk/absent
+
+PASS counts add up D-1026-01
+
+PASS counts add up D-1026-02
+
+PASS counts add up D-1026-03
+
+PASS D1 allowed only reject
+
+PASS D2 allowed accept+reject
+
+PASS D3 allowed reject+hold
+
+PASS D1-C4/C5 mismatch
+
+PASS D1-C6 + D3-C5 absent
+
+PASS absent claims carry why
+
+PASS bundle pgagent 13 steps
+
+PASS bundle agentd 14 events / 2 runs
+
+PASS bundle kernel 49 rows
+
+PASS kernel basis sums to 49
+
+PASS kernel hash 49/49
+
+PASS pgagent code not executed
+
+PASS raw hash pgagent
+
+PASS raw hash agentd
+
+PASS raw hash kernel
+
+PASS index file hashes all match
+
+SKIP kernel gate done
+
+SKIP kernel gate rc=0 bad=0
+
+SKIP kernel counts non-zero
+
+SKIP kernel exe hash 64 hex
+
+SKIP kernel readout matches snapshot
+
+PASS skip only when kernel disabled
+
+PASS dialogue 测试过了吗？
+
+PASS dialogue 有没有执行代码？
+
+PASS dialogue 真实模型复核过吗？
+
+PASS dialogue 这版能收吗？
+
+PASS dialogue 哪些核不了？
+
+PASS dialogue 证据在哪？
+
+PASS dialogue 49 格在哪？
+
+PASS dialogue 事件断线可续吗？
+
+PASS dialogue 内核快闸跑了吗？（关闭态）
+
+PASS dialogue 我的记忆在哪？
+
+PASS dialogue 上次为什么退？
+
+PASS dialogue 帮我收下这单
+
+PASS dialogue 帮我写一首诗
+
+PASS dialogue 明天天气怎么样？
+
+PASS dialogue 怎么用？
+
+PASS dialogue 为什么不能收？
+
+PASS dialogue persisted 16+
+
+PASS dialogue rows have q/tier/text
+
+PASS D1 accept disallowed
+
+PASS D2 hold disallowed
+
+PASS D3 accept disallowed
+
+PASS reject short reason 422
+
+PASS unknown delivery 404
+
+PASS D1 reject accepted
+
+PASS D1 receipt exists
+
+PASS D1 receipt has 6 claims
+
+PASS D1 receipt has reason
+
+SKIP D1 receipt has kernel readout
+
+PASS D1 receipt self-contained
+
+PASS D1 repeat 409
+
+PASS D2 accept accepted
+
+PASS D2 receipt exists
+
+PASS D3 hold accepted
+
+PASS D3 receipt exists
+
+PASS D3 repeat 409
+
+PASS memory 3 decisions
+
+PASS memory decisions have receipts
+
+PASS memory file hash matches meta
+
+PASS receipt files 3 new
+
+PASS reason add
+
+PASS reason too short 422
+
+PASS reason delete
+
+PASS preference save
+
+PASS memory export json
+
+PASS cross-origin POST 403
+
+PASS text/plain POST 400
+
+PASS oversized POST 400
+
+PASS declared 70KB POST 400
+
+PASS receipt traversal 400
+
+PASS unknown POST 404
+
+PASS memory clear
+
+PASS memory clear needs confirm
+
+PASS clear kept preferences
+
+RESULT PASS pass=92 fail=0 skip=6 total=98
+
+REPORT 读数/验收-HTTP.txt
+
+
+--- stderr ---

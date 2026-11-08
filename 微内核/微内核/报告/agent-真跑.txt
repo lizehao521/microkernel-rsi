@@ -1,0 +1,41 @@
+AGENT run 2026-10-14 00:29:20  model=agnes-3.0-flash  task=sum([27, 15, 8, 34])=84  max_turns=8
+内核自报：当前 49 格（输入侧 20 + 输出侧 29）；唯一键名 48 个：
+== turn 1: 发=1049 收待算=[15, 8, 34] 已累计=27
+  工具执行 ledger_add -> {"sum": 42}
+    决定：第 1 发 依据=tool_calls（账上的数）       值=('measured', '1')  动作=执行工具并把结果作为 observation 发回去
+== turn 2: 发=1286 收待算=[8, 34] 已累计=42
+  工具执行 ledger_add -> {"sum": 42}
+    决定：第 2 发 依据=tool_calls（账上的数）       值=('measured', '1')  动作=执行工具并把结果作为 observation 发回去
+== turn 3: 发=1523 收待算=[8, 34] 已累计=42
+  工具执行 ledger_add -> {"sum": 42}
+    决定：第 3 发 依据=tool_calls（账上的数）       值=('measured', '1')  动作=执行工具并把结果作为 observation 发回去
+== turn 4: 发=1760 收待算=[8, 34] 已累计=42
+  工具执行 ledger_add -> {"sum": 42}
+    决定：第 4 发 依据=tool_calls（账上的数）       值=('measured', '1')  动作=执行工具并把结果作为 observation 发回去
+== turn 5: 发=1997 收待算=[8, 34] 已累计=42
+  工具执行 ledger_add -> {"sum": 42}
+    决定：第 5 发 依据=tool_calls（账上的数）       值=('measured', '1')  动作=执行工具并把结果作为 observation 发回去
+== turn 6: 发=2234 收待算=[8, 34] 已累计=42
+  工具执行 ledger_add -> {"sum": 42}
+    决定：第 6 发 依据=tool_calls（账上的数）       值=('measured', '1')  动作=执行工具并把结果作为 observation 发回去
+== turn 7: 发=2471 收待算=[8, 34] 已累计=42
+  kernel 拒了这发：整发拒收（拒收累计 1 次）：kernel: 输出侧账不自洽，第 7 发整发拒收（输入侧也不写）：kernel: http 这一类是按对端响应分的，却没有状态码 —— 读的人分不清它收到响应没有
+    决定：第 7 发 依据=record_call 回执         值='拒收'               动作=停止 —— 不再往下走
+tally： 账 294 条（absent=30 estimated=12 measured=222 model_says=6 relayed=24）；被拒的写入 1 次 —— 拒收也要看得见，不然「被拒」会读成「没发生过」
+verify：✓ 链自洽（共 294 条，其中 294 条比对过原像）
+
+决策共 7 条；其中依据写在账上的某一格的：6 条
+   第1  发  依据=tool_calls（账上的数）         值=('measured', '1')    动作=执行工具并把结果作为 observation 发回去
+   第2  发  依据=tool_calls（账上的数）         值=('measured', '1')    动作=执行工具并把结果作为 observation 发回去
+   第3  发  依据=tool_calls（账上的数）         值=('measured', '1')    动作=执行工具并把结果作为 observation 发回去
+   第4  发  依据=tool_calls（账上的数）         值=('measured', '1')    动作=执行工具并把结果作为 observation 发回去
+   第5  发  依据=tool_calls（账上的数）         值=('measured', '1')    动作=执行工具并把结果作为 observation 发回去
+   第6  发  依据=tool_calls（账上的数）         值=('measured', '1')    动作=执行工具并把结果作为 observation 发回去
+   第7  发  依据=record_call 回执           值='拒收'                 动作=停止 —— 不再往下走
+(A) 自检模式（假端点）：任务完成度这一条不判 —— 假端点定死回答，做不完链式加法
+表头行（不写进账）：140634 字节 JSONL，294 行（写盘是你的事，内核只交字节）
+账本：C:\Users\Administrator\Desktop\微内核\微内核\报告\样例-agent.jsonl（条目数 294）
+
+PASS (B) 每一发都落进了同一条链（没有半发）  
+PASS (C) 账本至少触发过一次决定（回边是实的）  
+PASS (D) 账本字节里扫不到密钥（前 10 字符与 sk- 都查）  

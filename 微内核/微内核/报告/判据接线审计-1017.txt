@@ -1,0 +1,48 @@
+== 判据接线审计 · 分母 = Measure 类型的结构体字段 ==
+字段全集 11 个（正则 `^\s*(字段) Measure` 从 input.go output.go cells.go record.go measure.go 里抠）：
+   FixedOverhead  input.go
+   Tokens         input.go
+   Status         output.go
+   RetryAfterMs   output.go
+   UsageIn        output.go
+   UsageOut       output.go
+   WireBytesOut   output.go
+   WireBytesIn    output.go
+   Chunks         output.go
+   FirstByteMs    output.go
+   MaxGapMs       output.go
+
+== 接线覆盖 ==
+表驱动的循环确实把 `.m` 送进了判据（`s.m.Check(` / `usageOK(u.name, u.m)` 命中）= True
+   FixedOverhead  接了 ｜ 标签 "固定开销" ｜ 出处 input.go:519
+   Tokens         接了 ｜ 标签 "token 数" ｜ 出处 input.go:335
+   Status         **没接线** ｜ 全树找不到把它送进 Measure.Check/usageOK 的调用点
+   RetryAfterMs   接了 ｜ 标签 "对端要我们等多久" ｜ 出处 output.go:357
+   UsageIn        接了 ｜ 标签 "入 token" ｜ 出处 output.go:205; output.go:260
+   UsageOut       接了 ｜ 标签 "出 token" ｜ 出处 output.go:208; output.go:260
+   WireBytesOut   接了 ｜ 标签 "过网线的请求体字节" ｜ 出处 output.go:273
+   WireBytesIn    接了 ｜ 标签 "通道上收到的字节" ｜ 出处 output.go:265
+   Chunks         接了 ｜ 标签 "分帧数" ｜ 出处 output.go:292
+   FirstByteMs    接了 ｜ 标签 "首帧等待" ｜ 出处 output.go:292
+   MaxGapMs       接了 ｜ 标签 "最大帧间等待" ｜ 出处 output.go:292
+覆盖率 = 10/11 接了，1 个没接：Status
+
+== 代码里的「人话名」标签 11 个（这就是 #48 缺的那半张表的一半）==
+   token 数 ｜ 入 token ｜ 出 token ｜ 分帧数 ｜ 合计里的一笔 ｜ 固定开销 ｜ 对端要我们等多久 ｜ 最大帧间等待 ｜ 过网线的请求体字节 ｜ 通道上收到的字节 ｜ 首帧等待
+归档拒收原话 11 条里，**带着代码标签**的 = 5 条；撞不上的 = 6 条
+   [撞不上] token 那一格的出处是 measured —— 我们数不出对端的分词，只有估算或转述两种可能
+   [撞不上] 输入侧：自洽
+   [撞得上] 入 token 那一格的出处是 measured —— 分词器在对端，我们只能转述（或如实记缺席）
+   [撞得上] 出 token 那一格的出处是 measured —— 分词器在对端，我们只能转述（或如实记缺席）
+   [撞不上] 输入侧：自洽
+   [撞不上] 输入侧：自洽
+   [撞得上] 这一发不是流式的，分帧数 却报了 5 —— 非流式没有这一格，写数就是编数
+   [撞得上] 这一发不是流式的，首帧等待 却报了 700 —— 非流式没有这一格，写数就是编数
+   [撞得上] 这一发不是流式的，最大帧间等待 却报了 180 —— 非流式没有这一格，写数就是编数
+   [撞不上] 说是没故障，却带着说法 "" / 状态 200
+   [撞不上] 说是没故障，却记着对端要我们等 1500 毫秒
+一句实话：撞得上 = 那句人话里的名字**与代码传给判据的标签逐字相同**（可机核）；
+        撞不上 不等于没说 —— 它可能换了写法（如「token 那一格」 vs 标签「token 数」）。
+        这一条把 #48 从『只能人读』推进到『能数出多少条与代码同名』，但**结构化字段仍然没有**。
+
+自印分母：字段 11 ｜ 接了 10 ｜ 没接 1 ｜ 代码标签 11 个

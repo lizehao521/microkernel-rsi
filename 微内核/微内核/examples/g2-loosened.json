@@ -1,0 +1,16 @@
+{
+  "producer": "demo-harness",
+  "generation": 2,
+  "artifacts": [
+    {"path": "harness.py", "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "bytes": 1976}
+  ],
+  "criteria_sha256": "criteria-v2-looser",
+  "criteria_diff": [
+    {"id": "pass_rate", "change": "loosened", "note": "阈值从 0.9 降到 0.7（放水夹具，R3 该拒）"}
+  ],
+  "readings": [
+    {"metric": "latency_ms", "n": 900, "basis": 1, "direction": "down"},
+    {"metric": "pass_rate", "n": 9, "basis": 1, "direction": "up", "denominator": 10}
+  ],
+  "claim": "读数更好看了，但判据也松了（放水夹具）"
+}

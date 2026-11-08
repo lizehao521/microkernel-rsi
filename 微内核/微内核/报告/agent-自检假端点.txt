@@ -1,0 +1,32 @@
+AGENT run 2026-10-13 19:42:13  model=agnes-3.0-flash  task=sum([27, 15, 8, 34])=84  max_turns=5
+内核自报：当前 47 格（输入侧 20 + 输出侧 27）；唯一键名 46 个：
+== turn 1: 发=1049 收待算=[15, 8, 34] 已累计=27
+  工具执行 ledger_add -> {"sum": 42}
+    决定：第 1 发 依据=tool_calls（账上的数）       值=('measured', '1')  动作=执行工具并把结果作为 observation 发回去
+== turn 2: 发=1286 收待算=[8, 34] 已累计=42
+  工具执行 ledger_add -> {"sum": 42}
+    决定：第 2 发 依据=tool_calls（账上的数）       值=('measured', '1')  动作=执行工具并把结果作为 observation 发回去
+== turn 3: 发=1523 收待算=[8, 34] 已累计=42
+  工具执行 ledger_add -> {"sum": 42}
+    决定：第 3 发 依据=tool_calls（账上的数）       值=('measured', '1')  动作=执行工具并把结果作为 observation 发回去
+== turn 4: 发=1760 收待算=[8, 34] 已累计=42
+  工具执行 ledger_add -> {"sum": 42}
+    决定：第 4 发 依据=tool_calls（账上的数）       值=('measured', '1')  动作=执行工具并把结果作为 observation 发回去
+== turn 5: 发=1997 收待算=[8, 34] 已累计=42
+  工具执行 ledger_add -> {"sum": 42}
+    决定：第 5 发 依据=tool_calls（账上的数）       值=('measured', '1')  动作=执行工具并把结果作为 observation 发回去
+tally： 账 235 条（absent=20 estimated=10 measured=185 model_says=5 relayed=15）；被拒的写入 0 次 —— 拒收也要看得见，不然「被拒」会读成「没发生过」
+verify：✓ 链自洽（共 235 条，其中 235 条比对过原像）
+
+决策共 5 条；其中依据写在账上的某一格的：5 条
+   第1  发  依据=tool_calls（账上的数）         值=('measured', '1')    动作=执行工具并把结果作为 observation 发回去
+   第2  发  依据=tool_calls（账上的数）         值=('measured', '1')    动作=执行工具并把结果作为 observation 发回去
+   第3  发  依据=tool_calls（账上的数）         值=('measured', '1')    动作=执行工具并把结果作为 observation 发回去
+   第4  发  依据=tool_calls（账上的数）         值=('measured', '1')    动作=执行工具并把结果作为 observation 发回去
+   第5  发  依据=tool_calls（账上的数）         值=('measured', '1')    动作=执行工具并把结果作为 observation 发回去
+账本：C:/Users/ADMINI~1/AppData/Local/Temp/agent-fake2.jsonl（落盘行数 236）
+
+FAIL (A) 任务做完了：总和 84 出现在最终回答里  期望 ['done=True'] 去掉 ()，实际：done=False final_ok=False
+PASS (B) 每一发都落进了同一条链（没有半发）  
+FAIL (C) 账本至少触发过一次决定（回边是实的）  期望 ['1', '2', '3', '4', '5'] 去掉 ()，实际：5
+PASS (D) 账落盘且不带 key  

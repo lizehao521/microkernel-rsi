@@ -1,0 +1,341 @@
+[
+ {
+  "index": 1,
+  "paper": {
+   "id": "arxiv:cfc6a9d2245e5048",
+   "title": "Accountability of Things: Large-Scale Tamper-Evident Logging for Smart Devices",
+   "authors": [
+    "David Koisser",
+    "Ahmad-Reza Sadeghi"
+   ],
+   "year": null,
+   "url": "http://filestore.giiisp.com/arxiv/2023/08/11/2308.05557.pdf",
+   "keyPoints": "Accountability of Things: Large-Scale Tamper-Evident Logging for Smart Devices (David Koisser, Ahmad-Reza Sadeghi, unknown year)。摘要要点：Our modern world relies on a growing number of interconnected and interacting devices, leading to a plethora of logs establishing audit trails for all kinds of events. Simultaneously, logs become increasingly important for forensic investigations, and thus, an adversary will aim to alter logs to avoid culpability, e.g., by compromising devices that generate and store logs. Thus, it is essential to ensure that no one can tamper with any logs without going undetected. However, existing approaches to establish tamper evidence of logs do not scale and cannot protect the increasingly large number of devices found today, as they impose large storage or network overheads. Additionally, most schemes do not provide an efficient mechanism to prove that individual events have been logged to establish accountability when different devices interact.This paper introduces a novel scheme for practical l"
+  },
+  "message": "引用 [1] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943591
+ },
+ {
+  "index": 2,
+  "paper": {
+   "id": "arxiv:9ef5cf037db53d78",
+   "title": "Automatic verification of transparency protocols (extended version)",
+   "authors": [
+    "Vincent Cheval",
+    "José Moreira",
+    "Mark Ryan"
+   ],
+   "year": null,
+   "url": "http://filestore.giiisp.com/arxiv/2023/04/18/2303.04500v2.pdf",
+   "keyPoints": "Automatic verification of transparency protocols (extended version) (Vincent Cheval, José Moreira, Mark Ryan, unknown year)。摘要要点：Transparency protocols are protocols whose actions can be publicly monitored by observers (such observers may include regulators, rights advocacy groups, or the general public). The observed actions are typically usages of private keys such as decryptions, and signings. Examples of transparency protocols include certificate transparency, cryptocurrency, transparent decryption, and electronic voting. These protocols usually pose a challenge for automatic verification, because they involve sophisticated data types that have strong properties, such as Merkle trees, that allow compact proofs of data presence and tree extension.We address this challenge by introducing new features in ProVerif, and a methodology for using them. With our methodology, it is possible to describe the data type quite abstractly, using ProVerif axioms, and prove the correctness of the protocol using those axioms as"
+  },
+  "message": "引用 [2] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943591
+ },
+ {
+  "index": 3,
+  "paper": {
+   "id": "arxiv:d0d30900a14afab8",
+   "title": "TreePIR: Efficient Private Retrieval of Merkle Proofs via Tree Colorings with Fast Indexing and Zero Storage Overhead",
+   "authors": [
+    "Son Hoang Dau",
+    "Quang Cao",
+    "Rinaldo Gagiano",
+    "Duy Huynh",
+    "Xun Yi",
+    "Phuc Lu Le",
+    "Quang-Hung Luu",
+    "Emanuele Viterbo",
+    "Yu-Chih Huang",
+    "Jingge Zhu",
+    "Mohammad M. Jalalzai",
+    "Chen Feng"
+   ],
+   "year": null,
+   "url": "http://filestore.giiisp.com/arxiv/2024/06/05/2205.05211v5.pdf",
+   "keyPoints": "TreePIR: Efficient Private Retrieval of Merkle Proofs via Tree Colorings with Fast Indexing and Zero Storage Overhead (Son Hoang Dau, Quang Cao, Rinaldo Gagiano, unknown year)。摘要要点：A Batch Private Information Retrieval (batch-PIR) scheme allows a client to retrieve multiple data items from a database without revealing them to the storage server(s). Most existing approaches for batch-PIR are based on batch codes, in particular, probabilistic batch codes (PBC) (Angel et al. S&P'18), which incur large storage overheads. In this work, we show that \\textit{zero} storage overhead is achievable for tree-shaped databases. In particular, we develop TreePIR, a novel approach tailored made for private retrieval of the set of nodes along an arbitrary root-to-leaf path in a Merkle tree with no storage redundancy. This type of trees has been widely implemented in many real-world systems such as Amazon DynamoDB, Google's Certificate Transparency, and blockchains. Tree nodes along a root-to-leaf path forms the well-known Merkle proof. TreePIR, which employs a novel tree coloring,"
+  },
+  "message": "引用 [3] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943592
+ },
+ {
+  "index": 4,
+  "paper": {
+   "id": "arxiv:61105efd1ab71b9f",
+   "title": "2P-BFT-Log: 2-Phase Single-Author Append-Only Log for Adversarial Environments",
+   "authors": [
+    "Erick Lavoie"
+   ],
+   "year": null,
+   "url": "http://filestore.giiisp.com/arxiv/2023/07/31/2307.08381v2.pdf",
+   "keyPoints": "2P-BFT-Log: 2-Phase Single-Author Append-Only Log for Adversarial Environments (Erick Lavoie, unknown year)。摘要要点：Replicated append-only logs sequentially order messages from the same author such that their ordering can be eventually recovered even with out-of-order and unreliable dissemination of individual messages. They are widely used for implementing replicated services in both clouds and peer-to-peer environments because they provide simple and efficient incremental reconciliation. However, existing designs of replicated append-only logs assume replicas faithfully maintain the sequential properties of logs and do not provide eventual consistency when malicious participants fork their logs by disseminating different messages to different replicas for the same index, which may result in partitioning of replicas according to which branch was first replicated.In this paper, we present 2P-BFT-Log, a two-phase replicated append-only log that provides eventual consistency in the presence of forks fro"
+  },
+  "message": "引用 [4] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943592
+ },
+ {
+  "index": 5,
+  "paper": {
+   "id": "arxiv:f8ff19f13d1725e0",
+   "title": "Merkle Tree Certificate Post-Quantum PKI for Kubernetes and Cloud-Native 5G/B5G Core",
+   "authors": [
+    "Lakshya Chopra",
+    "Vipin Kumar Rathi"
+   ],
+   "year": null,
+   "url": "http://filestore.giiisp.com/arxiv/2026/04/07/2604.04191.pdf",
+   "keyPoints": "Merkle Tree Certificate Post-Quantum PKI for Kubernetes and Cloud-Native 5G/B5G Core (Lakshya Chopra, Vipin Kumar Rathi, unknown year)。摘要要点：Post-quantum signature schemes such as ML-DSA-65 produce signatures of 3,309 bytes and public keys of 1,952 bytes over 50 times larger than classical Ed25519. In TLS-authenticated environments like Kubernetes control planes and 5G Core networks, where every inter-component connection is mutually authenticated, this overhead compounds across thousands of handshakes per second. Merkle Tree Certificates (MTC), currently under development at IETF, replace per-certificate issuer signatures with Merkle inclusion proofs and, in the landmark mode, eliminate on-wire signatures from certificate authentication entirely. We present MTC-based PKI architectures for Kubernetes and 3GPP 5G Service-Based Architecture. Starting from the infrastructure layer, we replace the Kubernetes cluster CA with an MTCA deployment that issues MTC certificates to control plane components, with cosigners and a DaemonSet"
+  },
+  "message": "引用 [5] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943592
+ },
+ {
+  "index": 6,
+  "paper": {
+   "id": "arxiv:69b74a31bb58b0a0",
+   "title": "Parent-Hash DAG: A Cost Analysis of Constant-Time Append for On-Chain Registries",
+   "authors": [
+    "Ian C. Moore",
+    "Fernando Paredes Garcia"
+   ],
+   "year": null,
+   "url": "http://filestore.giiisp.com/arxiv/2026/06/09/2606.09593.pdf",
+   "keyPoints": "Parent-Hash DAG: A Cost Analysis of Constant-Time Append for On-Chain Registries (Ian C. Moore, Fernando Paredes Garcia, unknown year)。摘要要点：Provenance trees are append-only directed acyclic graphs of artifact registrations anchored on a public blockchain, recently introduced as the data substrate of operator-gated provenance infrastructure. Their defining data-structural pattern is a parent-hash directed acyclic graph (PHDAG), in which each append performs a constant number of storage writes to previously-untouched slots. This pattern has not previously been isolated as a standalone primitive, formally bounded with explicit constants, or benchmarked against the standard alternative, the incremental Merkle tree (IMT). We formalize PHDAG append as O(1) in gas cost, independent of registry size and tree depth, and develop a stochastic cost model for IMT in which per-insert cost is a random variable over the leaf index, deriving closed-form expressions for its mean and variance. We validate both analyses empirically on Base Sepo"
+  },
+  "message": "引用 [6] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943593
+ },
+ {
+  "index": 7,
+  "paper": {
+   "id": "arxiv:23dfe45a8ae1c902",
+   "title": "When AI Advisors Agree: Distinguishing Forecast Risk from Forecast Reliability",
+   "authors": [
+    "Russlan Ramdowar"
+   ],
+   "year": null,
+   "url": "http://filestore.giiisp.com/arxiv/2026/10/12/2610.13431.pdf",
+   "keyPoints": "When AI Advisors Agree: Distinguishing Forecast Risk from Forecast Reliability (Russlan Ramdowar, unknown year)。摘要要点：If seven AI advisors give similar forecasts, should we trust them more? Agreement can indicate useful shared evidence, but it can also reflect an asset that was easier to forecast in the first place. We examine this distinction using 928 completed first-quarter forecasts for 232 assets across four production batches of iPulse AI. Ten historical Gemini configurations are grouped into seven investment frameworks; their archived forecasts are compared with later market outcomes, without generating new reports. Mean absolute return error rises from 10.31 percentage points in the lowest-disagreement quartile to 21.05 in the highest. Yet a forecast of no price change shows almost the same increase, from 9.89 to 21.15. The relationship between disagreement and additional forecast error is not resolved after accounting for visible asset risk. Retaining the quarter of forecasts with lowest histor"
+  },
+  "message": "引用 [7] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943593
+ },
+ {
+  "index": 8,
+  "paper": {
+   "id": "arxiv:900f483000f8e333",
+   "title": "GlassDB: An Efficient Verifiable Ledger Database System Through Transparency",
+   "authors": [
+    "Cong Yue",
+    "Tien Tuan Anh Dinh",
+    "Zhongle Xie",
+    "Meihui Zhang",
+    "Gang Chen",
+    "Beng Chin Ooi",
+    "Xiaokui Xiao"
+   ],
+   "year": null,
+   "url": "http://filestore.giiisp.com/arxiv/2023/02/21/2207.00944v3.pdf",
+   "keyPoints": "GlassDB: An Efficient Verifiable Ledger Database System Through Transparency (Cong Yue, Tien Tuan Anh Dinh, Zhongle Xie, unknown year)。摘要要点：Verifiable ledger databases protect data history against malicious tampering. Existing systems, such as blockchains and certificate transparency, are based on transparency logs -- a simple abstraction allowing users to verify that a log maintained by an untrusted server is append-only. They expose a simple key-value interface. Building a practical database from transparency logs, on the other hand, remains a challenge.In this paper, we explore the design space of verifiable ledger databases along three dimensions: abstraction, threat model, and performance. We survey existing systems and identify their two limitations, namely, the lack of transaction support and the inferior efficiency. We then present GlassDB, a distributed database that addresses these limitations under a practical threat model. GlassDB inherits the verifiability of transparency logs, but supports transactions and offe"
+  },
+  "message": "引用 [8] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943593
+ },
+ {
+  "index": 9,
+  "paper": {
+   "id": "arxiv:4cbc00ce283cfd5e",
+   "title": "Rational Uniform Consensus with General Omission Failures",
+   "authors": [
+    "Yansong Zhang",
+    "Bo Shen",
+    "Yingsi Zhao"
+   ],
+   "year": null,
+   "url": "http://filestore.giiisp.com/arxiv/2022/08/17/2208.07740.pdf",
+   "keyPoints": "Rational Uniform Consensus with General Omission Failures (Yansong Zhang, Bo Shen, Yingsi Zhao, unknown year)。摘要要点：Generally, system failures, such as crash failures, Byzantine failures and so on, are considered as common reasons for the inconsistencies of distributed consensus and have been extensively studied. In fact, strategic manipulations by rational agents do not be ignored for reaching consensus in distributed system. In this paper, we extend the game-theoretic analysis of consensus and design an algorithm of rational uniform consensus with general omission failures under the assumption that processes are controlled by rational agents and prefer consensus. Different from crashing one, agent with omission failures may crash, or omit to send or receive messages when it should, which leads to difficulty of detecting faulty agents. By combining the possible failures of agents at the both ends of a link, we convert omission failure model into link state model to make faulty detection possible. Thr"
+  },
+  "message": "引用 [9] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943594
+ },
+ {
+  "index": 10,
+  "paper": {
+   "id": "arxiv:cf6bc6a49c34b807",
+   "title": "Aggregation-Based Gossip for Certificate Transparency",
+   "authors": [
+    "Rasmus Dahlberg",
+    "Tobias Pulls",
+    "Jonathan Vestin",
+    "Toke Høiland-Jørgensen",
+    "Andreas Kassler"
+   ],
+   "year": null,
+   "url": "/pdf/1806.08817v3",
+   "keyPoints": "Aggregation-Based Gossip for Certificate Transparency (Rasmus Dahlberg, Tobias Pulls, Jonathan Vestin, unknown year)。摘要要点：Certificate Transparency (CT) is a project that mandates public logging of TLS certificates issued by certificate authorities. While a CT log is designed to be trustless, it relies on the assumption that every client sees and cryptographically verifies the same log. The solution to this problem is a gossip mechanism that ensures that clients share the same view of the logs. Despite CT being added to Google Chrome, no gossip mechanism is pending wide deployment. We suggest an aggregation-based gossip mechanism that passively observes cryptographic material that CT logs emit in plaintext, aggregating at packet processors and periodically verifying log consistency off-path. Based on 20 days of RIPE Atlas measurements that represents clients from 3500 autonomous systems and 40% of the IPv4 space, our proposal can be deployed incrementally for a realistic threat model with significant protect"
+  },
+  "message": "引用 [10] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943594
+ },
+ {
+  "index": 11,
+  "paper": {
+   "id": "arxiv:911c9a58eef7aa45",
+   "title": "Characterizing the Root Landscape of Certificate Transparency Logs",
+   "authors": [
+    "Nikita Korzhitskii",
+    "Niklas Carlsson"
+   ],
+   "year": null,
+   "url": "/pdf/2001.04319v1",
+   "keyPoints": "Characterizing the Root Landscape of Certificate Transparency Logs (Nikita Korzhitskii, Niklas Carlsson, unknown year)。摘要要点：Internet security and privacy stand on the trustworthiness of public certificates signed by Certificate Authorities (CAs). However, software products do not trust the same CAs and therefore maintain different root stores, each typically containing hundreds of trusted roots capable of issuing \"trusted\" certificates for any domain. Incidents with misissued certificates motivated Google to implement and enforce Certificate Transparency (CT). CT logs archive certificates in a public, auditable and append-only manner. The adoption of CT changed the trust landscape, with logs too maintaining their own root lists and only logging certificates that chain back to one of their roots. In this paper, we present a first characterization of this emerging CT root store landscape, as well as the tool that we developed for data collection, visualization, and analysis of the root stores. As part of our ch"
+  },
+  "message": "引用 [11] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943594
+ },
+ {
+  "index": 12,
+  "paper": {
+   "id": "arxiv:5e24a0d254ceb7ea",
+   "title": "One-Phase Batch Update on Sparse Merkle Trees for Rollups",
+   "authors": [
+    "Boqian Ma",
+    "Vir Nath Pathak",
+    "Lanping Liu",
+    "Sushmita Ruj"
+   ],
+   "year": null,
+   "url": "http://filestore.giiisp.com/arxiv/2023/10/23/2310.13328.pdf",
+   "keyPoints": "One-Phase Batch Update on Sparse Merkle Trees for Rollups (Boqian Ma, Vir Nath Pathak, Lanping Liu, unknown year)。摘要要点：A sparse Merkle tree is a Merkle tree with fixed height and indexed leaves given by a map from indices to leaf values. It allows for both efficient membership and non-membership proofs. It has been widely used as an authenticated data structure in various applications, such as layer-2 rollups for blockchains. zkSync Lite, a popular Ethereum layer-2 rollup solution, uses a sparse Merkle tree to represent the state of the layer-2 blockchain. The account information is recorded in the leaves of the tree. In this paper, we study the sparse Merkle tree algorithms presented in zkSync Lite, and propose an efficient batch update algorithm to calculate a new root hash given a list of account (leaf) operations. Using the construction in zkSync Lite as a benchmark, our algorithm 1) improves the account update time from $\\mathcal{O}(\\log n)$ to $\\mathcal{O}(1)$ and 2) reduces the batch update cost b"
+  },
+  "message": "引用 [12] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943595
+ },
+ {
+  "index": 13,
+  "paper": {
+   "id": "arxiv:7cf6d770b3c6d00d",
+   "title": "Efficient and Universal Merkle Tree Inclusion Proofs via OR Aggregation",
+   "authors": [
+    "Oleksandr Kuznetsov",
+    "Alex Rusnak",
+    "Anton Yezhov",
+    "Dzianis Kanonik",
+    "Kateryna Kuznetsova",
+    "Oleksandr Domin"
+   ],
+   "year": null,
+   "url": "http://filestore.giiisp.com/arxiv/2024/05/14/2405.07941.pdf",
+   "keyPoints": "Efficient and Universal Merkle Tree Inclusion Proofs via OR Aggregation (Oleksandr Kuznetsov, Alex Rusnak, Anton Yezhov, unknown year)。摘要要点：Zero-knowledge proofs have emerged as a powerful tool for enhancing privacy and security in blockchain applications. However, the efficiency and scalability of proof systems remain a significant challenge, particularly in the context of Merkle tree inclusion proofs. Traditional proof aggregation techniques based on AND logic suffer from high verification complexity and data communication overhead, limiting their practicality for large-scale applications. In this paper, we propose a novel proof aggregation approach based on OR logic, which enables the generation of compact and universally verifiable proofs for Merkle tree inclusion. By aggregating proofs using OR logic, we achieve a proof size that is independent of the number of leaves in the tree, and verification can be performed using any single valid leaf hash. This represents a significant improvement over AND aggregation, which req"
+  },
+  "message": "引用 [13] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943595
+ },
+ {
+  "index": 14,
+  "paper": {
+   "id": "arxiv:320b7e0d13ecbe37",
+   "title": "Private Queries on Public Certificate Transparency Data",
+   "authors": [
+    "Vy-An Phan"
+   ],
+   "year": null,
+   "url": "/pdf/1905.09478v1",
+   "keyPoints": "Private Queries on Public Certificate Transparency Data (Vy-An Phan, unknown year)。摘要要点：Despite increasing advancements in today's information exchange infrastructure, the preservation of user data and privacy still remains a problem. Both insecure baselines and secure solutions leak user data. For example, Certificate Transparency (CT) promises significant security improvements to existing Public Key Infrastructure solutions that up-to-now have solely relied on the Certificate Authority hierarchy. CT provides a robust auditing layer and transparency solution to quickly detect such compromises, but introduces the requirement that client browsers interact with third-party servers when validating a site certificate. In the existing CT system, these requests leak information about each user's browsing habits to the hosting server. It is not a stretch to think that this valuable data could be collected and exploited, as corporations and governments have plenty of financial and"
+  },
+  "message": "引用 [14] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943595
+ },
+ {
+  "index": 15,
+  "paper": {
+   "id": "arxiv:83e2991223563231",
+   "title": "Towards Understanding Omission in Dialogue Summarization",
+   "authors": [
+    "Yicheng Zou",
+    "Kaitao Song",
+    "Xu Tan",
+    "Zhongkai Fu",
+    "Qi Zhang",
+    "Dongsheng Li",
+    "Tao Gui"
+   ],
+   "year": null,
+   "url": "http://filestore.giiisp.com/arxiv/2023/05/12/2211.07145v2.pdf",
+   "keyPoints": "Towards Understanding Omission in Dialogue Summarization (Yicheng Zou, Kaitao Song, Xu Tan, unknown year)。摘要要点：Dialogue summarization aims to condense the lengthy dialogue into a concise summary, and has recently achieved significant progress. However, the result of existing methods is still far from satisfactory. Previous works indicated that omission is a major factor in affecting the quality of summarization, but few of them have further explored the omission problem, such as how omission affects summarization results and how to detect omission, which is critical for reducing omission and improving summarization quality. Moreover, analyzing and detecting omission relies on summarization datasets with omission labels (i.e., which dialogue utterances are omitted in the summarization), which are not available in the current literature. In this paper, we propose the OLDS dataset, which provides high-quality Omission Labels for Dialogue Summarization. By analyzing this dataset, we find that a large"
+  },
+  "message": "引用 [15] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943595
+ },
+ {
+  "index": 16,
+  "paper": {
+   "id": "arxiv:633990bfc7b2f4ee",
+   "title": "NovaFabric: Tamper-Evident, Replayable Evidence for Autonomous AI Agent Runs",
+   "authors": [
+    "Mohsen Seyedkazemi Ardebili"
+   ],
+   "year": null,
+   "url": "http://filestore.giiisp.com/arxiv/2026/09/14/2609.12582.pdf",
+   "keyPoints": "NovaFabric: Tamper-Evident, Replayable Evidence for Autonomous AI Agent Runs (Mohsen Seyedkazemi Ardebili, unknown year)。摘要要点：When an autonomous AI agent does something consequential, what can be proven about what it did? Agent-observability platforms capture traces, but a trace is mutable: alterable undetected, with no recipe for re-executing it, silent on whether captured secrets were removed. Regulation (EU AI Act, ISO 42001, NIST AI RMF) presumes records an independent party can check.We present NovaFabric, producing audit-grade execution evidence: provider-neutral, tamper-evident, replayable, shareable. It records an agent run, without modifying agent logic, into a portable Run Capsule (fifteen-entity schema), sealed with a holistic DSSE signature, RFC 3161 timestamp, Merkle log and redaction attestation. Sealed runs are re-executable under a four-mode replay protocol and exportable as an Evidence Bundle for third-party verification with stock tooling (specified, not evaluated). The contribution is integra"
+  },
+  "message": "引用 [16] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943596
+ },
+ {
+  "index": 17,
+  "paper": {
+   "id": "arxiv:15d762931e0b458b",
+   "title": "AMBER: Training Long-Horizon Web Agents through Append-Only Memory",
+   "authors": [
+    "Chinmay Savadikar",
+    "Zhaoyu Zhang",
+    "Mingyu Zhao",
+    "Shuang Xie",
+    "Han Li",
+    "Tianfu Wu",
+    "Lingyun Wang"
+   ],
+   "year": null,
+   "url": "http://filestore.giiisp.com/arxiv/2026/10/07/2610.07118.pdf",
+   "keyPoints": "AMBER: Training Long-Horizon Web Agents through Append-Only Memory (Chinmay Savadikar, Zhaoyu Zhang, Mingyu Zhao, unknown year)。摘要要点：Modern language-model agents increasingly interact with external environments over long-horizon, multi-step trajectories, where the accumulated interaction history can quickly exceed practical context budgets. To ensure reliability, agents must maintain factual information over long horizons, remember execution errors and corrective feedback, and track progress across actions. Several approaches have been proposed to achieve this without the need for maintaining the entire execution history in context, such as using the reasoning and action history, learning to maintain a fixed-size memory through an overwrite mechanism, and periodic summarization. Although overwrite memory can in principle retain anything an append-only memory can, it must learn to carry each fact through every subsequent rewrite, which is difficult to learn from sparse outcome rewards; for interactive applications like"
+  },
+  "message": "引用 [17] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943596
+ },
+ {
+  "index": 18,
+  "paper": {
+   "id": "arxiv:33693111ac91fdb3",
+   "title": "Lightweight Tamper-Evident Log Integrity Verification for IoT Edge Environments: A Merkle Tree Pipeline with Adaptive Chunking",
+   "authors": [
+    "Muhammet Anil Yagiz",
+    "Fahrettin Horasan",
+    "Ahmet Hasim Yurttakal"
+   ],
+   "year": null,
+   "url": "http://filestore.giiisp.com/arxiv/2026/05/04/2605.00065.pdf",
+   "keyPoints": "Lightweight Tamper-Evident Log Integrity Verification for IoT Edge Environments: A Merkle Tree Pipeline with Adaptive Chunking (Muhammet Anil Yagiz, Fahrettin Horasan, Ahmet Hasim Yurttakal, unknown year)。摘要要点：Integrity of audit logs produced by Internet of Things (IoT) devices is a prerequisite for post-incident forensics, regulatory compliance, and operational accountability. While blockchain-backed logging infrastructures can satisfy this requirement, they introduce consensus overhead, network dependencies, and deployment complexity that are often prohibitive at the IoT edge.This paper presents a lightweight and evaluated integrity verification pipeline that combines Merkle-tree commitments with resource-aware adaptive chunking to provide tamper evidence without relying on distributed ledger technologies. The proposed pipeline operates in three stages: (i) resource-aware batch ingestion via adaptive chunk sizing, (ii) Merkle-tree construction with O(logn) inclusion proof generation, and (iii) deterministic single-entry verification against a trusted root anchor.We further report an implemen"
+  },
+  "message": "引用 [18] 来源已同步。",
+  "taskId": "003989e3-5b75-490a-9f10-1263b76abe00",
+  "ts": 1791822943596
+ }
+]

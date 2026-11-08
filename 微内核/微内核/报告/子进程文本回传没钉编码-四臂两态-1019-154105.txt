@@ -1,0 +1,50 @@
+子进程文本回传没钉 encoding · 四臂 × 母体两态实测（10-19 15:4x，ts %s）
+
+【〇】为什么要数它
+  看板「已完成」那节第 22 张卡（编码那批）末尾挂着一条欠账，原话是：
+    「两份欠账明写在点那份件里、不在这张卡假装闭：① 态三那两处（`attracta_probe.py:163`、`artifact_probe.py:104`）
+      题面现读只吐 ASCII，改成中文题面前必须补 `encoding=`」
+  —— 这句是**按名字数的两处**，不是全仓现数。这一发把它换成判据扫全集的数，并实测"不补"到底错在哪、以什么形状错。
+
+【一】全仓现数（尺子在 TEMP，不进仓库基线）
+  扫的 .py = 55 份（`tasks/**` 与顶层，排除交付树 `构建-1017`、`报告`、`日志`、`bin`、`__pycache__`）
+  类一 · 文本模式 `open()`／`io.open()` 没带 encoding = **0 处**
+  类二 · `subprocess.run/Popen/...` 收**文本**（`text=True` 或 `universal_newlines`）却没带 encoding = **3 处**，逐名：
+      tasks/mcp/artifact_probe.py:104      r = subprocess.run([PY, "-c", CODE], capture_output=True, text=True, timeout=60)
+      tasks/probe/attracta_probe.py:163    r = subprocess.run([sys.executable, "-c", CODE], capture_output=True, text=True, timeout=60)
+      tasks/probe/kprobe.py:367            q = subprocess.run(["powershell", "-NoProfile", "-Command", ...], capture_output=True, text=True, timeout=60)
+  ⇒ 看板那句「两处」**少数了一处**：`kprobe.py:367` 同族（它拿的是 PowerShell 报的可用内存，纯数字）。
+  尺子自己的两次改口径（第一版的假阳性，逐名留痕不藏）：
+    ① 判据先写成「有 `capture_output` 就算文本」→ 命中 5 处，其中 `acceptance_probe.py:63`、`client.py:59`、`kprobe.py:367` 里有两处拿的是 **bytes**（不给 `text=True` 时编码这一路根本不参与）⇒ 假阳性；
+       收窄成「必须 `text=True`/`universal_newlines`」之后 = 3 处。
+    ② 类一的窗口先按单行找 `encoding`，跨行调用会漏 ⇒ 改成三行窗口，并配一组控制件（`bad.py`/`bad1.py`/`bad2.py`/`good.py`/`good2.py`）：
+       控制目录现数 类一 2 处（正是那两只 bad）、类二 1 处（`bad2.py`）、两只 good 都不命中 ⇒ **这条判据会红，不是恒 0**。
+
+【二】四臂 × 母体两态（零端口：只起 python 子进程，不起服务、不碰 8797/8799/8801）
+  子件要印的目标固定 9 个字符（中文题面）；四臂只差两侧编码怎么钉：
+      A 今天这样 = 子件走 utf-8、母件 `text=True` 不给 encoding（跟随母体的 locale）
+      B 修后     = 子件走 utf-8、母件钉 `encoding="utf-8"`
+      C 两侧都 locale = 子件按 GBK 落字节、母件不钉
+      D 半修     = 母件钉 `encoding="utf-8"`、子件仍按 GBK 落字节
+  母体带 `-X utf8`（我今天所有跑的起法）：A 对上=True ｜ B True ｜ C False ｜ D False
+  母体**不带**（`python subproc_enc_arms.py`，locale=gbk，`sys.stdout.encoding=gbk`）：A **对上=False** ｜ B True ｜ C True ｜ D False
+  **失败形态是要点**：A 在 plain 母体下不是崩、不是红 —— 子件 `exit=0`，
+  `UnicodeDecodeError` 打在 `subprocess` 的 reader 线程里（打印在 stderr 外面），主流程拿到的 `r.stdout` 是 **None → 我这边 `.strip()` 成空串**，
+  而 `attracta_probe.py:166` 那句 `if r.returncode != 0: return 4` 照样通过 ⇒ **探针带着空读数继续往下判**。
+
+【三】这一发能说什么
+  能说：全仓这一族今天 = 3 处（逐名在上面），看板旧那句「两处」是**按名字数的**，不是扫出来的。
+  能说：今天这 3 处**都还没受害**，因为两处题面只吐 ASCII（`sum(...)`、`print(0.1+0.2==0.3)`）、第三处吐数字 —— 这条不是"挡住了"，是"还没踩到"。
+  能说：修法必须**两侧一起钉**（子件 `-X utf8`／`PYTHONIOENCODING=utf-8` ＋ 母件 `encoding="utf-8"`）＝ 臂 B；
+        只钉母件（臂 D）在"子件按 GBK 落字节"那一态同样读成空串 ⇒ **半修等于没修**，这一条有实测行。
+  不能说：这 3 处之外全仓没有别的编码漏点 —— 这一支只扫 `.py` 的 `open`/`subprocess` 两种出口，
+        `.sh`/`.ps1` 里的管道转码、以及 `print` 直接进 GBK 控制台那一类（今天实测崩过，另记在工具链那条）不在这 55 份的判据里。
+  不能推广：臂 A 在"-X utf8 母体"下 True、在 plain 母体下 False ⇒ **同一份代码的成败由调用方式决定**，
+        所以「我今天跑绿了」这句对这三个探针不构成结论；读数里两种母体都得印。
+  不做的事：没改这 3 个探针的源码 —— 改完要红证明就得实跑它们，而 `attracta_probe.py:37`／`artifact_probe.py:32` 会各自起一台 mcphttp（8795／8794），
+        占端口这件事按规矩要先问；所以这一发只把**数、形状、修法**做硬，改源码那张卡留给一句「1 行 × 3 处，两侧一起钉」。
+
+【四】分母自印（收尾）
+  .py 55 份 ｜ 类一 0 处 ｜ 类二 3 处（逐名） ｜ 控制目录 5 份 .py 命中 3 处（bad1/bad/bad2 各 1，good/good2 各 0）
+  四臂 × 两态 = 8 行实测 ｜ 目标串 9 字符 ｜ 起的服务 0 台 ｜ 占的端口 0 个 ｜ 读写的凭据件 0 份
+  源码改动 0 处（这一发不动树，所以基线不重出：`回滚基线-1019g.txt` 98 条仍是当下真值）

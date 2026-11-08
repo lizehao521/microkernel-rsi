@@ -1,0 +1,26 @@
+== 机检 chain_status.py 的五发门口闸（原样归档，脚本 Temp\stdio-1019\argv_gates_1019.py）==
+   原件 C:\Users\Admin\AppData\Local\Temp\stdio-1019\argv-gates-1019.txt（mtime 10-19 13:04:04，sha f183c71fac60）
+
+== chain_status.py 门口闸负对照 · 端点用的是我自己起的 18802（pid 19408，netstat 现核）==
+    脚本 C:\Users\Admin\Desktop\微内核\微内核\微内核\tasks\probe\chain_status.py ｜ mtime=13:02:54
+
+[裸跑            ] argv=
+    退出码 9（期望 9）｜ 判据成立 = True ｜ 首行：NEED_ENDPOINT: \ufffd\u02f5\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\u02bd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\u052d\ufffd\uf
+    目标文件：跑前 sha=None ｜ 跑后 sha=None ｜ 字节未动 = True ｜ 存在 = False
+
+[非http端点       ] argv=C:/temp/x.txt
+    退出码 4（期望 4）｜ 判据成立 = True ｜ 首行：BAD_ARGV: \ufffd\ufffd\u04bb\ufffd\ufffd\u03bb\ufffd\xf2\ufffd\ufffd\ufffd\ufffd\u01f6\u02f5\ufffd URL\ufffd\ufffd\u04aa http \ufffd\ufffd\u0377\ufffd
+
+[三个位置参数        ] argv=http://127.0.0.1:18802/mcp C:\\Users\\Admin\\AppData\\Local\\Temp\\stdio-1019\\a.txt C:\\Users\\Admin\\AppData\\Local\\T
+    退出码 4（期望 4）｜ 判据成立 = True ｜ 首行：BAD_ARGV: \u03bb\ufffd\xf2\ufffd\ufffd\ufffd\u05bb\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\u02f5\u3862\ufffd\ufffd\ufffd\ufffd\ufffd\uff
+
+[不认的旗标         ] argv=--force http://127.0.0.1:18802/mcp
+    退出码 4（期望 4）｜ 判据成立 = True ｜ 首行：BAD_FLAG: \u05bb\ufffd\ufffd `--force-overwrite`\ufffd\ufffd\ufffd\xf5\ufffd b'--force'
+
+[已存在不加旗标       ] argv=http://127.0.0.1:18802/mcp C:\\Users\\Admin\\AppData\\Local\\Temp\\stdio-1019\\argvgate-existing.txt
+    退出码 3（期望 3）｜ 判据成立 = True ｜ 首行：REFUSE_TO_OVERWRITE: b'C:\\\\\\\\Users\\\\\\\\Admin\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\stdio-1019\\\\\\\\argvgate-existing.txt
+    目标文件：跑前 sha=0f422d4f7edeaecc ｜ 跑后 sha=0f422d4f7edeaecc ｜ 字节未动 = True ｜ 存在 = True
+
+合计 5 发，判据成立 5 发 ｜ 全成立 = True
+  裸跑那一发不许落产物：C:\Users\Admin\AppData\Local\Temp\stdio-1019\argvgate-none.txt 存在 = False
+  「已存在」那一发不许改字节：见上面那行 字节未动。

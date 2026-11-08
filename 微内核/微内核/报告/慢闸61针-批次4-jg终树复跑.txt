@@ -1,0 +1,108 @@
+==== 对照 ====
+对照 0（干净拷贝）：go test 退出码 0、PASS 99 条、FAIL 0 条；kcheck 退出码 0
+对照 T（故意弄坏一个测试文件）：go build 退出码 0（该 0）、go test 输出含 [build failed]=True、有 PASS/FAIL 行=False（该 False）
+
+
+== j1-空原像被当成没有原像
+   点名该红：TestEmptyPreimageRoundTripsAsPresentNotAbsent
+   实际报红：TestEmptyPreimageRoundTripsAsPresentNotAbsent
+   没红的点名：无
+   全量共红 2 条: TestChainRecomputesAndCatchesTampering, TestEmptyPreimageRoundTripsAsPresentNotAbsent
+
+== j2-没有原像那行不记成无原像
+   点名该红：TestOmittedPreimageIsNotAccusedOfTampering
+   实际报红：TestOmittedPreimageIsNotAccusedOfTampering
+   没红的点名：无
+   全量共红 2 条: TestOmittedPreimageIsNotAccusedOfTampering, TestVerifyDelegatesToTheSameJudgmentAsCheckChain
+
+== j3-没填PayloadMode也放行
+   点名该红：TestMarshalRefusesAnUnsetPayloadMode
+   实际报红：TestMarshalRefusesAnUnsetPayloadMode
+   没红的点名：无
+   全量共红 1 条: TestMarshalRefusesAnUnsetPayloadMode
+
+== j4-选了带原像却不写字节
+   点名该红：TestJournalRoundTripKeepsEveryCellRecomputable
+   实际报红：TestJournalRoundTripKeepsEveryCellRecomputable
+   没红的点名：无
+   全量共红 4 条: TestEmptyPreimageRoundTripsAsPresentNotAbsent, TestJournalRoundTripKeepsEveryCellRecomputable, TestLoadedLedgerRefusesToRecordTheSameCallTwice, TestTamperedPayloadIsStillCaught
+
+== j5-整格seal不重算
+   点名该红：TestEditedClaimIsCaughtByTheSealNotThePayload
+   实际报红：TestEditedClaimIsCaughtByTheSealNotThePayload
+   没红的点名：无
+   全量共红 3 条: TestChainRecomputesAndCatchesTampering, TestEditedClaimIsCaughtByTheSealNotThePayload, TestRecordedChainRecomputesAndCatchesTampering
+
+== j6-payload不与指纹比对
+   点名该红：TestTamperedPayloadIsStillCaught
+   实际报红：TestTamperedPayloadIsStillCaught
+   没红的点名：无
+   全量共红 2 条: TestChainRecomputesAndCatchesTampering, TestTamperedPayloadIsStillCaught
+
+== j7-坏行静默丢掉不报错
+   点名该红：TestBadLineIsReportedWithItsLineNumber
+   实际报红：TestBadLineIsReportedWithItsLineNumber
+   没红的点名：无
+   全量共红 1 条: TestBadLineIsReportedWithItsLineNumber
+
+== j8-读回来的账不填进账本
+   点名该红：TestLoadedLedgerRefusesToRecordTheSameCallTwice
+   实际报红：TestLoadedLedgerRefusesToRecordTheSameCallTwice
+   没红的点名：无
+   全量共红 3 条: TestLoadedLedgerRefusesToRecordTheSameCallTwice, TestOmittedPreimageIsNotAccusedOfTampering, TestVerifyDelegatesToTheSameJudgmentAsCheckChain
+
+== j9-无原像时Verify直接报绿
+   点名该红：TestOmittedPreimageIsNotAccusedOfTampering, TestVerifyDelegatesToTheSameJudgmentAsCheckChain
+   实际报红：TestOmittedPreimageIsNotAccusedOfTampering, TestVerifyDelegatesToTheSameJudgmentAsCheckChain
+   没红的点名：无
+   全量共红 2 条: TestOmittedPreimageIsNotAccusedOfTampering, TestVerifyDelegatesToTheSameJudgmentAsCheckChain
+
+== g1-缺席无理由账本也收  [kcheck 针]
+   点名该红：go run ./cmd/kcheck 退出码非 0
+   实际退出码：1
+   闸门报红：✗ 缺席无理由被拒（拒了=false、拒因点名「理由」=false）、带理由被收（收了=true）：Rejected=1、Docs=2 条
+   闸门报红：✗ 1 项没过
+
+== g2-必须带来源的名单少一档  [kcheck 针]
+   点名该红：go run ./cmd/kcheck 退出码非 0
+   实际退出码：1
+   闸门报红：✗ 「必须带来源」的档只有一份判据（经 Append 探 needsSource）：名单=[relayed]（relayed/estimated 为真、其余各档为假）
+   闸门报红：✗ 1 项没过
+
+== g3-absent档也能拿去做判定  [kcheck 针]
+   点名该红：go run ./cmd/kcheck 退出码非 0
+   实际退出码：1
+   闸门报红：✗ basis=absent 不可判定；逐档可判定名单：[measured=true relayed=true estimated=false model_says=false absent=true unset=false]
+   闸门报红：✗ 1 项没过
+
+== g4-核不了却打着✓  [kcheck 针]
+   点名该红：go run ./cmd/kcheck 退出码非 0
+   实际退出码：1
+   闸门报红：✗ 核不了不打 ✓（第三种答案不许长得像绿）：✓ 字段级自洽（共 47 条，其中 0 条比对过原像）；核不了：47 条没有原像（第 1、2、3、4、5、6、7、8、…（共 47 条））—— 那些条的 PayloadH 重算不出原值
+   闸门报红：✗ 1 项没过
+
+==== 汇总 ====
+j1-空原像被当成没有原像                              RED-WIDER      2
+j2-没有原像那行不记成无原像                            RED-WIDER      2
+j3-没填PayloadMode也放行                        RED-ONLY-NAMED 1
+j4-选了带原像却不写字节                              RED-WIDER      4
+j5-整格seal不重算                               RED-WIDER      3
+j6-payload不与指纹比对                           RED-WIDER      2
+j7-坏行静默丢掉不报错                               RED-ONLY-NAMED 1
+j8-读回来的账不填进账本                              RED-WIDER      3
+j9-无原像时Verify直接报绿                          RED-ONLY-NAMED 2
+g1-缺席无理由账本也收                               GATE-RED       exit=1
+g2-必须带来源的名单少一档                             GATE-RED       exit=1
+g3-absent档也能拿去做判定                          GATE-RED       exit=1
+g4-核不了却打着✓                                 GATE-RED       exit=1
+
+—— 两类针分开数 ——
+go test 针 9 根：RED-ONLY-NAMED 3、RED-WIDER 6、VACUOUS 0、TEST-BROKE(没跑成) 0
+kcheck  针 4 根：GATE-RED 4、GATE-GREEN(空) 0、GATE-CRASH(崩) 0
+两类共用：ANCHOR-BAD 0、BUILD-BROKE 0
+
+针数 13（go test 9 + kcheck 4）；只有点名的红 3；红得更宽 6；闸门报红 4；空针/坏针 0
+
+—— 两根对照 ——
+对照 0（干净拷贝全过）：成立
+对照 T（探针认得出「测试没跑起来」）：成立
